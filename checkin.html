@@ -208,22 +208,21 @@
       const profile = await liff.getProfile();
       lineUID = profile.userId;
 
-      // ดึงข้อมูลพนักงานจาก GAS
+      // ดึงข้อมูลพนักงาน + สถานะวันนี้ในครั้งเดียว
       const res = await gasGet({ action: 'getEmployeeByUID', uid: lineUID });
-      if (res.success && res.employee) {
+      if (res && res.success && res.employee) {
         employeeData = res.employee;
         document.getElementById('userName').textContent = employeeData.name;
         document.getElementById('userSub').textContent = `${employeeData.position || ''} ${employeeData.dept || ''}`.trim() || 'พนักงาน';
         if (profile.pictureUrl) {
           document.getElementById('userAvatar').innerHTML = `<img src="${profile.pictureUrl}">`;
         }
-        // โหลดสถานะวันนี้
-        const statusRes = await gasGet({ action: 'getStatus', empId: employeeData.id });
-        if (statusRes) {
-          todayStatus = statusRes;
-          updateStatusUI();
-          updateButtons();  // อัปเดตปุ่มหลังโหลดสถานะเสร็จ
+        // สถานะวันนี้มาพร้อมกันเลย ไม่ต้องเรียก API ซ้ำ
+        if (res.status) {
+          todayStatus = res.status;
         }
+        updateStatusUI();
+        updateButtons();
       } else {
         document.getElementById('userName').textContent = '❌ ไม่พบข้อมูลพนักงาน';
         document.getElementById('userSub').textContent = 'กรุณาติดต่อผู้ดูแลระบบ';
@@ -316,6 +315,8 @@
         document.getElementById('noteInput').value = '';
       } else {
         showResult(false, res ? res.message : 'เกิดข้อผิดพลาด');
+        updateStatusUI();
+        updateButtons();
       }
     } catch (err) {
       setOverlay(false);
