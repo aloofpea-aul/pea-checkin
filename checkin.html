@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เช็คอิน PEA</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --primary: #005A9C;
+    --primary-dark: #003f6e;
+    --success: #2E7D32;
+    --danger: #C62828;
+    --warning: #E65100;
+    --bg: #F0F4F8;
+    --card: #FFFFFF;
+    --text: #1A2B3C;
+    --muted: #6B7C8F;
+    --border: #D1DCE8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white; padding: 20px 16px 28px; text-align: center; position: relative; overflow: hidden;
+  }
+  .header::before {
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 140px; height: 140px; background: rgba(255,255,255,0.06); border-radius: 50%;
+  }
+  .header-logo { font-size: 13px; letter-spacing: 2px; opacity: 0.8; margin-bottom: 4px; text-transform: uppercase; }
+  .header-title { font-size: 22px; font-weight: 700; }
+  .header-date { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+
+  .main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; max-width: 480px; margin: 0 auto; width: 100%; }
+
+  .card { background: var(--card); border-radius: 16px; padding: 18px; box-shadow: 0 2px 12px rgba(0,90,156,0.08); }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .user-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0; overflow: hidden; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-name { font-size: 16px; font-weight: 700; }
+  .user-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .status-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .status-box { background: var(--bg); border-radius: 10px; padding: 12px; text-align: center; }
+  .status-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .status-value { font-size: 17px; font-weight: 700; color: var(--text); }
+  .status-value.green { color: var(--success); }
+  .status-value.red { color: var(--danger); }
+  .status-value.muted { color: var(--muted); font-size: 13px; font-weight: 400; }
+
+  .gps-box { display: flex; align-items: center; gap: 12px; background: var(--bg); border-radius: 10px; padding: 12px 14px; }
+  .gps-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .gps-icon.loading { background: #E3F2FD; animation: pulse 1.5s infinite; }
+  .gps-icon.ok { background: #E8F5E9; }
+  .gps-icon.error { background: #FFEBEE; }
+  .gps-text { flex: 1; }
+  .gps-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .gps-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .dist-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 10px; }
+  .dist-badge.inside { background: #E8F5E9; color: var(--success); }
+  .dist-badge.outside { background: #FFF3E0; color: var(--warning); }
+
+  .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-checkin { background: var(--primary); color: white; }
+  .btn-checkin:hover:not(:disabled) { background: var(--primary-dark); }
+  .btn-checkout { background: var(--danger); color: white; }
+  .btn-checkout:hover:not(:disabled) { background: #8B1A1A; }
+
+  .note-area { display: none; }
+  .note-area.show { display: block; }
+  .outside-warn { background: #FFF3E0; border: 1px solid #FFB74D; border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--warning); margin-bottom: 10px; display: none; }
+  .outside-warn.show { display: block; }
+  textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; font-family: 'Sarabun', sans-serif; font-size: 15px; color: var(--text); background: white; outline: none; }
+  textarea:focus { border-color: var(--primary); }
+
+  .result-card { border-radius: 16px; padding: 20px; text-align: center; display: none; }
+  .result-card.show { display: block; }
+  .result-card.success { background: #E8F5E9; border: 1.5px solid #A5D6A7; }
+  .result-card.error { background: #FFEBEE; border: 1.5px solid #EF9A9A; }
+  .result-icon { font-size: 40px; margin-bottom: 10px; }
+  .result-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .result-msg { font-size: 14px; color: var(--muted); white-space: pre-line; line-height: 1.6; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 999; }
+  .overlay.show { display: flex; }
+  .spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+  .init-loading { text-align: center; padding: 40px; color: var(--muted); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">การไฟฟ้าส่วนภูมิภาค</div>
+  <div class="header-title">⏱️ ระบบเช็คอิน/เช็คเอ้าต์</div>
+  <div class="header-date" id="headerDate">—</div>
+</div>
+
+<div class="overlay" id="overlay"><div class="spinner"></div></div>
+
+<div class="main">
+
+  <div class="result-card" id="resultCard">
+    <div class="result-icon" id="resultIcon"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-msg" id="resultMsg"></div>
+  </div>
+
+  <!-- ข้อมูลพนักงาน (จาก LIFF) -->
+  <div class="card">
+    <div class="card-title">👤 ข้อมูลพนักงาน</div>
+    <div class="user-info" id="userInfo">
+      <div class="user-avatar" id="userAvatar">👤</div>
+      <div>
+        <div class="user-name" id="userName">กำลังโหลด...</div>
+        <div class="user-sub" id="userSub">กรุณารอสักครู่</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- สถานะวันนี้ -->
+  <div class="card">
+    <div class="card-title">📋 สถานะวันนี้</div>
+    <div class="status-row">
+      <div class="status-box">
+        <div class="status-label">⏰ เช็คอิน</div>
+        <div class="status-value" id="statusIn">—</div>
+      </div>
+      <div class="status-box">
+        <div class="status-label">🚪 เช็คเอ้าต์</div>
+        <div class="status-value" id="statusOut">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GPS -->
+  <div class="card">
+    <div class="card-title">📍 ตำแหน่งปัจจุบัน</div>
+    <div class="gps-box">
+      <div class="gps-icon loading" id="gpsIcon">📡</div>
+      <div class="gps-text">
+        <div class="gps-title" id="gpsTitle">กำลังดึงพิกัด...</div>
+        <div class="gps-sub" id="gpsSub">กรุณารอสักครู่</div>
+      </div>
+    </div>
+    <div id="distBadge"></div>
+  </div>
+
+  <!-- หมายเหตุ -->
+  <div class="card note-area show" id="noteArea">
+    <div class="outside-warn" id="outsideWarn">⚠️ คุณอยู่นอกพื้นที่ออฟฟิศ กรุณาระบุเหตุผล</div>
+    <div class="card-title">📝 หมายเหตุ</div>
+    <textarea id="noteInput" rows="3" placeholder="ระบุเหตุผล (เช่น ลงพื้นที่, ประชุมนอกสถานที่)"></textarea>
+  </div>
+
+  <!-- ปุ่ม -->
+  <button class="btn btn-checkin" id="btnCheckin" onclick="doAction('checkin')" disabled>✅ เช็คอิน</button>
+  <button class="btn btn-checkout" id="btnCheckout" onclick="doAction('checkout')" disabled>🚪 เช็คเอ้าต์</button>
+
+</div>
+
+<script>
+  // ==================== CONFIG ====================
+  const LIFF_ID = '2009895943-y57YGqgO';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+  const OFFICE = { lat: 8.364816, lng: 98.748473, radius: 30 };
+
+  // ==================== State ====================
+  let currentLat = null, currentLng = null;
+  let gpsReady = false;
+  let lineUID = null;
+  let employeeData = null;
+  let todayStatus = { checkIn: null, checkOut: null };
+  let isOutside = false;
+
+  // ==================== Init ====================
+  window.onload = async () => {
+    setHeaderDate();
+    setOverlay(true);
+    await initLiff();
+    setOverlay(false);
+    startGPS();
+  };
+
+  async function initLiff() {
+    try {
+      await liff.init({ liffId: LIFF_ID });
+      if (!liff.isInClient()) {
+        document.getElementById('userSub').textContent = 'กรุณาเปิดผ่าน LINE เท่านั้น';
+        document.getElementById('userName').textContent = '⚠️ ไม่ได้เปิดใน LINE';
+        return;
+      }
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+
+      const profile = await liff.getProfile();
+      lineUID = profile.userId;
+
+      // ดึงข้อมูลพนักงานจาก GAS
+      const res = await gasGet({ action: 'getEmployeeByUID', uid: lineUID });
+      if (res.success && res.employee) {
+        employeeData = res.employee;
+        document.getElementById('userName').textContent = employeeData.name;
+        document.getElementById('userSub').textContent = `${employeeData.position || ''} ${employeeData.dept || ''}`.trim() || 'พนักงาน';
+        if (profile.pictureUrl) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${profile.pictureUrl}">`;
+        }
+        // โหลดสถานะวันนี้
+        const statusRes = await gasGet({ action: 'getStatus', empId: employeeData.id });
+        if (statusRes) {
+          todayStatus = statusRes;
+          updateStatusUI();
+        }
+      } else {
+        document.getElementById('userName').textContent = '❌ ไม่พบข้อมูลพนักงาน';
+        document.getElementById('userSub').textContent = 'กรุณาติดต่อผู้ดูแลระบบ';
+      }
+    } catch (err) {
+      console.error('LIFF error:', err);
+      document.getElementById('userName').textContent = '❌ เกิดข้อผิดพลาด';
+      document.getElementById('userSub').textContent = err.message;
+    }
+  }
+
+  // ==================== GAS API ====================
+  async function gasGet(params) {
+    const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+    const res = await fetch(url, { redirect: 'follow' });
+    const text = await res.text();
+    try { return JSON.parse(text); } catch(e) { return null; }
+  }
+
+  // ==================== GPS ====================
+  function startGPS() {
+    if (!navigator.geolocation) { setGPSError('เบราว์เซอร์ไม่รองรับ GPS'); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        currentLat = pos.coords.latitude;
+        currentLng = pos.coords.longitude;
+        gpsReady = true;
+        document.getElementById('gpsIcon').textContent = '📍';
+        document.getElementById('gpsIcon').className = 'gps-icon ok';
+        document.getElementById('gpsTitle').textContent = 'ดึงพิกัดสำเร็จ';
+        document.getElementById('gpsSub').textContent = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)} (±${Math.round(pos.coords.accuracy)} ม.)`;
+        updateDistanceBadge();
+        updateButtons();
+      },
+      err => {
+        const msgs = { 1: 'ถูกปฏิเสธ GPS', 2: 'หาพิกัดไม่ได้', 3: 'หมดเวลา' };
+        setGPSError(msgs[err.code] || 'ไม่สามารถดึงพิกัดได้');
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  function setGPSError(msg) {
+    document.getElementById('gpsIcon').textContent = '❌';
+    document.getElementById('gpsIcon').className = 'gps-icon error';
+    document.getElementById('gpsTitle').textContent = 'ดึงพิกัดไม่สำเร็จ';
+    document.getElementById('gpsSub').textContent = msg;
+    gpsReady = false;
+    updateButtons();
+  }
+
+  function updateDistanceBadge() {
+    if (!gpsReady) return;
+    const dist = calcDist(currentLat, currentLng, OFFICE.lat, OFFICE.lng);
+    isOutside = dist > OFFICE.radius;
+    document.getElementById('distBadge').innerHTML = `<div class="dist-badge ${isOutside ? 'outside' : 'inside'}">
+      ${isOutside ? '⚠️' : '✅'} ห่างออฟฟิศ ${Math.round(dist)} เมตร ${isOutside ? '(นอกพื้นที่)' : '(ในพื้นที่)'}
+    </div>`;
+    document.getElementById('outsideWarn').className = isOutside ? 'outside-warn show' : 'outside-warn';
+  }
+
+  // ==================== Action ====================
+  async function doAction(action) {
+    if (!employeeData || !gpsReady) return;
+    const note = document.getElementById('noteInput').value.trim();
+    if (isOutside && !note) {
+      document.getElementById('noteInput').focus();
+      document.getElementById('noteInput').style.borderColor = 'var(--danger)';
+      return;
+    }
+
+    setOverlay(true);
+    try {
+      const res = await gasGet({
+        action: action === 'checkin' ? 'checkin' : 'checkout',
+        empId: employeeData.id,
+        lat: currentLat,
+        lng: currentLng,
+        note: note || '',
+        lineUID: lineUID || ''
+      });
+
+      setOverlay(false);
+      if (res && res.success) {
+        showResult(true, res.message);
+        if (action === 'checkin') todayStatus.checkIn = res.time;
+        else todayStatus.checkOut = res.time;
+        updateStatusUI();
+        updateButtons();
+        document.getElementById('noteInput').value = '';
+      } else {
+        showResult(false, res ? res.message : 'เกิดข้อผิดพลาด');
+      }
+    } catch (err) {
+      setOverlay(false);
+      showResult(false, 'เกิดข้อผิดพลาด: ' + err.message);
+    }
+  }
+
+  // ==================== UI ====================
+  function updateStatusUI() {
+    const inEl = document.getElementById('statusIn');
+    const outEl = document.getElementById('statusOut');
+    if (todayStatus.checkIn) { inEl.textContent = todayStatus.checkIn; inEl.className = 'status-value green'; }
+    else { inEl.textContent = 'ยังไม่เช็คอิน'; inEl.className = 'status-value muted'; }
+    if (todayStatus.checkOut) { outEl.textContent = todayStatus.checkOut; outEl.className = 'status-value red'; }
+    else { outEl.textContent = 'ยังไม่เช็คเอ้าต์'; outEl.className = 'status-value muted'; }
+  }
+
+  function updateButtons() {
+    const ready = gpsReady && employeeData;
+    document.getElementById('btnCheckin').disabled = !(ready && !todayStatus.checkIn);
+    document.getElementById('btnCheckout').disabled = !(ready && todayStatus.checkIn && !todayStatus.checkOut);
+  }
+
+  function showResult(success, message) {
+    const card = document.getElementById('resultCard');
+    card.className = 'result-card show ' + (success ? 'success' : 'error');
+    document.getElementById('resultIcon').textContent = success ? '✅' : '❌';
+    document.getElementById('resultTitle').textContent = success ? 'สำเร็จ' : 'ไม่สำเร็จ';
+    document.getElementById('resultMsg').textContent = message;
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setOverlay(show) {
+    document.getElementById('overlay').className = show ? 'overlay show' : 'overlay';
+  }
+
+  function setHeaderDate() {
+    const d = new Date();
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+    document.getElementById('headerDate').textContent = `วัน${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+  }
+
+  function calcDist(lat1, lng1, lat2, lng2) {
+    const R = 6371000;
+    const dLat = (lat2-lat1)*Math.PI/180;
+    const dLng = (lng2-lng1)*Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  }
+</script>
+</body>
+</html>
