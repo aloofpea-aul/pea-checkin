@@ -222,6 +222,7 @@
         if (statusRes) {
           todayStatus = statusRes;
           updateStatusUI();
+          updateButtons();  // อัปเดตปุ่มหลังโหลดสถานะเสร็จ
         }
       } else {
         document.getElementById('userName').textContent = '❌ ไม่พบข้อมูลพนักงาน';
@@ -326,10 +327,21 @@
   function updateStatusUI() {
     const inEl = document.getElementById('statusIn');
     const outEl = document.getElementById('statusOut');
-    if (todayStatus.checkIn) { inEl.textContent = todayStatus.checkIn; inEl.className = 'status-value green'; }
-    else { inEl.textContent = 'ยังไม่เช็คอิน'; inEl.className = 'status-value muted'; }
-    if (todayStatus.checkOut) { outEl.textContent = todayStatus.checkOut; outEl.className = 'status-value red'; }
-    else { outEl.textContent = 'ยังไม่เช็คเอ้าต์'; outEl.className = 'status-value muted'; }
+    if (todayStatus.checkIn) {
+      inEl.textContent = todayStatus.checkIn + ' น.';
+      inEl.className = 'status-value green';
+    } else {
+      inEl.textContent = 'ยังไม่เช็คอิน';
+      inEl.className = 'status-value muted';
+    }
+    if (todayStatus.checkOut) {
+      outEl.textContent = todayStatus.checkOut + ' น.';
+      outEl.className = 'status-value red';
+    } else {
+      outEl.textContent = 'ยังไม่เช็คเอ้าต์';
+      outEl.className = 'status-value muted';
+    }
+    updateButtons();  // sync ปุ่มกับสถานะเสมอ
   }
 
   function updateButtons() {
