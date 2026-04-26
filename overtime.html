@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>บันทึก OT PEA</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+  :root {
+    --primary: #005A9C; --primary-dark: #003f6e;
+    --success: #2E7D32; --danger: #C62828;
+    --warning: #E65100; --warning-light: #FFF3E0;
+    --bg: #F0F4F8; --card: #FFFFFF;
+    --text: #1A2B3C; --muted: #6B7C8F; --border: #D1DCE8;
+    --ot: #E65100; --ot-dark: #BF360C; --ot-light: #FBE9E7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  .header {
+    background: linear-gradient(135deg, var(--ot) 0%, var(--ot-dark) 100%);
+    color: white; padding: 20px 16px 28px; text-align: center; position: relative; overflow: hidden;
+  }
+  .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+  .header-logo { font-size: 13px; letter-spacing: 2px; opacity: 0.8; margin-bottom: 4px; text-transform: uppercase; }
+  .header-title { font-size: 22px; font-weight: 700; }
+  .header-date { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+
+  .main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; max-width: 480px; margin: 0 auto; width: 100%; }
+
+  .card { background: var(--card); border-radius: 16px; padding: 18px; box-shadow: 0 2px 12px rgba(0,90,156,0.08); }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .user-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--ot-light); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; overflow: hidden; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-name { font-size: 16px; font-weight: 700; }
+  .user-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
+  .form-label .req { color: var(--danger); }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-family: 'Sarabun', sans-serif; font-size: 15px;
+    color: var(--text); background: white; outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--ot); }
+  .form-textarea { resize: none; }
+
+  .hours-wrap { display: flex; align-items: center; gap: 10px; }
+  .hours-input { flex: 1; text-align: center; font-size: 24px; font-weight: 700; }
+  .hours-btn {
+    width: 44px; height: 44px; border-radius: 10px; border: none;
+    background: var(--ot); color: white; font-size: 22px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .hours-btn:active { transform: scale(0.93); }
+
+  .rate-display {
+    background: var(--ot-light); border-radius: 10px; padding: 12px 14px;
+    display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+  }
+  .rate-label { font-size: 13px; color: var(--ot); font-weight: 600; }
+  .rate-value { font-size: 20px; font-weight: 700; color: var(--ot); }
+
+  .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-ot { background: var(--ot); color: white; }
+  .btn-ot:hover:not(:disabled) { background: var(--ot-dark); }
+
+  .result-card { border-radius: 16px; padding: 20px; text-align: center; display: none; }
+  .result-card.show { display: block; }
+  .result-card.success { background: #E8F5E9; border: 1.5px solid #A5D6A7; }
+  .result-card.error { background: #FFEBEE; border: 1.5px solid #EF9A9A; }
+  .result-icon { font-size: 40px; margin-bottom: 10px; }
+  .result-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .result-msg { font-size: 14px; color: var(--muted); white-space: pre-line; line-height: 1.6; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 999; }
+  .overlay.show { display: flex; }
+  .spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* OT History */
+  .ot-item { background: var(--bg); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+  .ot-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .ot-item-date { font-size: 13px; font-weight: 600; }
+  .ot-item-hours { font-size: 13px; color: var(--ot); font-weight: 700; }
+  .ot-item-reason { font-size: 12px; color: var(--muted); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-pending { background: #FFF9C4; color: #F57F17; }
+  .badge-approved { background: #E8F5E9; color: var(--success); }
+  .badge-rejected { background: #FFEBEE; color: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">การไฟฟ้าส่วนภูมิภาค</div>
+  <div class="header-title">⏰ บันทึกล่วงเวลา (OT)</div>
+  <div class="header-date" id="headerDate">—</div>
+</div>
+
+<div class="overlay" id="overlay"><div class="spinner"></div></div>
+
+<div class="main">
+
+  <!-- ผลลัพธ์ -->
+  <div class="result-card" id="resultCard">
+    <div class="result-icon" id="resultIcon"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-msg" id="resultMsg"></div>
+  </div>
+
+  <!-- ข้อมูลพนักงาน -->
+  <div class="card">
+    <div class="card-title">👤 ข้อมูลพนักงาน</div>
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">👤</div>
+      <div>
+        <div class="user-name" id="userName">กำลังโหลด...</div>
+        <div class="user-sub" id="userSub">กรุณารอสักครู่</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฟอร์ม OT -->
+  <div class="card" id="otForm">
+    <div class="card-title">📝 บันทึกข้อมูล OT</div>
+
+    <div class="form-group">
+      <label class="form-label">วันที่ทำ OT <span class="req">*</span></label>
+      <input class="form-input" type="date" id="otDate">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">จำนวนชั่วโมง OT <span class="req">*</span></label>
+      <div class="hours-wrap">
+        <button class="hours-btn" onclick="changeHours(-0.5)">−</button>
+        <input class="form-input hours-input" type="number" id="otHours" value="1" min="0.5" max="12" step="0.5" onchange="updateRate()">
+        <button class="hours-btn" onclick="changeHours(0.5)">+</button>
+      </div>
+      <div class="rate-display">
+        <span class="rate-label">💰 ค่า OT โดยประมาณ</span>
+        <span class="rate-value" id="otTotal">— บาท</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">เหตุผล / งานที่ทำ <span class="req">*</span></label>
+      <textarea class="form-textarea" id="otReason" rows="3" placeholder="ระบุงานที่ทำล่วงเวลา เช่น ซ่อมสายไฟฟ้าฉุกเฉิน, ประชุมนอกเวลา"></textarea>
+    </div>
+
+    <button class="btn btn-ot" id="btnSubmit" onclick="submitOT()" disabled>
+      📤 ส่งคำขออนุมัติ OT
+    </button>
+  </div>
+
+  <!-- ประวัติ OT -->
+  <div class="card">
+    <div class="card-title">📋 ประวัติ OT ของฉัน</div>
+    <div id="otHistory"><div style="text-align:center;color:var(--muted);padding:20px">กำลังโหลด...</div></div>
+  </div>
+
+</div>
+
+<script>
+  const LIFF_ID = '2009895943-y57YGqgO'; // ← ใช้ LIFF เดิมหรือสร้างใหม่
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+
+  let employeeData = null;
+  let lineUID = null;
+
+  window.onload = async () => {
+    setHeaderDate();
+    setOverlay(true);
+    // Set today's date
+    const today = new Date();
+    document.getElementById('otDate').value = fmtDate(today);
+    await initLiff();
+    setOverlay(false);
+  };
+
+  async function initLiff() {
+    try {
+      await liff.init({ liffId: LIFF_ID });
+      if (!liff.isInClient()) {
+        document.getElementById('userName').textContent = '⚠️ กรุณาเปิดใน LINE';
+        document.getElementById('userSub').textContent = 'ระบบนี้ต้องเปิดผ่าน LINE เท่านั้น';
+        return;
+      }
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+
+      const profile = await liff.getProfile();
+      lineUID = profile.userId;
+
+      const res = await gasGet({ action: 'getEmployeeByUID', uid: lineUID });
+      if (res && res.success && res.employee) {
+        employeeData = res.employee;
+        document.getElementById('userName').textContent = employeeData.name;
+        document.getElementById('userSub').textContent =
+          `${employeeData.position || ''} ${employeeData.dept || ''}`.trim();
+        if (profile.pictureUrl) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${profile.pictureUrl}">`;
+        }
+        document.getElementById('btnSubmit').disabled = false;
+        updateRate();
+        loadOTHistory();
+      } else {
+        document.getElementById('userName').textContent = '❌ ไม่พบข้อมูลพนักงาน';
+        document.getElementById('userSub').textContent = 'กรุณาติดต่อผู้ดูแลระบบ';
+      }
+    } catch (err) {
+      document.getElementById('userName').textContent = '❌ เกิดข้อผิดพลาด';
+      document.getElementById('userSub').textContent = err.message;
+    }
+  }
+
+  function changeHours(delta) {
+    const input = document.getElementById('otHours');
+    let val = parseFloat(input.value) + delta;
+    if (val < 0.5) val = 0.5;
+    if (val > 12) val = 12;
+    input.value = val;
+    updateRate();
+  }
+
+  function updateRate() {
+    if (!employeeData || !employeeData.otRate) {
+      document.getElementById('otTotal').textContent = '— บาท';
+      return;
+    }
+    const hours = parseFloat(document.getElementById('otHours').value) || 0;
+    const rate = parseFloat(employeeData.otRate) || 0;
+    const total = hours * rate;
+    document.getElementById('otTotal').textContent = total.toLocaleString('th-TH') + ' บาท';
+  }
+
+  async function submitOT() {
+    if (!employeeData) return;
+    const date = document.getElementById('otDate').value;
+    const hours = parseFloat(document.getElementById('otHours').value);
+    const reason = document.getElementById('otReason').value.trim();
+
+    if (!date) { alert('กรุณาเลือกวันที่'); return; }
+    if (!hours || hours <= 0) { alert('กรุณาระบุจำนวนชั่วโมง'); return; }
+    if (!reason) { alert('กรุณาระบุเหตุผล'); return; }
+
+    setOverlay(true);
+    const res = await gasGet({
+      action: 'submitOT',
+      empId: employeeData.id,
+      date, hours, reason,
+      lineUID: lineUID || ''
+    });
+    setOverlay(false);
+
+    if (res && res.success) {
+      showResult(true, `✅ ส่งคำขอ OT สำเร็จ\n📅 วันที่: ${date}\n⏱️ จำนวน: ${hours} ชั่วโมง\n📋 เหตุผล: ${reason}\n\n⏳ รอหัวหน้าแผนกอนุมัติครับ`);
+      document.getElementById('otReason').value = '';
+      loadOTHistory();
+    } else {
+      showResult(false, res ? res.message : 'เกิดข้อผิดพลาด');
+    }
+  }
+
+  async function loadOTHistory() {
+    if (!employeeData) return;
+    const res = await gasGet({ action: 'getOTHistory', empId: employeeData.id });
+    const div = document.getElementById('otHistory');
+    if (!res || !Array.isArray(res) || !res.length) {
+      div.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">ยังไม่มีประวัติ OT</div>';
+      return;
+    }
+    div.innerHTML = res.slice(0, 10).map(r => {
+      const badgeClass = r.status === 'อนุมัติ' ? 'badge-approved' : r.status === 'ไม่อนุมัติ' ? 'badge-rejected' : 'badge-pending';
+      const statusText = r.status || 'รออนุมัติ';
+      return `<div class="ot-item">
+        <div class="ot-item-header">
+          <span class="ot-item-date">📅 ${r.date}</span>
+          <span class="ot-item-hours">⏱️ ${r.hours} ชม.</span>
+        </div>
+        <div class="ot-item-header">
+          <span class="ot-item-reason">${r.reason || '—'}</span>
+          <span class="badge ${badgeClass}">${statusText}</span>
+        </div>
+        ${r.otTotal ? `<div style="font-size:12px;color:var(--ot);font-weight:600;margin-top:4px">💰 ${parseFloat(r.otTotal).toLocaleString('th-TH')} บาท</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  async function gasGet(params) {
+    const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+    const res = await fetch(url, { redirect: 'follow' });
+    const text = await res.text();
+    try { return JSON.parse(text); } catch(e) { return null; }
+  }
+
+  function showResult(success, message) {
+    const card = document.getElementById('resultCard');
+    card.className = 'result-card show ' + (success ? 'success' : 'error');
+    document.getElementById('resultIcon').textContent = success ? '✅' : '❌';
+    document.getElementById('resultTitle').textContent = success ? 'ส่งคำขอสำเร็จ' : 'เกิดข้อผิดพลาด';
+    document.getElementById('resultMsg').textContent = message;
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setOverlay(show) {
+    document.getElementById('overlay').className = show ? 'overlay show' : 'overlay';
+  }
+
+  function setHeaderDate() {
+    const d = new Date();
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+    document.getElementById('headerDate').textContent =
+      `วัน${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+  }
+
+  function fmtDate(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+</script>
+</body>
+</html>
