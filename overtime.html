@@ -137,16 +137,26 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">จำนวนชั่วโมง OT <span class="req">*</span></label>
-      <div class="hours-wrap">
-        <button class="hours-btn" onclick="changeHours(-0.5)">−</button>
-        <input class="form-input hours-input" type="number" id="otHours" value="1" min="0.5" max="12" step="0.5" onchange="updateRate()">
-        <button class="hours-btn" onclick="changeHours(0.5)">+</button>
-      </div>
+      <label class="form-label">เวลาเริ่ม OT <span class="req">*</span></label>
+      <input class="form-input" type="time" id="otStart" onchange="calcHours()">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">เวลาสิ้นสุด OT <span class="req">*</span></label>
+      <input class="form-input" type="time" id="otEnd" onchange="calcHours()">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">จำนวนชั่วโมง OT</label>
       <div class="rate-display">
+        <span class="rate-label">⏱️ รวมชั่วโมง OT</span>
+        <span class="rate-value" id="otHoursDisplay">— ชั่วโมง</span>
+      </div>
+      <div class="rate-display" style="margin-top:8px">
         <span class="rate-label">💰 ค่า OT โดยประมาณ</span>
         <span class="rate-value" id="otTotal">— บาท</span>
       </div>
+      <input type="hidden" id="otHours" value="0">
     </div>
 
     <div class="form-group">
@@ -168,7 +178,7 @@
 </div>
 
 <script>
-  const LIFF_ID = '2009895943-tR2aMLrs'; // ← LIFF ID ของ OT
+  const LIFF_ID = '2009895943-y57YGqgO'; // ← ใช้ LIFF เดิมหรือสร้างใหม่
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
 
   let employeeData = null;
@@ -219,47 +229,63 @@
     }
   }
 
-  function changeHours(delta) {
-    const input = document.getElementById('otHours');
-    let val = parseFloat(input.value) + delta;
-    if (val < 0.5) val = 0.5;
-    if (val > 12) val = 12;
-    input.value = val;
-    updateRate();
+  function calcHours() {
+    const start = document.getElementById('otStart').value;
+    const end = document.getElementById('otEnd').value;
+    if (!start || !end) return;
+
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    let totalMin = (eh * 60 + em) - (sh * 60 + sm);
+    if (totalMin <= 0) totalMin += 24 * 60; // ข้ามคืน
+
+    const hours = Math.round(totalMin / 60 * 10) / 10; // ปัดทศนิยม 1 ตำแหน่ง
+    document.getElementById('otHours').value = hours;
+
+    const hh = Math.floor(totalMin / 60);
+    const mm = totalMin % 60;
+    document.getElementById('otHoursDisplay').textContent =
+      `${hh} ชม. ${mm > 0 ? mm + ' นาที' : ''}`;
+
+    updateRate(hours);
   }
 
-  function updateRate() {
+  function updateRate(hours) {
     if (!employeeData || !employeeData.otRate) {
       document.getElementById('otTotal').textContent = '— บาท';
       return;
     }
-    const hours = parseFloat(document.getElementById('otHours').value) || 0;
+    const h = hours !== undefined ? hours : parseFloat(document.getElementById('otHours').value) || 0;
     const rate = parseFloat(employeeData.otRate) || 0;
-    const total = hours * rate;
+    const total = Math.round(h * rate * 100) / 100;
     document.getElementById('otTotal').textContent = total.toLocaleString('th-TH') + ' บาท';
   }
 
   async function submitOT() {
     if (!employeeData) return;
     const date = document.getElementById('otDate').value;
+    const otStart = document.getElementById('otStart').value;
+    const otEnd = document.getElementById('otEnd').value;
     const hours = parseFloat(document.getElementById('otHours').value);
     const reason = document.getElementById('otReason').value.trim();
 
     if (!date) { alert('กรุณาเลือกวันที่'); return; }
-    if (!hours || hours <= 0) { alert('กรุณาระบุจำนวนชั่วโมง'); return; }
+    if (!otStart) { alert('กรุณาระบุเวลาเริ่ม OT'); return; }
+    if (!otEnd) { alert('กรุณาระบุเวลาสิ้นสุด OT'); return; }
+    if (!hours || hours <= 0) { alert('กรุณาระบุเวลาเริ่ม-สิ้นสุดให้ถูกต้อง'); return; }
     if (!reason) { alert('กรุณาระบุเหตุผล'); return; }
 
     setOverlay(true);
     const res = await gasGet({
       action: 'submitOT',
       empId: employeeData.id,
-      date, hours, reason,
+      date, otStart, otEnd, hours, reason,
       lineUID: lineUID || ''
     });
     setOverlay(false);
 
     if (res && res.success) {
-      showResult(true, `✅ ส่งคำขอ OT สำเร็จ\n📅 วันที่: ${date}\n⏱️ จำนวน: ${hours} ชั่วโมง\n📋 เหตุผล: ${reason}\n\n⏳ รอหัวหน้าแผนกอนุมัติครับ`);
+      showResult(true, `✅ ส่งคำขอ OT สำเร็จ\n📅 วันที่: ${date}\n🕐 เวลา: ${otStart} - ${otEnd}\n⏱️ จำนวน: ${hours} ชั่วโมง\n📋 เหตุผล: ${reason}\n\n⏳ รอหัวหน้าแผนกอนุมัติครับ`);
       document.getElementById('otReason').value = '';
       loadOTHistory();
     } else {
@@ -283,11 +309,13 @@
           <span class="ot-item-date">📅 ${r.date}</span>
           <span class="ot-item-hours">⏱️ ${r.hours} ชม.</span>
         </div>
+        ${r.otStart ? `<div style="font-size:12px;color:var(--muted);margin-bottom:4px">🕐 ${r.otStart} - ${r.otEnd}</div>` : ''}
         <div class="ot-item-header">
           <span class="ot-item-reason">${r.reason || '—'}</span>
           <span class="badge ${badgeClass}">${statusText}</span>
         </div>
         ${r.otTotal ? `<div style="font-size:12px;color:var(--ot);font-weight:600;margin-top:4px">💰 ${parseFloat(r.otTotal).toLocaleString('th-TH')} บาท</div>` : ''}
+        ${r.approvedBy ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">✍️ ${r.approvedBy}</div>` : ''}
       </div>`;
     }).join('');
   }
