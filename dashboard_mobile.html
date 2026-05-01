@@ -439,9 +439,28 @@
   // ==================== API ====================
   async function gasGet(params) {
     const url = GAS_URL + '?' + new URLSearchParams(params).toString();
-    const res = await fetch(url, { redirect: 'follow' });
-    const text = await res.text();
-    try { return JSON.parse(text); } catch(e) { return null; }
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        redirect: 'follow',
+        mode: 'cors',
+      });
+      const text = await res.text();
+      // หา JSON จาก response (บางครั้ง GAS ส่ง HTML มาด้วย)
+      const jsonMatch = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+      if (!jsonMatch) return null;
+      return JSON.parse(jsonMatch[0]);
+    } catch(e) {
+      // Fallback: ใช้ JSONP-style via script tag
+      return new Promise((resolve) => {
+        const cbName = 'cb_' + Math.random().toString(36).substr(2,8);
+        window[cbName] = (data) => { resolve(data); delete window[cbName]; script.remove(); };
+        const script = document.createElement('script');
+        script.src = url + '&callback=' + cbName;
+        script.onerror = () => { resolve(null); delete window[cbName]; };
+        document.head.appendChild(script);
+      });
+    }
   }
 
   // ==================== Weekly Chart ====================
@@ -490,9 +509,19 @@
   // ==================== Today ====================
   async function loadToday() {
     document.getElementById('todayList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
-    const data = await gasGet({ action: 'getTodayDashboard' });
-    if (!data || !data.records) { document.getElementById('todayList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>'; return; }
-    renderToday(data.records);
+    try {
+      const data = await Promise.race([
+        gasGet({ action: 'getTodayDashboard' }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000))
+      ]);
+      if (!data || !data.records) {
+        document.getElementById('todayList').innerHTML = '<div class="empty">ไม่มีข้อมูล หรือโหลดไม่สำเร็จ<br><button onclick="loadToday()" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:inherit;cursor:pointer">ลองใหม่</button></div>';
+        return;
+      }
+      renderToday(data.records);
+    } catch(e) {
+      document.getElementById('todayList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ: ' + e.message + '<br><button onclick="loadToday()" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:inherit;cursor:pointer">ลองใหม่</button></div>';
+    }
   }
 
   function renderToday(records) {
