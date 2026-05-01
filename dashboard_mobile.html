@@ -4,228 +4,107 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dashboard PEA</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
-  :root {
-    --primary: #005A9C;
-    --primary-dark: #003f6e;
-    --primary-light: #E3F0FB;
-    --success: #2E7D32;
-    --success-light: #E8F5E9;
-    --danger: #C62828;
-    --danger-light: #FFEBEE;
-    --warning: #E65100;
-    --warning-light: #FFF3E0;
-    --bg: #F0F4F8;
-    --card: #FFFFFF;
-    --text: #1A2B3C;
-    --muted: #6B7C8F;
-    --border: #D1DCE8;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-  /* Header */
-  .header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white; padding: 16px; position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .header-left { display: flex; flex-direction: column; }
-  .header-title { font-size: 18px; font-weight: 700; }
-  .header-date { font-size: 12px; opacity: 0.75; margin-top: 2px; }
-  .refresh-btn {
-    background: rgba(255,255,255,0.2); border: none; border-radius: 10px;
-    color: white; padding: 8px 14px; font-family: 'Sarabun', sans-serif;
-    font-size: 13px; cursor: pointer; font-weight: 600;
-  }
-
-  /* Tab Bar */
-  .tab-bar {
-    display: flex; background: white; border-bottom: 1px solid var(--border);
-    position: sticky; top: 62px; z-index: 99; overflow-x: auto;
-  }
-  .tab-btn {
-    flex: 1; padding: 12px 8px; border: none; background: transparent;
-    font-family: 'Sarabun', sans-serif; font-size: 13px; font-weight: 600;
-    color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent;
-    white-space: nowrap; min-width: 80px;
-  }
-  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-  /* Content */
-  .content { padding: 12px; }
-  .tab-page { display: none; }
-  .tab-page.active { display: block; }
-
-  /* Stats Grid */
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .stat-card {
-    background: white; border-radius: 14px; padding: 14px 12px;
-    box-shadow: 0 2px 8px rgba(0,90,156,0.08); display: flex; align-items: center; gap: 10px;
-  }
-  .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .stat-icon.blue { background: var(--primary-light); }
-  .stat-icon.green { background: var(--success-light); }
-  .stat-icon.red { background: var(--danger-light); }
-  .stat-icon.yellow { background: #FFF9C4; }
-  .stat-label { font-size: 11px; color: var(--muted); }
-  .stat-value { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1.2; }
-
-  /* Card */
-  .card { background: white; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,90,156,0.08); margin-bottom: 14px; overflow: hidden; }
-  .card-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .card-title { font-size: 14px; font-weight: 700; }
-
-  /* Donut */
-  .donut-wrap { padding: 16px; display: flex; align-items: center; gap: 16px; }
-  .donut-svg { width: 90px; height: 90px; flex-shrink: 0; }
-  .donut-legend { flex: 1; }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-
-  /* Employee List */
-  .emp-list { }
-  .emp-row {
-    display: flex; align-items: center; padding: 12px 16px;
-    border-bottom: 1px solid #F0F4F8; gap: 12px;
-  }
-  .emp-row:last-child { border-bottom: none; }
-  .emp-avatar {
-    width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; flex-shrink: 0;
-  }
-  .emp-info { flex: 1; min-width: 0; }
-  .emp-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .emp-time { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .emp-badge { flex-shrink: 0; }
-
-  /* Badge */
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-green { background: var(--success-light); color: var(--success); }
-  .badge-red { background: var(--danger-light); color: var(--danger); }
-  .badge-yellow { background: var(--warning-light); color: var(--warning); }
-  .badge-gray { background: #F0F4F8; color: var(--muted); }
-
-  /* Filter */
-  .filter-row { display: flex; gap: 8px; margin-bottom: 14px; }
-  input[type="date"], input[type="month"] {
-    flex: 1; border: 1.5px solid var(--border); border-radius: 10px;
-    padding: 10px 12px; font-family: 'Sarabun', sans-serif; font-size: 14px;
-    background: white; outline: none;
-  }
-  input[type="date"]:focus, input[type="month"]:focus { border-color: var(--primary); }
-
-  .btn-sm {
-    padding: 10px 14px; border: none; border-radius: 10px;
-    font-family: 'Sarabun', sans-serif; font-size: 13px; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-  }
-  .btn-primary { background: var(--primary); color: white; }
-  .btn-success { background: var(--success); color: white; }
-
-  /* History Table → Card style on mobile */
-  .history-list { }
-  .history-card {
-    background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0,90,156,0.06);
-  }
-  .history-name { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-  .history-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
-  .history-label { color: var(--muted); }
-  .history-value { font-weight: 600; }
-
-  /* Monthly */
-  .monthly-card {
-    background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0,90,156,0.06);
-  }
-  .monthly-name { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--primary); }
-  .monthly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .monthly-item { background: var(--bg); border-radius: 8px; padding: 8px; text-align: center; }
-  .monthly-item-label { font-size: 11px; color: var(--muted); }
-  .monthly-item-value { font-size: 16px; font-weight: 700; margin-top: 2px; }
-
-  /* Reward */
-  .score-card-d { background: linear-gradient(135deg,#F9A825,#F57F17); border-radius: 16px; padding: 20px; color: white; text-align: center; margin-bottom: 12px; }
-  .score-num-d { font-size: 48px; font-weight: 700; line-height: 1; }
-  .score-lbl-d { font-size: 14px; opacity: 0.85; margin-top: 4px; }
-  .score-rank-d { display: inline-block; background: rgba(255,255,255,0.25); border-radius: 20px; padding: 4px 14px; font-size: 13px; font-weight: 700; margin-top: 8px; }
-  .badge-mini-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 12px; }
-  .badge-mini { background: white; border-radius: 12px; padding: 10px 6px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1.5px solid var(--border); }
-  .badge-mini.earned { border-color: #F9A825; background: #FFF8E1; }
-  .badge-mini.locked { opacity: 0.45; }
-  .badge-mini-icon { font-size: 24px; }
-  .badge-mini-name { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
-  .leader-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: white; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-  .rank-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-  .r1 { background: #FFD700; color: #5D4037; }
-  .r2 { background: #C0C0C0; color: #424242; }
-  .r3 { background: #CD7F32; color: white; }
-  .rx { background: var(--bg); color: var(--muted); }
-  .like-btn { background: #F3E5F5; border: none; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 600; color: #7B1FA2; transition: all 0.2s; }
-  .like-btn:active { transform: scale(0.93); }
-  .score-detail-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
-  .score-detail-box { background: white; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-  .score-detail-val { font-size: 20px; font-weight: 700; }
-  .score-detail-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-  /* Loading */
-  .loading { text-align: center; padding: 40px; color: var(--muted); }
-  .spinner-small {
-    width: 30px; height: 30px; border: 3px solid var(--border);
-    border-top-color: var(--primary); border-radius: 50%;
-    animation: spin 0.8s linear infinite; margin: 0 auto 10px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Reward Tab */
-  .score-card-mini{background:linear-gradient(135deg,#F9A825,#F57F17);border-radius:14px;padding:16px;color:white;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
-  .score-avatar{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.3);border:2px solid rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex-shrink:0;}
-  .score-avatar img{width:100%;height:100%;object-fit:cover;}
-  .score-num-mini{font-size:32px;font-weight:700;}
-  .score-lbl-mini{font-size:12px;opacity:0.85;}
-  .score-rank-mini{font-size:11px;background:rgba(255,255,255,0.25);border-radius:20px;padding:2px 10px;display:inline-block;margin-top:4px;}
-
-  .reward-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-  .reward-stat{background:white;border-radius:10px;padding:10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
-  .reward-stat-val{font-size:20px;font-weight:700;}
-  .reward-stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
-
-  .leaderboard-item{display:flex;align-items:center;gap:10px;padding:12px;background:white;border-radius:12px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
-  .rank-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
-  .rank-1{background:#FFD700;color:#5D4037;}
-  .rank-2{background:#C0C0C0;color:#424242;}
-  .rank-3{background:#CD7F32;color:white;}
-  .rank-n{background:var(--bg);color:var(--muted);}
-  .lb-avatar{width:34px;height:34px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;flex-shrink:0;}
-  .lb-avatar img{width:100%;height:100%;object-fit:cover;}
-  .lb-pts{font-size:15px;font-weight:700;color:#F9A825;}
-
-  .like-item{display:flex;align-items:center;gap:10px;padding:12px;background:white;border-radius:12px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
-  .like-btn{background:#FFF8E1;border:1.5px solid #F9A825;border-radius:10px;padding:6px 14px;color:#F9A825;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
-  .like-btn:active{transform:scale(0.95);}
-  .like-btn.liked{background:#E8F5E9;border-color:#2E7D32;color:#2E7D32;}
-
-  .like-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;}
-  .like-modal.show{display:flex;}
-  .like-modal-box{background:white;border-radius:18px;padding:24px;margin:16px;width:100%;max-width:380px;}
-
-  /* Empty */
-  .empty { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; }
-
-  /* Summary button */
-  .send-btn {
-    width: 100%; padding: 14px; background: var(--primary); color: white;
-    border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif;
-    font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 14px;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+:root{
+  --primary:#005A9C;--primary-dark:#003f6e;--primary-light:#E3F0FB;
+  --success:#2E7D32;--success-light:#E8F5E9;
+  --danger:#C62828;--danger-light:#FFEBEE;
+  --warning:#E65100;--warning-light:#FFF3E0;
+  --gold:#F9A825;--gold-light:#FFF8E1;
+  --bg:#F0F4F8;--card:#FFFFFF;--text:#1A2B3C;--muted:#6B7C8F;--border:#D1DCE8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.header-left{display:flex;flex-direction:column;}
+.header-title{font-size:18px;font-weight:700;}
+.header-date{font-size:12px;opacity:0.75;margin-top:2px;}
+.refresh-btn{background:rgba(255,255,255,0.2);border:none;border-radius:10px;color:white;padding:8px 14px;font-family:'Sarabun',sans-serif;font-size:13px;cursor:pointer;font-weight:600;}
+.tab-bar{display:flex;background:white;border-bottom:1px solid var(--border);position:sticky;top:62px;z-index:99;overflow-x:auto;}
+.tab-btn{flex:1;padding:12px 6px;border:none;background:transparent;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:70px;}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+.tab-btn.gold.active{color:var(--gold);border-bottom-color:var(--gold);}
+.content{padding:12px;}
+.tab-page{display:none;}.tab-page.active{display:block;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-card{background:white;border-radius:14px;padding:14px 12px;box-shadow:0 2px 8px rgba(0,90,156,0.08);display:flex;align-items:center;gap:10px;}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-icon.blue{background:var(--primary-light)}.stat-icon.green{background:var(--success-light)}.stat-icon.red{background:var(--danger-light)}.stat-icon.yellow{background:#FFF9C4;}
+.stat-label{font-size:11px;color:var(--muted);}.stat-value{font-size:24px;font-weight:700;color:var(--text);line-height:1.2;}
+.card{background:white;border-radius:14px;box-shadow:0 2px 8px rgba(0,90,156,0.08);margin-bottom:14px;overflow:hidden;}
+.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:14px;font-weight:700;}
+.donut-wrap{padding:16px;display:flex;align-items:center;gap:16px;}
+.donut-svg{width:90px;height:90px;flex-shrink:0;}
+.donut-legend{flex:1;}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.emp-list{}.emp-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #F0F4F8;gap:12px;}.emp-row:last-child{border-bottom:none;}
+.emp-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;}
+.emp-avatar img{width:100%;height:100%;object-fit:cover;}
+.emp-info{flex:1;min-width:0;}
+.emp-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.emp-time{font-size:12px;color:var(--muted);margin-top:2px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-green{background:var(--success-light);color:var(--success);}
+.badge-red{background:var(--danger-light);color:var(--danger);}
+.badge-yellow{background:var(--warning-light);color:var(--warning);}
+.filter-row{display:flex;gap:8px;margin-bottom:14px;}
+input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'Sarabun',sans-serif;font-size:14px;background:white;outline:none;}
+.btn-sm{padding:10px 14px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.btn-primary{background:var(--primary);color:white;}
+.history-card{background:white;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,90,156,0.06);}
+.history-name{font-size:15px;font-weight:700;margin-bottom:8px;}
+.history-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
+.history-label{color:var(--muted);}.history-value{font-weight:600;}
+.monthly-card{background:white;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,90,156,0.06);}
+.monthly-name{font-size:15px;font-weight:700;margin-bottom:10px;color:var(--primary);}
+.monthly-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.monthly-item{background:var(--bg);border-radius:8px;padding:8px;text-align:center;}
+.monthly-item-label{font-size:11px;color:var(--muted);}.monthly-item-value{font-size:16px;font-weight:700;margin-top:2px;}
+.send-btn{width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:14px;}
+.loading{text-align:center;padding:40px;color:var(--muted);}
+.spinner-small{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px;}
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:14px;}
+.retry-btn{margin-top:10px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:'Sarabun',sans-serif;cursor:pointer;}
+/* Weekly chart */
+.week-bar-wrap{display:flex;align-items:flex-end;gap:6px;height:120px;padding:14px 14px 0;}
+.week-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.week-bar-val{font-size:10px;color:var(--muted);font-weight:600;}
+.week-bar-bg{width:100%;background:#F0F4F8;border-radius:6px;height:80px;display:flex;align-items:flex-end;overflow:hidden;}
+.week-bar-fill{width:100%;border-radius:6px;transition:height 0.8s ease;}
+.week-bar-day{font-size:11px;color:var(--muted);}
+.week-bar-count{font-size:10px;color:var(--muted);}
+.week-legend{display:flex;gap:10px;padding:8px 14px 14px;flex-wrap:wrap;}
+.week-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);}
+.week-legend-dot{width:10px;height:10px;border-radius:2px;}
+/* Reward */
+.score-card-r{background:linear-gradient(135deg,#F9A825,#F57F17);border-radius:16px;padding:20px;color:white;text-align:center;margin-bottom:12px;}
+.score-num-r{font-size:48px;font-weight:700;line-height:1;}
+.score-rank-r{display:inline-block;background:rgba(255,255,255,0.25);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;margin-top:8px;}
+.score-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.score-detail-box{background:white;border-radius:12px;padding:10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+.score-detail-val{font-size:20px;font-weight:700;}.score-detail-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+.badge-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.badge-mini{background:white;border-radius:12px;padding:10px 6px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1.5px solid var(--border);}
+.badge-mini.earned{border-color:var(--gold);background:var(--gold-light);}
+.badge-mini.locked{opacity:0.45;}
+.badge-mini-icon{font-size:24px;}.badge-mini-name{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.3;}
+.leader-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:white;border-radius:12px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+.rank-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.r1{background:#FFD700;color:#5D4037;}.r2{background:#C0C0C0;color:#424242;}.r3{background:#CD7F32;color:white;}.rx{background:var(--bg);color:var(--muted);}
+.like-btn{background:#F3E5F5;border:none;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;color:#7B1FA2;}
+.like-btn.liked{background:var(--success-light);color:var(--success);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:white;border-radius:18px;padding:24px;margin:16px;width:100%;max-width:400px;}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <div class="header-left">
     <div class="header-title">📊 Dashboard PEA</div>
@@ -234,660 +113,365 @@
   <button class="refresh-btn" onclick="loadToday()">🔄 รีเฟรช</button>
 </div>
 
-<!-- Tab Bar -->
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('today', this)">📅 วันนี้</button>
-  <button class="tab-btn" onclick="switchTab('history', this)">📋 ประวัติ</button>
-  <button class="tab-btn" onclick="switchTab('monthly', this)">📈 รายเดือน</button>
-  <button class="tab-btn" onclick="switchTab('reward', this)">🏆 รางวัล</button>
+  <button class="tab-btn active" onclick="switchTab('today',this)">📅 วันนี้</button>
+  <button class="tab-btn" onclick="switchTab('history',this)">📋 ประวัติ</button>
+  <button class="tab-btn" onclick="switchTab('monthly',this)">📈 รายเดือน</button>
+  <button class="tab-btn gold" onclick="switchTab('reward',this)">🏆 รางวัล</button>
 </div>
 
-<!-- Content -->
 <div class="content">
 
-  <!-- Tab: Today -->
-  <div class="tab-page active" id="tab-today">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon blue">👥</div>
-        <div><div class="stat-label">ทั้งหมด</div><div class="stat-value" id="statTotal">—</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon green">✅</div>
-        <div><div class="stat-label">เช็คอินแล้ว</div><div class="stat-value" id="statIn">—</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon red">⚠️</div>
-        <div><div class="stat-label">ยังไม่เช็คอิน</div><div class="stat-value" id="statNotIn">—</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon yellow">🚪</div>
-        <div><div class="stat-label">เช็คเอ้าต์แล้ว</div><div class="stat-value" id="statOut">—</div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🥧 สัดส่วนเข้างาน</div>
-      </div>
-      <div class="donut-wrap">
-        <svg class="donut-svg" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="38" fill="none" stroke="#F0F4F8" stroke-width="16"/>
-          <circle cx="50" cy="50" r="38" fill="none" stroke="#005A9C" stroke-width="16"
-            stroke-dasharray="0 239" id="donutArc" stroke-linecap="round"
-            style="transition:stroke-dasharray 0.8s ease;" transform="rotate(-90 50 50)"/>
-          <text x="50" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1A2B3C" id="donutPct">0%</text>
-          <text x="50" y="58" text-anchor="middle" font-size="7" fill="#6B7C8F">เช็คอิน</text>
-        </svg>
-        <div class="donut-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#005A9C"></div><span id="legendIn">เช็คอินแล้ว: —</span></div>
-          <div class="legend-item"><div class="legend-dot" style="background:#C62828"></div><span id="legendNotIn">ยังไม่เช็คอิน: —</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Weekly Chart -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">📊 ชั่วโมงทำงานสัปดาห์นี้</div>
-      </div>
-      <div style="padding:14px" id="weeklyChart">
-        <div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>
-      </div>
-    </div>
-
-    <button class="send-btn" onclick="sendSummary()">📤 ส่ง Summary ให้ Admin</button>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">รายละเอียดวันนี้</div>
-      </div>
-      <div class="emp-list" id="todayList">
-        <div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>
+<!-- วันนี้ -->
+<div class="tab-page active" id="tab-today">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon blue">👥</div><div><div class="stat-label">ทั้งหมด</div><div class="stat-value" id="statTotal">—</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-label">เช็คอินแล้ว</div><div class="stat-value" id="statIn">—</div></div></div>
+    <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">ยังไม่เช็คอิน</div><div class="stat-value" id="statNotIn">—</div></div></div>
+    <div class="stat-card"><div class="stat-icon yellow">🚪</div><div><div class="stat-label">เช็คเอ้าต์แล้ว</div><div class="stat-value" id="statOut">—</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🥧 สัดส่วนเข้างาน</div></div>
+    <div class="donut-wrap">
+      <svg class="donut-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#F0F4F8" stroke-width="16"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#005A9C" stroke-width="16" stroke-dasharray="0 239" id="donutArc" stroke-linecap="round" style="transition:stroke-dasharray 0.8s ease;" transform="rotate(-90 50 50)"/>
+        <text x="50" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1A2B3C" id="donutPct">0%</text>
+        <text x="50" y="58" text-anchor="middle" font-size="7" fill="#6B7C8F">เช็คอิน</text>
+      </svg>
+      <div class="donut-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#005A9C"></div><span id="legendIn">เช็คอินแล้ว: —</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#C62828"></div><span id="legendNotIn">ยังไม่เช็คอิน: —</span></div>
       </div>
     </div>
   </div>
-
-  <!-- Tab: History -->
-  <div class="tab-page" id="tab-history">
-    <div class="filter-row">
-      <input type="date" id="historyDate">
-      <button class="btn-sm btn-primary" onclick="loadHistory()">ค้นหา</button>
-    </div>
-    <div id="historyList"><div class="empty">เลือกวันที่เพื่อดูประวัติ</div></div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📊 ชั่วโมงทำงานสัปดาห์นี้</div></div>
+    <div id="weeklyChart"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
   </div>
-
-  <!-- Tab: Reward -->
-  <div class="tab-page" id="tab-reward">
-
-    <div id="rewardMyScore"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
-
-    <div style="font-size:14px;font-weight:700;margin-bottom:8px">📊 รายละเอียดคะแนน</div>
-    <div class="score-detail-grid" id="rewardStats"></div>
-
-    <div style="font-size:14px;font-weight:700;margin-bottom:8px">🎖️ Badge ที่ได้รับ</div>
-    <div class="badge-mini-grid" id="rewardBadges"></div>
-
-    <div style="font-size:14px;font-weight:700;margin-bottom:8px">🏅 อันดับเดือนนี้</div>
-    <div id="rewardLeaderboard"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
-
-    <!-- Like Modal -->
-    <div id="likeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
-      <div style="background:white;border-radius:18px;padding:24px;margin:16px;width:100%;max-width:400px">
-        <div style="font-size:17px;font-weight:700;margin-bottom:4px">⭐ ให้ Like</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:14px" id="likeModalName">—</div>
-        <textarea id="likeReason" rows="3" placeholder="เหตุผล เช่น ทำงานพิเศษ, ขยันมาก..."
-          style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:inherit;font-size:14px;margin-bottom:14px;resize:none;outline:none"></textarea>
-        <div style="display:flex;gap:10px">
-          <button onclick="submitLike()" style="flex:1;padding:12px;background:#7B1FA2;color:white;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">⭐ ให้ Like</button>
-          <button onclick="closeLikeModal()" style="flex:0.5;padding:12px;background:var(--bg);color:var(--muted);border:none;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer">ยกเลิก</button>
-        </div>
-      </div>
-    </div>
+  <button class="send-btn" onclick="sendSummary()">📤 ส่ง Summary ให้ Admin</button>
+  <div class="card">
+    <div class="card-header"><div class="card-title">รายละเอียดวันนี้</div></div>
+    <div class="emp-list" id="todayList"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
   </div>
+</div>
 
-  <!-- Tab: Monthly -->
-  <div class="tab-page" id="tab-monthly">
-    <div class="filter-row">
-      <input type="month" id="monthPicker">
-      <button class="btn-sm btn-primary" onclick="loadMonthly()">ค้นหา</button>
-    </div>
-    <div id="monthlyList"><div class="empty">เลือกเดือนเพื่อดูสรุป</div></div>
+<!-- ประวัติ -->
+<div class="tab-page" id="tab-history">
+  <div class="filter-row">
+    <input type="date" id="historyDate">
+    <button class="btn-sm btn-primary" onclick="loadHistory()">ค้นหา</button>
   </div>
+  <div id="historyList"><div class="empty">เลือกวันที่เพื่อดูประวัติ</div></div>
+</div>
 
-  <!-- Tab: รางวัล -->
-  <div class="tab-page" id="tab-reward">
-
-    <!-- Score Card -->
-    <div class="score-card-mini" id="myScoreCard">
-      <div style="text-align:center;width:100%;color:white;padding:10px">กำลังโหลด...</div>
-    </div>
-
-    <!-- Stats -->
-    <div class="reward-stats" id="rewardStats">
-      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--primary)">—</div><div class="reward-stat-lbl">มาตรงเวลา</div></div>
-      <div class="reward-stat"><div class="reward-stat-val" style="color:#F9A825">—</div><div class="reward-stat-lbl">เช็คเอ้าต์ดี</div></div>
-      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--success)">—</div><div class="reward-stat-lbl">OT ที่อนุมัติ</div></div>
-    </div>
-
-    <!-- Leaderboard -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🏅 อันดับเดือนนี้</div>
-        <button class="btn-sm btn-primary" onclick="loadReward()">🔄</button>
-      </div>
-      <div id="leaderboardList"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
-    </div>
-
-    <!-- Give Like -->
-    <div class="card" id="likeSection" style="display:none">
-      <div class="card-header">
-        <div class="card-title">⭐ กด Like ให้พนักงาน</div>
-      </div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">กดได้ 1 ครั้ง/คน/วัน เฉพาะหัวหน้าและผู้จัดการ</div>
-      <div id="likeList"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
-    </div>
-
+<!-- รายเดือน -->
+<div class="tab-page" id="tab-monthly">
+  <div class="filter-row">
+    <input type="month" id="monthPicker">
+    <button class="btn-sm btn-primary" onclick="loadMonthly()">ค้นหา</button>
   </div>
+  <div id="monthlyList"><div class="empty">เลือกเดือนเพื่อดูสรุป</div></div>
+</div>
 
-  <!-- Like Modal -->
-  <div class="like-modal" id="likeModal">
-    <div class="like-modal-box">
-      <div style="font-size:17px;font-weight:700;margin-bottom:4px">⭐ กด Like ให้</div>
-      <div style="font-size:14px;color:var(--muted);margin-bottom:14px" id="likeTargetName">—</div>
-      <textarea id="likeReason" rows="3" placeholder="ระบุเหตุผล เช่น ทำงานขยัน, ช่วยงานทีม..."
-        style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;resize:none;margin-bottom:14px"></textarea>
-      <div style="display:flex;gap:10px">
-        <button class="btn-sm btn-primary" style="flex:1;padding:12px" onclick="confirmLike()">⭐ ยืนยัน Like</button>
-        <button class="btn-sm" style="flex:0.5;padding:12px;background:var(--bg);color:var(--muted)" onclick="closeLikeModal()">ยกเลิก</button>
-      </div>
+<!-- รางวัล -->
+<div class="tab-page" id="tab-reward">
+  <div id="rewardMyScore"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+  <div style="font-size:14px;font-weight:700;margin-bottom:8px">📊 รายละเอียดคะแนน</div>
+  <div class="score-detail-grid" id="rewardStats">
+    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">วันทำงาน</div></div>
+    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">มาตรงเวลา</div></div>
+    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">เช็คเอ้าต์ครบ</div></div>
+    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">คะแนน OT</div></div>
+    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">คะแนน Like</div></div>
+    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">มาเช้ามาก</div></div>
+  </div>
+  <div style="font-size:14px;font-weight:700;margin-bottom:8px">🎖️ Badge</div>
+  <div class="badge-mini-grid" id="rewardBadges"></div>
+  <div style="font-size:14px;font-weight:700;margin-bottom:8px">🏅 อันดับเดือนนี้</div>
+  <div id="rewardLeaderboard"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+</div>
+
+</div><!-- end content -->
+
+<!-- Like Modal -->
+<div class="modal-overlay" id="likeModal">
+  <div class="modal-box">
+    <div style="font-size:17px;font-weight:700;margin-bottom:4px">⭐ ให้ Like</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px" id="likeModalName">—</div>
+    <textarea id="likeReason" rows="3" placeholder="เหตุผล เช่น ทำงานพิเศษ, ขยันมาก..." style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:inherit;font-size:14px;margin-bottom:14px;resize:none;outline:none"></textarea>
+    <div style="display:flex;gap:10px">
+      <button onclick="submitLike()" style="flex:1;padding:12px;background:#7B1FA2;color:white;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">⭐ ให้ Like</button>
+      <button onclick="closeLikeModal()" style="flex:0.5;padding:12px;background:var(--bg);color:var(--muted);border:none;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer">ยกเลิก</button>
     </div>
   </div>
-
 </div>
 
 <script>
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+const LIFF_ID_DASHBOARD = '2009895943-RkStcfI';
 
-  // ==================== Init ====================
-  window.onload = () => {
-    setHeaderDate();
-    loadToday();
-    loadWeeklyChart();
-    const today = new Date();
-    document.getElementById('historyDate').value = fmtDate(today);
-    document.getElementById('monthPicker').value = fmtMonth(today);
-  };
+const ALL_BADGES = [
+  {id:'on_time_5',icon:'⭐',name:'มาตรงเวลา\n5 วัน'},
+  {id:'no_late_month',icon:'🔥',name:'ไม่สาย\nทั้งเดือน'},
+  {id:'checkout_all',icon:'✅',name:'เช็คเอ้าต์\nครบ'},
+  {id:'full_month',icon:'🌟',name:'มาครบ\nทั้งเดือน'},
+  {id:'early_bird',icon:'🌅',name:'นกตื่น\nเช้า'},
+  {id:'team_star',icon:'💜',name:'ดาว\nทีม'},
+  {id:'top_score',icon:'👑',name:'คะแนน\nสูงสุด'},
+  {id:'ot_hero',icon:'💪',name:'นักสู้\nOT'},
+];
 
-  function setHeaderDate() {
-    const d = new Date();
-    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-    document.getElementById('headerDate').textContent =
-      `วัน${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+let rewardUID = null;
+let likeTargetId = null;
+let rewardLoaded = false;
+
+// ==================== Init ====================
+window.onload = () => {
+  setHeaderDate();
+  loadToday();
+  loadWeeklyChart();
+  const today = new Date();
+  document.getElementById('historyDate').value = fmtDate(today);
+  document.getElementById('monthPicker').value = fmtMonth(today);
+};
+
+// ==================== API ====================
+async function gasGet(params) {
+  const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+  const res = await fetch(url, { redirect: 'follow' });
+  const text = await res.text();
+  try { return JSON.parse(text); } catch(e) { return null; }
+}
+
+// ==================== Tab ====================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'reward' && !rewardLoaded) {
+    rewardLoaded = true;
+    initReward();
   }
+}
 
-  // ==================== Tab Switch ====================
-  function switchTab(name, btn) {
-    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    btn.classList.add('active');
-    if (name === 'reward') loadReward();
+// ==================== Today ====================
+async function loadToday() {
+  document.getElementById('todayList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  const data = await gasGet({ action: 'getTodayDashboard' });
+  if (!data || !data.records) {
+    document.getElementById('todayList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ<br><button class="retry-btn" onclick="loadToday()">ลองใหม่</button></div>';
+    return;
   }
+  renderToday(data.records);
+}
 
-  // ==================== API ====================
-  async function gasGet(params) {
-    const url = GAS_URL + '?' + new URLSearchParams(params).toString();
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow',
-        mode: 'cors',
-      });
-      const text = await res.text();
-      // หา JSON จาก response (บางครั้ง GAS ส่ง HTML มาด้วย)
-      const jsonMatch = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-      if (!jsonMatch) return null;
-      return JSON.parse(jsonMatch[0]);
-    } catch(e) {
-      // Fallback: ใช้ JSONP-style via script tag
-      return new Promise((resolve) => {
-        const cbName = 'cb_' + Math.random().toString(36).substr(2,8);
-        window[cbName] = (data) => { resolve(data); delete window[cbName]; script.remove(); };
-        const script = document.createElement('script');
-        script.src = url + '&callback=' + cbName;
-        script.onerror = () => { resolve(null); delete window[cbName]; };
-        document.head.appendChild(script);
-      });
-    }
-  }
+function renderToday(records) {
+  const total = records.length;
+  const checked = records.filter(r => r.checkIn).length;
+  const notChecked = total - checked;
+  const checkedOut = records.filter(r => r.checkOut).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statIn').textContent = checked;
+  document.getElementById('statNotIn').textContent = notChecked;
+  document.getElementById('statOut').textContent = checkedOut;
+  const pct = total > 0 ? Math.round(checked/total*100) : 0;
+  document.getElementById('donutArc').setAttribute('stroke-dasharray', `${239*pct/100} 239`);
+  document.getElementById('donutArc').style.stroke = pct>=80?'#2E7D32':pct>=50?'#005A9C':'#C62828';
+  document.getElementById('donutPct').textContent = pct + '%';
+  document.getElementById('legendIn').textContent = `เช็คอินแล้ว: ${checked} คน`;
+  document.getElementById('legendNotIn').textContent = `ยังไม่เช็คอิน: ${notChecked} คน`;
+  if (!records.length) { document.getElementById('todayList').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+  document.getElementById('todayList').innerHTML = records.map(r => {
+    const badge = r.checkOut ? '<span class="badge badge-green">เช็คเอ้าต์แล้ว</span>' :
+      r.checkIn ? '<span class="badge badge-yellow">กำลังทำงาน</span>' :
+      '<span class="badge badge-red">ยังไม่เช็คอิน</span>';
+    const time = r.checkIn ? `เข้า ${r.checkIn}${r.checkOut?' • ออก '+r.checkOut:''}` : 'ยังไม่เช็คอิน';
+    const avatar = r.picUrl ? `<img src="${r.picUrl}">` : '👤';
+    return `<div class="emp-row"><div class="emp-avatar">${avatar}</div><div class="emp-info"><div class="emp-name">${r.name}</div><div class="emp-time">${time}</div></div><div>${badge}</div></div>`;
+  }).join('');
+}
 
-  // ==================== Weekly Chart ====================
-  async function loadWeeklyChart() {
-    try {
-      const res = await gasGet({ action: 'getWeeklySummary' });
-      if (!res || !res.days) {
-        document.getElementById('weeklyChart').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>';
-        return;
-      }
-      renderWeeklyChart(res.days);
-    } catch(e) {
-      document.getElementById('weeklyChart').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>';
-    }
-  }
+// ==================== Weekly Chart ====================
+async function loadWeeklyChart() {
+  const data = await gasGet({ action: 'getWeeklySummary' });
+  if (!data || !data.days) { document.getElementById('weeklyChart').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+  const days = data.days;
+  const maxHrs = Math.max(...days.map(d => d.totalHours), 8);
+  const dayNames = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+  document.getElementById('weeklyChart').innerHTML = `
+    <div class="week-bar-wrap">${days.map(d => {
+      const pct = maxHrs > 0 ? (d.totalHours/maxHrs*100) : 0;
+      const color = d.isToday ? '#005A9C' : d.totalHours>=8 ? '#2E7D32' : d.totalHours>0 ? '#E65100' : '#E0E0E0';
+      return `<div class="week-bar-col">
+        <div class="week-bar-val">${d.totalHours>0?d.totalHours.toFixed(1):'—'}</div>
+        <div class="week-bar-bg"><div class="week-bar-fill" style="background:${color};height:${Math.max(pct,d.totalHours>0?8:0)}%"></div></div>
+        <div class="week-bar-day" style="${d.isToday?'color:var(--primary);font-weight:700':''}">${dayNames[d.dayOfWeek]}</div>
+        <div class="week-bar-count">${d.checkedIn}/${d.total}</div>
+      </div>`;
+    }).join('')}</div>
+    <div class="week-legend">
+      <div class="week-legend-item"><div class="week-legend-dot" style="background:#2E7D32"></div>ครบ 8 ชม.</div>
+      <div class="week-legend-item"><div class="week-legend-dot" style="background:#E65100"></div>ไม่ครบ</div>
+      <div class="week-legend-item"><div class="week-legend-dot" style="background:#005A9C"></div>วันนี้</div>
+    </div>`;
+}
 
-  function renderWeeklyChart(days) {
-    const div = document.getElementById('weeklyChart');
-    if (!days.length) { div.innerHTML = '<div class="empty">ไม่มีข้อมูลสัปดาห์นี้</div>'; return; }
+// ==================== History ====================
+async function loadHistory() {
+  const date = document.getElementById('historyDate').value;
+  if (!date) return;
+  document.getElementById('historyList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  const data = await gasGet({ action: 'getAttendanceByDate', dateStr: date });
+  if (!data || !Array.isArray(data)) { document.getElementById('historyList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>'; return; }
+  if (!data.length) { document.getElementById('historyList').innerHTML = '<div class="empty">ไม่มีข้อมูลวันที่เลือก</div>'; return; }
+  document.getElementById('historyList').innerHTML = data.map(r => {
+    const hrs = r.workMinutes ? `${Math.floor(r.workMinutes/60)} ชม. ${r.workMinutes%60} นาที` : '—';
+    const areaBadge = r.area === 'นอกพื้นที่' ? '<span class="badge badge-yellow">นอกพื้นที่</span>' : r.area ? '<span class="badge badge-green">ในพื้นที่</span>' : '';
+    return `<div class="history-card">
+      <div class="history-name">👤 ${r.name} ${areaBadge}</div>
+      <div class="history-row"><span class="history-label">⏰ เช็คอิน</span><span class="history-value">${r.checkIn?r.checkIn+' น.':'—'}</span></div>
+      <div class="history-row"><span class="history-label">🚪 เช็คเอ้าต์</span><span class="history-value">${r.checkOut?r.checkOut+' น.':'—'}</span></div>
+      <div class="history-row"><span class="history-label">⏱️ รวม</span><span class="history-value">${hrs}</span></div>
+      <div class="history-row"><span class="history-label">📍 ระยะห่าง</span><span class="history-value">${r.distIn?r.distIn+' เมตร':'—'}</span></div>
+      ${r.note?`<div class="history-row"><span class="history-label">📝 หมายเหตุ</span><span class="history-value">${r.note}</span></div>`:''}
+    </div>`;
+  }).join('');
+}
 
-    const maxHrs = Math.max(...days.map(d => d.totalHours), 8);
-    const dayNames = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
-
-    div.innerHTML = `
-      <div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px">
-        ${days.map(d => {
-          const pct = maxHrs > 0 ? (d.totalHours / maxHrs * 100) : 0;
-          const color = d.isToday ? '#005A9C' : d.totalHours >= 8 ? '#2E7D32' : d.totalHours > 0 ? '#E65100' : '#E0E0E0';
-          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <div style="font-size:10px;color:var(--muted);font-weight:600">${d.totalHours > 0 ? d.totalHours.toFixed(1) : '—'}</div>
-            <div style="width:100%;background:#F0F4F8;border-radius:6px;height:80px;display:flex;align-items:flex-end;overflow:hidden">
-              <div style="width:100%;background:${color};border-radius:6px;height:${Math.max(pct,d.totalHours>0?8:0)}%;transition:height 0.8s ease"></div>
-            </div>
-            <div style="font-size:11px;color:${d.isToday ? '#005A9C' : 'var(--muted)'};font-weight:${d.isToday ? '700' : '400'}">${dayNames[d.dayOfWeek]}</div>
-            <div style="font-size:10px;color:var(--muted)">${d.checkedIn}/${d.total}</div>
-          </div>`;
-        }).join('')}
+// ==================== Monthly ====================
+async function loadMonthly() {
+  const month = document.getElementById('monthPicker').value;
+  if (!month) return;
+  document.getElementById('monthlyList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  const data = await gasGet({ action: 'getMonthlySummary', monthStr: month });
+  if (!data || !Array.isArray(data)) { document.getElementById('monthlyList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>'; return; }
+  if (!data.length) { document.getElementById('monthlyList').innerHTML = '<div class="empty">ไม่มีข้อมูลเดือนที่เลือก</div>'; return; }
+  document.getElementById('monthlyList').innerHTML = data.map(r => {
+    const avg = r.avgMinutes ? `${Math.floor(r.avgMinutes/60)}ชม.${r.avgMinutes%60}น.` : '—';
+    const total = r.totalMinutes ? `${Math.floor(r.totalMinutes/60)}ชม.${r.totalMinutes%60}น.` : '—';
+    return `<div class="monthly-card">
+      <div class="monthly-name">👤 ${r.name}</div>
+      <div class="monthly-grid">
+        <div class="monthly-item"><div class="monthly-item-label">วันทำงาน</div><div class="monthly-item-value" style="color:var(--primary)">${r.workDays} วัน</div></div>
+        <div class="monthly-item"><div class="monthly-item-label">เฉลี่ย/วัน</div><div class="monthly-item-value" style="color:var(--success)">${avg}</div></div>
+        <div class="monthly-item"><div class="monthly-item-label">รวมชั่วโมง</div><div class="monthly-item-value">${total}</div></div>
+        <div class="monthly-item"><div class="monthly-item-label">มาสาย</div><div class="monthly-item-value" style="color:${r.lateCount>0?'var(--danger)':'var(--success)'}">${r.lateCount} ครั้ง</div></div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#2E7D32"></div>ครบ 8 ชม.</div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#E65100"></div>ไม่ครบ</div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#005A9C"></div>วันนี้</div>
-      </div>`;
-  }
+    </div>`;
+  }).join('');
+}
 
-  // ==================== Today ====================
-  async function loadToday() {
-    document.getElementById('todayList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
-    try {
-      const data = await Promise.race([
-        gasGet({ action: 'getTodayDashboard' }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000))
-      ]);
-      if (!data || !data.records) {
-        document.getElementById('todayList').innerHTML = '<div class="empty">ไม่มีข้อมูล หรือโหลดไม่สำเร็จ<br><button onclick="loadToday()" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:inherit;cursor:pointer">ลองใหม่</button></div>';
-        return;
-      }
-      renderToday(data.records);
-    } catch(e) {
-      document.getElementById('todayList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ: ' + e.message + '<br><button onclick="loadToday()" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:inherit;cursor:pointer">ลองใหม่</button></div>';
+// ==================== Summary ====================
+async function sendSummary() {
+  if (!confirm('ส่ง Summary LINE ให้ Admin ตอนนี้เลยไหมครับ?')) return;
+  const res = await gasGet({ action: 'sendSummary' });
+  alert(res && res.success ? '✅ ส่ง Summary สำเร็จ' : '❌ ส่งไม่สำเร็จ');
+}
+
+// ==================== Reward ====================
+async function initReward() {
+  // ลอง init LIFF เงียบๆ
+  try {
+    await liff.init({ liffId: LIFF_ID_DASHBOARD });
+    if (liff.isInClient() && liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      rewardUID = profile.userId;
     }
+  } catch(e) {}
+
+  // โหลดคะแนนส่วนตัว
+  if (rewardUID) {
+    const res = await gasGet({ action: 'getMyReward', uid: rewardUID });
+    if (res && res.success) renderMyScore(res);
+    else document.getElementById('rewardMyScore').innerHTML = '<div class="empty">ไม่พบข้อมูลส่วนตัว</div>';
+  } else {
+    document.getElementById('rewardMyScore').innerHTML = '<div class="empty" style="background:var(--primary-light);border-radius:12px;padding:16px;color:var(--primary)">💡 เปิดผ่าน LINE LIFF เพื่อดูคะแนนส่วนตัวครับ</div>';
   }
 
-  function renderToday(records) {
-    const total = records.length;
-    const checked = records.filter(r => r.checkIn).length;
-    const notChecked = total - checked;
-    const checkedOut = records.filter(r => r.checkOut).length;
+  // โหลด Leaderboard เสมอ
+  loadLeaderboard();
+}
 
-    document.getElementById('statTotal').textContent = total;
-    document.getElementById('statIn').textContent = checked;
-    document.getElementById('statNotIn').textContent = notChecked;
-    document.getElementById('statOut').textContent = checkedOut;
+function renderMyScore(res) {
+  const emp = res.employee || {};
+  const stats = res.stats || {};
+  const earned = res.badges || [];
+  document.getElementById('rewardMyScore').innerHTML = `
+    <div class="score-card-r">
+      <div style="font-size:13px;opacity:0.85">${emp.name || '—'}</div>
+      <div class="score-num-r">${res.score || 0}</div>
+      <div style="font-size:13px;opacity:0.85;margin-top:4px">คะแนนสะสมเดือนนี้</div>
+      <div class="score-rank-r">อันดับที่ ${res.rank||'—'} / ${res.total||'—'} คน</div>
+    </div>`;
+  document.getElementById('rewardStats').innerHTML = `
+    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--primary)">${stats.workDays||0}</div><div class="score-detail-lbl">วันทำงาน</div></div>
+    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--success)">${stats.onTime||0}</div><div class="score-detail-lbl">มาตรงเวลา</div></div>
+    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--gold)">${stats.checkoutAll||0}</div><div class="score-detail-lbl">เช็คเอ้าต์ครบ</div></div>
+    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--warning)">${stats.otScore||0}</div><div class="score-detail-lbl">คะแนน OT</div></div>
+    <div class="score-detail-box"><div class="score-detail-val" style="color:#7B1FA2">${stats.likeScore||0}</div><div class="score-detail-lbl">คะแนน Like</div></div>
+    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--primary)">${stats.earlyCount||0}</div><div class="score-detail-lbl">มาเช้ามาก</div></div>`;
+  document.getElementById('rewardBadges').innerHTML = ALL_BADGES.map(b => `
+    <div class="badge-mini ${earned.includes(b.id)?'earned':'locked'}">
+      <div class="badge-mini-icon">${b.icon}</div>
+      <div class="badge-mini-name">${b.name}</div>
+    </div>`).join('');
+}
 
-    const pct = total > 0 ? Math.round(checked/total*100) : 0;
-    const circ = 239;
-    document.getElementById('donutArc').setAttribute('stroke-dasharray', `${circ*pct/100} ${circ}`);
-    document.getElementById('donutArc').style.stroke = pct >= 80 ? '#2E7D32' : pct >= 50 ? '#005A9C' : '#C62828';
-    document.getElementById('donutPct').textContent = pct + '%';
-    document.getElementById('legendIn').textContent = `เช็คอินแล้ว: ${checked} คน`;
-    document.getElementById('legendNotIn').textContent = `ยังไม่เช็คอิน: ${notChecked} คน`;
-
-    const list = document.getElementById('todayList');
-    if (!records.length) { list.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
-
-    list.innerHTML = records.map(r => {
-      const statusBadge = r.checkOut
-        ? '<span class="badge badge-green">เช็คเอ้าต์แล้ว</span>'
-        : r.checkIn
-          ? '<span class="badge badge-yellow">กำลังทำงาน</span>'
-          : '<span class="badge badge-red">ยังไม่เช็คอิน</span>';
-
-      const timeText = r.checkIn
-        ? `เข้า ${r.checkIn}${r.checkOut ? ' • ออก ' + r.checkOut : ''}`
-        : 'ยังไม่เช็คอิน';
-
-      return `<div class="emp-row">
-        <div class="emp-avatar">👤</div>
-        <div class="emp-info">
-          <div class="emp-name">${r.name}</div>
-          <div class="emp-time">${timeText}</div>
-        </div>
-        <div class="emp-badge">${statusBadge}</div>
-      </div>`;
-    }).join('');
-  }
-
-  // ==================== History ====================
-  async function loadHistory() {
-    const date = document.getElementById('historyDate').value;
-    if (!date) return;
-    document.getElementById('historyList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
-    const data = await gasGet({ action: 'getAttendanceByDate', dateStr: date });
-    if (!data || !Array.isArray(data)) { document.getElementById('historyList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>'; return; }
-
-    if (!data.length) { document.getElementById('historyList').innerHTML = '<div class="empty">ไม่มีข้อมูลวันที่เลือก</div>'; return; }
-
-    document.getElementById('historyList').innerHTML = data.map(r => {
-      const hrs = r.workMinutes ? `${Math.floor(r.workMinutes/60)} ชม. ${r.workMinutes%60} นาที` : '—';
-      const areaBadge = r.area === 'นอกพื้นที่'
-        ? '<span class="badge badge-yellow">นอกพื้นที่</span>'
-        : r.area ? '<span class="badge badge-green">ในพื้นที่</span>' : '';
-      return `<div class="history-card">
-        <div class="history-name">👤 ${r.name} ${areaBadge}</div>
-        <div class="history-row"><span class="history-label">⏰ เช็คอิน</span><span class="history-value">${r.checkIn ? r.checkIn + ' น.' : '—'}</span></div>
-        <div class="history-row"><span class="history-label">🚪 เช็คเอ้าต์</span><span class="history-value">${r.checkOut ? r.checkOut + ' น.' : '—'}</span></div>
-        <div class="history-row"><span class="history-label">⏱️ รวม</span><span class="history-value">${hrs}</span></div>
-        <div class="history-row"><span class="history-label">📍 ระยะห่าง</span><span class="history-value">${r.distIn ? r.distIn + ' เมตร' : '—'}</span></div>
-        ${r.note ? `<div class="history-row"><span class="history-label">📝 หมายเหตุ</span><span class="history-value">${r.note}</span></div>` : ''}
-      </div>`;
-    }).join('');
-  }
-
-  // ==================== Monthly ====================
-  async function loadMonthly() {
-    const month = document.getElementById('monthPicker').value;
-    if (!month) return;
-    document.getElementById('monthlyList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
-    const data = await gasGet({ action: 'getMonthlySummary', monthStr: month });
-    if (!data || !Array.isArray(data)) { document.getElementById('monthlyList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>'; return; }
-
-    if (!data.length) { document.getElementById('monthlyList').innerHTML = '<div class="empty">ไม่มีข้อมูลเดือนที่เลือก</div>'; return; }
-
-    document.getElementById('monthlyList').innerHTML = data.map(r => {
-      const avgHrs = r.avgMinutes ? `${Math.floor(r.avgMinutes/60)}ชม.${r.avgMinutes%60}น.` : '—';
-      const totalHrs = r.totalMinutes ? `${Math.floor(r.totalMinutes/60)}ชม.${r.totalMinutes%60}น.` : '—';
-      return `<div class="monthly-card">
-        <div class="monthly-name">👤 ${r.name}</div>
-        <div class="monthly-grid">
-          <div class="monthly-item">
-            <div class="monthly-item-label">วันทำงาน</div>
-            <div class="monthly-item-value" style="color:var(--primary)">${r.workDays} วัน</div>
-          </div>
-          <div class="monthly-item">
-            <div class="monthly-item-label">เฉลี่ย/วัน</div>
-            <div class="monthly-item-value" style="color:var(--success)">${avgHrs}</div>
-          </div>
-          <div class="monthly-item">
-            <div class="monthly-item-label">รวมชั่วโมง</div>
-            <div class="monthly-item-value">${totalHrs}</div>
-          </div>
-          <div class="monthly-item">
-            <div class="monthly-item-label">มาสาย</div>
-            <div class="monthly-item-value" style="color:${r.lateCount>0?'var(--danger)':'var(--success)'}">${r.lateCount} ครั้ง</div>
-          </div>
-          <div class="monthly-item">
-            <div class="monthly-item-label">นอกพื้นที่</div>
-            <div class="monthly-item-value" style="color:${r.outsideCount>0?'var(--warning)':'var(--success)'}">${r.outsideCount} ครั้ง</div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  // ==================== Send Summary ====================
-  async function sendSummary() {
-    if (!confirm('ส่ง Summary LINE ให้ Admin ตอนนี้เลยไหมครับ?')) return;
-    const res = await gasGet({ action: 'sendSummary' });
-    alert(res && res.success ? '✅ ส่ง Summary สำเร็จ' : '❌ ส่งไม่สำเร็จ');
-  }
-
-  // ==================== Reward ====================
-  let rewardUID = null;
-  let likeTargetId = null;
-
-  async function loadReward() {
-    try {
-      // ลอง init LIFF เงียบๆ ถ้าอยู่ใน LINE
-      if (typeof liff !== 'undefined') {
-        try {
-          await liff.init({ liffId: '2009895943-RkStcfI' });
-          if (liff.isInClient() && liff.isLoggedIn()) {
-            const profile = await liff.getProfile();
-            rewardUID = profile.userId;
-          }
-        } catch(e) { /* ไม่อยู่ใน LINE ก็ไม่เป็นไร */ }
-      }
-
-      // ถ้ามี UID ดึงคะแนนส่วนตัว
-      if (rewardUID) {
-        const res = await gasGet({ action: 'getMyReward', uid: rewardUID });
-        if (res && res.success) renderRewardScore(res);
-        else renderRewardNoLiff();
-      } else {
-        renderRewardNoLiff();
-      }
-
-      // โหลด Leaderboard เสมอ
-      loadRewardLeaderboard();
-    } catch(e) {
-      renderRewardNoLiff();
-      loadRewardLeaderboard();
-    }
-  }
-
-  function renderRewardNoLiff() {
-    document.getElementById('rewardMyScore').innerHTML = '<div class="empty">⚠️ กรุณาเปิดผ่าน LINE LIFF เพื่อดูคะแนนส่วนตัวครับ<br><br>ดูอันดับรวมได้ด้านล่างครับ</div>';
-    loadRewardLeaderboard();
-  }
-
-  function renderRewardScore(res) {
-    const ALL_BADGES = [
-      { id:'on_time_5', icon:'⭐', name:'มาตรงเวลา
-5 วัน' },
-      { id:'no_late_month', icon:'🔥', name:'ไม่สาย
-ทั้งเดือน' },
-      { id:'checkout_all', icon:'✅', name:'เช็คเอ้าต์
-ครบ' },
-      { id:'full_month', icon:'🌟', name:'มาครบ
-ทั้งเดือน' },
-      { id:'early_bird', icon:'🌅', name:'นกตื่น
-เช้า' },
-      { id:'team_star', icon:'💜', name:'ดาว
-ทีม' },
-      { id:'top_score', icon:'👑', name:'คะแนน
-สูงสุด' },
-      { id:'ot_hero', icon:'💪', name:'นักสู้
-OT' },
-    ];
-    const earned = res.badges || [];
-
-    document.getElementById('rewardMyScore').innerHTML = `
-      <div class="score-card-d">
-        <div style="font-size:13px;opacity:0.85">${res.employee?.name || 'คะแนนเดือนนี้'}</div>
-        <div class="score-num-d">${res.score || 0}</div>
-        <div class="score-lbl-d">คะแนนสะสม</div>
-        <div class="score-rank-d">อันดับที่ ${res.rank || '—'} / ${res.total || '—'} คน</div>
-      </div>`;
-
-    const stats = res.stats || {};
-    document.getElementById('rewardStats').innerHTML = `
-      <div class="score-detail-box"><div class="score-detail-val" style="color:#005A9C">${stats.workDays||0}</div><div class="score-detail-lbl">วันทำงาน</div></div>
-      <div class="score-detail-box"><div class="score-detail-val" style="color:#2E7D32">${stats.onTime||0}</div><div class="score-detail-lbl">มาตรงเวลา</div></div>
-      <div class="score-detail-box"><div class="score-detail-val" style="color:#F9A825">${stats.checkoutAll||0}</div><div class="score-detail-lbl">เช็คเอ้าต์ครบ</div></div>
-      <div class="score-detail-box"><div class="score-detail-val" style="color:#E65100">${stats.otScore||0}</div><div class="score-detail-lbl">คะแนน OT</div></div>
-      <div class="score-detail-box"><div class="score-detail-val" style="color:#7B1FA2">${stats.likeScore||0}</div><div class="score-detail-lbl">คะแนน Like</div></div>
-      <div class="score-detail-box"><div class="score-detail-val" style="color:#1565C0">${stats.earlyCount||0}</div><div class="score-detail-lbl">มาเช้ามาก</div></div>`;
-
-    document.getElementById('rewardBadges').innerHTML = ALL_BADGES.map(b => `
-      <div class="badge-mini ${earned.includes(b.id) ? 'earned' : 'locked'}">
-        <div class="badge-mini-icon">${b.icon}</div>
-        <div class="badge-mini-name">${b.name}</div>
-      </div>`).join('');
-  }
-
-  async function loadRewardLeaderboard() {
-    const res = await gasGet({ action: 'getLeaderboard' });
-    const div = document.getElementById('rewardLeaderboard');
-    if (!res || !Array.isArray(res)) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
-
-    div.innerHTML = res.map((r, i) => {
-      const rc = i===0?'r1':i===1?'r2':i===2?'r3':'rx';
-      const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
-      const isMe = r.uid === rewardUID;
-      return `<div class="leader-row" style="${isMe?'border:1.5px solid #F9A825;background:#FFF8E1':''}">
-        <div class="rank-circle ${rc}">${rt}</div>
-        <div style="width:34px;height:34px;border-radius:50%;background:var(--primary-light);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          ${r.picUrl ? `<img src="${r.picUrl}" style="width:100%;height:100%;object-fit:cover">` : '👤'}
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}${isMe?' (คุณ)':''}</div>
-          <div style="font-size:11px;color:var(--muted)">มาตรงเวลา ${r.onTime} วัน · ${r.workDays} วันทำงาน</div>
-        </div>
-        <div style="font-size:16px;font-weight:700;color:#F9A825;flex-shrink:0">${r.score}</div>
-        <button class="like-btn" onclick="openLike('${r.empId}','${r.name}')">⭐</button>
-      </div>`;
-    }).join('');
-  }
-
-  function openLike(empId, name) {
-    if (!rewardUID) { alert('กรุณาเปิดผ่าน LINE เพื่อใช้ฟีเจอร์ Like ครับ'); return; }
-    likeTargetId = empId;
-    document.getElementById('likeModalName').textContent = `👤 ${name}`;
-    document.getElementById('likeReason').value = '';
-    document.getElementById('likeModal').style.display = 'flex';
-  }
-
-  function closeLikeModal() {
-    document.getElementById('likeModal').style.display = 'none';
-    likeTargetId = null;
-  }
-
-  async function submitLike() {
-    const reason = document.getElementById('likeReason').value.trim();
-    if (!reason) { alert('กรุณาระบุเหตุผลก่อนครับ'); return; }
-    const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: likeTargetId, reason });
-    closeLikeModal();
-    alert(res && res.success ? `✅ ${res.message}` : `❌ ${res ? res.message : 'เกิดข้อผิดพลาด'}`);
-    if (res && res.success) loadRewardLeaderboard();
-  }
-
-  // ==================== Helpers ====================
-  function fmtDate(d) {
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  }
-  function fmtMonth(d) {
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-  }
-
-  // ==================== Reward Tab ====================
-  let myUID = null;
-  let likeTargetId = null;
-  let allEmployees = [];
-  let canLike = false;
-
-  async function loadReward() {
-    // ดึง UID จาก LIFF ถ้ามี
-    try {
-      if (typeof liff !== 'undefined') {
-        await liff.init({ liffId: '2009895943-RkStcfI' }); // LIFF ของ Dashboard
-        if (liff.isLoggedIn()) {
-          const profile = await liff.getProfile();
-          myUID = profile.userId;
-        }
-      }
-    } catch(e) {}
-
-    // โหลด Leaderboard
-    gasGet({ action: 'getLeaderboard' }).then(data => renderLeaderboard(data));
-
-    // โหลด My Score ถ้ามี UID
-    if (myUID) { gasGet({ action: 'getMyReward', uid: myUID }).then(data => renderMyScore(data)); }
-
-    // โหลดรายชื่อสำหรับ Like
-    gasGet({ action: 'getEmployeeFull' }).then(list => { allEmployees = list; if(canLike) renderLikeList(list); });
-  }
-
-  function renderMyScore(data) {
-    if (!data || !data.success) return;
-    const emp = data.employee;
-    const stats = data.stats || {};
-
-    // ตรวจว่ากด Like ได้ไหม
-    const LIKE_POS = ['ผู้ช่วยหัวหน้าแผนก','หัวหน้าแผนก','ผู้จัดการ','ผจก.'];
-    canLike = LIKE_POS.some(p => (emp.position || '').includes(p));
-    if (canLike) document.getElementById('likeSection').style.display = 'block';
-
-    document.getElementById('myScoreCard').innerHTML = `
-      <div class="score-avatar">${emp.picUrl ? `<img src="${emp.picUrl}">` : '👤'}</div>
-      <div style="flex:1">
-        <div style="font-size:15px;font-weight:700">${emp.name}</div>
-        <div class="score-num-mini">${data.score} <span style="font-size:14px;opacity:0.8">คะแนน</span></div>
-        <div class="score-rank-mini">อันดับ ${data.rank}/${data.total}</div>
+async function loadLeaderboard() {
+  const data = await gasGet({ action: 'getLeaderboard' });
+  const div = document.getElementById('rewardLeaderboard');
+  if (!data || !Array.isArray(data)) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+  div.innerHTML = data.map((r, i) => {
+    const rc = i===0?'r1':i===1?'r2':i===2?'r3':'rx';
+    const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const isMe = r.uid === rewardUID;
+    const avatar = r.picUrl ? `<img src="${r.picUrl}" style="width:100%;height:100%;object-fit:cover">` : '👤';
+    return `<div class="leader-row" style="${isMe?'border:1.5px solid var(--gold);background:var(--gold-light)':''}">
+      <div class="rank-circle ${rc}">${rt}</div>
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--primary-light);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">${avatar}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}${isMe?' (คุณ)':''}</div>
+        <div style="font-size:11px;color:var(--muted)">มาตรงเวลา ${r.onTime} วัน</div>
       </div>
-      <div style="text-align:right">
-        <div style="font-size:24px">🏆</div>
-        <div style="font-size:11px;opacity:0.8">${data.badges ? data.badges.length : 0} Badge</div>
-      </div>`;
+      <div style="font-size:16px;font-weight:700;color:var(--gold);flex-shrink:0">${r.score}</div>
+      <button class="like-btn" id="like-${r.empId}" onclick="openLike('${r.empId}','${r.name}')">⭐</button>
+    </div>`;
+  }).join('');
+}
 
-    document.getElementById('rewardStats').innerHTML = `
-      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--primary)">${stats.onTime||0}</div><div class="reward-stat-lbl">มาตรงเวลา</div></div>
-      <div class="reward-stat"><div class="reward-stat-val" style="color:#F9A825">${stats.checkoutGood||0}</div><div class="reward-stat-lbl">เช็คเอ้าต์ดี</div></div>
-      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--success)">${stats.otDays||0}</div><div class="reward-stat-lbl">OT อนุมัติ</div></div>`;
-  }
+function openLike(empId, name) {
+  if (!rewardUID) { alert('กรุณาเปิดผ่าน LINE เพื่อใช้ฟีเจอร์ Like ครับ'); return; }
+  likeTargetId = empId;
+  document.getElementById('likeModalName').textContent = `👤 ${name}`;
+  document.getElementById('likeReason').value = '';
+  document.getElementById('likeModal').classList.add('show');
+}
 
-  function renderLeaderboard(list) {
-    if (!list || !list.length) { document.getElementById('leaderboardList').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
-    document.getElementById('leaderboardList').innerHTML = list.map((r, i) => {
-      const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
-      const rankText = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
-      const isMe = r.uid === myUID;
-      return `<div class="leaderboard-item" style="${isMe?'border:1.5px solid #F9A825;background:#FFF8E1':''}">
-        <div class="rank-badge ${rankClass}">${rankText}</div>
-        <div class="lb-avatar">${r.picUrl?`<img src="${r.picUrl}">`:'👤'}</div>
-        <div style="flex:1">
-          <div style="font-size:14px;font-weight:600">${r.name}${isMe?' (คุณ)':''}</div>
-          <div style="font-size:11px;color:var(--muted)">ตรงเวลา ${r.onTime} วัน · OT ${r.otDays} วัน · Like ${r.likeScore}</div>
-        </div>
-        <div class="lb-pts">${r.score}<span style="font-size:10px;color:var(--muted)"> คะแนน</span></div>
-      </div>`;
-    }).join('');
-  }
+function closeLikeModal() {
+  document.getElementById('likeModal').classList.remove('show');
+  likeTargetId = null;
+}
 
-  function renderLikeList(list) {
-    if (!list || !list.length) return;
-    document.getElementById('likeList').innerHTML = list.map(e => `
-      <div class="like-item">
-        <div class="lb-avatar">${e.picUrl?`<img src="${e.picUrl}">`:'👤'}</div>
-        <div style="flex:1">
-          <div style="font-size:14px;font-weight:600">${e.name}</div>
-          <div style="font-size:11px;color:var(--muted)">${e.position||''}</div>
-        </div>
-        <button class="like-btn" id="like-${e.id}" onclick="openLikeModal('${e.id}','${e.name}')">⭐ Like</button>
-      </div>`).join('');
-  }
+async function submitLike() {
+  const reason = document.getElementById('likeReason').value.trim();
+  if (!reason) { alert('กรุณาระบุเหตุผลก่อนครับ'); return; }
+  const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: likeTargetId, reason });
+  closeLikeModal();
+  alert(res && res.success ? '✅ ' + res.message : '❌ ' + (res?res.message:'เกิดข้อผิดพลาด'));
+  if (res && res.success) loadLeaderboard();
+}
 
-  function openLikeModal(empId, name) {
-    likeTargetId = empId;
-    document.getElementById('likeTargetName').textContent = `👤 ${name}`;
-    document.getElementById('likeReason').value = '';
-    document.getElementById('likeModal').classList.add('show');
-  }
-
-  function closeLikeModal() {
-    document.getElementById('likeModal').classList.remove('show');
-    likeTargetId = null;
-  }
-
-  function confirmLike() {
-    if (!likeTargetId || !myUID) return;
-    const reason = document.getElementById('likeReason').value.trim();
-    gasGet({ action: 'giveLike', giverUID: myUID, receiverEmpId: likeTargetId, reason }).then(res => { closeLikeModal(); alert(res.message); if (res.success) { const btn = document.getElementById(`like-${likeTargetId}`); if (btn) { btn.textContent = '✅ Liked'; btn.className = 'like-btn liked'; btn.disabled = true; } } });
-  }
-
-  document.getElementById('likeModal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeLikeModal();
-  });
+// ==================== Helpers ====================
+function setHeaderDate() {
+  const d = new Date();
+  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  document.getElementById('headerDate').textContent = `วัน${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+}
+function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtMonth(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 </script>
 </body>
 </html>
