@@ -215,6 +215,9 @@
           `${employeeData.position || ''} ${employeeData.dept || ''}`.trim();
         if (profile.pictureUrl) {
           document.getElementById('userAvatar').innerHTML = `<img src="${profile.pictureUrl}">`;
+          if (!employeeData.picUrl) gasGet({ action: 'saveProfilePic', empId: employeeData.id, picUrl: profile.pictureUrl });
+        } else if (employeeData.picUrl) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${employeeData.picUrl}">`;
         }
         document.getElementById('btnSubmit').disabled = false;
         updateRate();

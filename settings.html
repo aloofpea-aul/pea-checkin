@@ -318,7 +318,7 @@
     if (!list.length) { div.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">ไม่พบพนักงาน</div>'; return; }
     div.innerHTML = list.map(e => `
       <div class="emp-select-item" id="emp-${e.id}" onclick="selectEmp('${e.id}','${e.name}',this)">
-        <div class="emp-avatar">👤</div>
+        <div class="emp-avatar">${e.picUrl ? `<img src="${e.picUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : '👤'}</div>
         <div class="emp-info">
           <div class="emp-name">${e.name}</div>
           <div class="emp-sub">${e.position || ''} ${e.dept ? '· ' + e.dept : ''}</div>
@@ -382,10 +382,11 @@
     employees = res;
     document.getElementById('uidList').innerHTML = res.map(e => `
       <div class="uid-item">
-        <div class="emp-avatar">👤</div>
+        <div class="emp-avatar" style="overflow:hidden">${e.picUrl ? `<img src="${e.picUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : '👤'}</div>
         <div class="uid-info">
           <div class="uid-name">${e.name}</div>
           <div class="uid-val ${e.lineUID ? '' : 'empty'}">${e.lineUID || '⚠️ ยังไม่มี UID'}</div>
+          ${e.picUrl ? '<div style="font-size:10px;color:var(--success)">✅ มีรูปโปรไฟล์แล้ว</div>' : ''}
         </div>
         <button class="uid-btn ${e.lineUID ? 'set' : ''}" onclick="openUIDModal('${e.id}','${e.name}','${e.lineUID || ''}')">
           ${e.lineUID ? '✏️ แก้ไข' : '➕ เพิ่ม'}

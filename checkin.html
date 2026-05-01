@@ -268,6 +268,12 @@
         document.getElementById('userSub').textContent = `${employeeData.position || ''} ${employeeData.dept || ''}`.trim() || 'พนักงาน';
         if (profile.pictureUrl) {
           document.getElementById('userAvatar').innerHTML = `<img src="${profile.pictureUrl}">`;
+          // บันทึกรูปโปรไฟล์ลง Sheet (ถ้ายังไม่มี)
+          if (!employeeData.picUrl || employeeData.picUrl !== profile.pictureUrl) {
+            gasGet({ action: 'saveProfilePic', empId: employeeData.id, picUrl: profile.pictureUrl });
+          }
+        } else if (employeeData.picUrl) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${employeeData.picUrl}">`;
         }
         // สถานะวันนี้มาพร้อมกันเลย
         if (res.status) { todayStatus = res.status; }
