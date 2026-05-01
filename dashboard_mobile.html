@@ -147,6 +147,30 @@
   .monthly-item-label { font-size: 11px; color: var(--muted); }
   .monthly-item-value { font-size: 16px; font-weight: 700; margin-top: 2px; }
 
+  /* Reward */
+  .score-card-d { background: linear-gradient(135deg,#F9A825,#F57F17); border-radius: 16px; padding: 20px; color: white; text-align: center; margin-bottom: 12px; }
+  .score-num-d { font-size: 48px; font-weight: 700; line-height: 1; }
+  .score-lbl-d { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+  .score-rank-d { display: inline-block; background: rgba(255,255,255,0.25); border-radius: 20px; padding: 4px 14px; font-size: 13px; font-weight: 700; margin-top: 8px; }
+  .badge-mini-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 12px; }
+  .badge-mini { background: white; border-radius: 12px; padding: 10px 6px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1.5px solid var(--border); }
+  .badge-mini.earned { border-color: #F9A825; background: #FFF8E1; }
+  .badge-mini.locked { opacity: 0.45; }
+  .badge-mini-icon { font-size: 24px; }
+  .badge-mini-name { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
+  .leader-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: white; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+  .rank-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .r1 { background: #FFD700; color: #5D4037; }
+  .r2 { background: #C0C0C0; color: #424242; }
+  .r3 { background: #CD7F32; color: white; }
+  .rx { background: var(--bg); color: var(--muted); }
+  .like-btn { background: #F3E5F5; border: none; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 600; color: #7B1FA2; transition: all 0.2s; }
+  .like-btn:active { transform: scale(0.93); }
+  .score-detail-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+  .score-detail-box { background: white; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+  .score-detail-val { font-size: 20px; font-weight: 700; }
+  .score-detail-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
   /* Loading */
   .loading { text-align: center; padding: 40px; color: var(--muted); }
   .spinner-small {
@@ -155,6 +179,38 @@
     animation: spin 0.8s linear infinite; margin: 0 auto 10px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Reward Tab */
+  .score-card-mini{background:linear-gradient(135deg,#F9A825,#F57F17);border-radius:14px;padding:16px;color:white;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+  .score-avatar{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.3);border:2px solid rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex-shrink:0;}
+  .score-avatar img{width:100%;height:100%;object-fit:cover;}
+  .score-num-mini{font-size:32px;font-weight:700;}
+  .score-lbl-mini{font-size:12px;opacity:0.85;}
+  .score-rank-mini{font-size:11px;background:rgba(255,255,255,0.25);border-radius:20px;padding:2px 10px;display:inline-block;margin-top:4px;}
+
+  .reward-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+  .reward-stat{background:white;border-radius:10px;padding:10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+  .reward-stat-val{font-size:20px;font-weight:700;}
+  .reward-stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .leaderboard-item{display:flex;align-items:center;gap:10px;padding:12px;background:white;border-radius:12px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+  .rank-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rank-1{background:#FFD700;color:#5D4037;}
+  .rank-2{background:#C0C0C0;color:#424242;}
+  .rank-3{background:#CD7F32;color:white;}
+  .rank-n{background:var(--bg);color:var(--muted);}
+  .lb-avatar{width:34px;height:34px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;flex-shrink:0;}
+  .lb-avatar img{width:100%;height:100%;object-fit:cover;}
+  .lb-pts{font-size:15px;font-weight:700;color:#F9A825;}
+
+  .like-item{display:flex;align-items:center;gap:10px;padding:12px;background:white;border-radius:12px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+  .like-btn{background:#FFF8E1;border:1.5px solid #F9A825;border-radius:10px;padding:6px 14px;color:#F9A825;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+  .like-btn:active{transform:scale(0.95);}
+  .like-btn.liked{background:#E8F5E9;border-color:#2E7D32;color:#2E7D32;}
+
+  .like-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;}
+  .like-modal.show{display:flex;}
+  .like-modal-box{background:white;border-radius:18px;padding:24px;margin:16px;width:100%;max-width:380px;}
 
   /* Empty */
   .empty { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; }
@@ -183,6 +239,8 @@
   <button class="tab-btn active" onclick="switchTab('today', this)">📅 วันนี้</button>
   <button class="tab-btn" onclick="switchTab('history', this)">📋 ประวัติ</button>
   <button class="tab-btn" onclick="switchTab('monthly', this)">📈 รายเดือน</button>
+  <button class="tab-btn" onclick="switchTab('reward', this)">🏆 รางวัล</button>
+  <button class="tab-btn" onclick="switchTab('reward', this)">🏆 รางวัล</button>
 </div>
 
 <!-- Content -->
@@ -260,6 +318,35 @@
     <div id="historyList"><div class="empty">เลือกวันที่เพื่อดูประวัติ</div></div>
   </div>
 
+  <!-- Tab: Reward -->
+  <div class="tab-page" id="tab-reward">
+
+    <div id="rewardMyScore"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">📊 รายละเอียดคะแนน</div>
+    <div class="score-detail-grid" id="rewardStats"></div>
+
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">🎖️ Badge ที่ได้รับ</div>
+    <div class="badge-mini-grid" id="rewardBadges"></div>
+
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">🏅 อันดับเดือนนี้</div>
+    <div id="rewardLeaderboard"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+
+    <!-- Like Modal -->
+    <div id="likeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
+      <div style="background:white;border-radius:18px;padding:24px;margin:16px;width:100%;max-width:400px">
+        <div style="font-size:17px;font-weight:700;margin-bottom:4px">⭐ ให้ Like</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px" id="likeModalName">—</div>
+        <textarea id="likeReason" rows="3" placeholder="เหตุผล เช่น ทำงานพิเศษ, ขยันมาก..."
+          style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:inherit;font-size:14px;margin-bottom:14px;resize:none;outline:none"></textarea>
+        <div style="display:flex;gap:10px">
+          <button onclick="submitLike()" style="flex:1;padding:12px;background:#7B1FA2;color:white;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">⭐ ให้ Like</button>
+          <button onclick="closeLikeModal()" style="flex:0.5;padding:12px;background:var(--bg);color:var(--muted);border:none;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Tab: Monthly -->
   <div class="tab-page" id="tab-monthly">
     <div class="filter-row">
@@ -269,8 +356,58 @@
     <div id="monthlyList"><div class="empty">เลือกเดือนเพื่อดูสรุป</div></div>
   </div>
 
+  <!-- Tab: รางวัล -->
+  <div class="tab-page" id="tab-reward">
+
+    <!-- Score Card -->
+    <div class="score-card-mini" id="myScoreCard">
+      <div style="text-align:center;width:100%;color:white;padding:10px">กำลังโหลด...</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="reward-stats" id="rewardStats">
+      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--primary)">—</div><div class="reward-stat-lbl">มาตรงเวลา</div></div>
+      <div class="reward-stat"><div class="reward-stat-val" style="color:#F9A825">—</div><div class="reward-stat-lbl">เช็คเอ้าต์ดี</div></div>
+      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--success)">—</div><div class="reward-stat-lbl">OT ที่อนุมัติ</div></div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏅 อันดับเดือนนี้</div>
+        <button class="btn-sm btn-primary" onclick="loadReward()">🔄</button>
+      </div>
+      <div id="leaderboardList"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+    </div>
+
+    <!-- Give Like -->
+    <div class="card" id="likeSection" style="display:none">
+      <div class="card-header">
+        <div class="card-title">⭐ กด Like ให้พนักงาน</div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">กดได้ 1 ครั้ง/คน/วัน เฉพาะหัวหน้าและผู้จัดการ</div>
+      <div id="likeList"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+    </div>
+
+  </div>
+
+  <!-- Like Modal -->
+  <div class="like-modal" id="likeModal">
+    <div class="like-modal-box">
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">⭐ กด Like ให้</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:14px" id="likeTargetName">—</div>
+      <textarea id="likeReason" rows="3" placeholder="ระบุเหตุผล เช่น ทำงานขยัน, ช่วยงานทีม..."
+        style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;resize:none;margin-bottom:14px"></textarea>
+      <div style="display:flex;gap:10px">
+        <button class="btn-sm btn-primary" style="flex:1;padding:12px" onclick="confirmLike()">⭐ ยืนยัน Like</button>
+        <button class="btn-sm" style="flex:0.5;padding:12px;background:var(--bg);color:var(--muted)" onclick="closeLikeModal()">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
+<script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <script>
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
 
@@ -298,6 +435,7 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
     btn.classList.add('active');
+    if (name === 'reward') loadReward();
   }
 
   // ==================== API ====================
@@ -470,6 +608,124 @@
     alert(res && res.success ? '✅ ส่ง Summary สำเร็จ' : '❌ ส่งไม่สำเร็จ');
   }
 
+  // ==================== Reward ====================
+  let rewardUID = null;
+  let likeTargetId = null;
+
+  async function loadReward() {
+    if (!rewardUID) {
+      // พยายาม get UID จาก LIFF
+      try {
+        if (typeof liff !== 'undefined') {
+          if (!liff.isInClient()) { renderRewardNoLiff(); return; }
+          if (!liff.isLoggedIn()) liff.login();
+          const profile = await liff.getProfile();
+          rewardUID = profile.userId;
+        }
+      } catch(e) { renderRewardNoLiff(); return; }
+    }
+    const res = await gasGet({ action: 'getMyReward', uid: rewardUID });
+    if (!res || !res.success) { document.getElementById('rewardMyScore').innerHTML = '<div class="empty">ไม่พบข้อมูล กรุณาเปิดผ่าน LINE</div>'; return; }
+    renderRewardScore(res);
+    loadRewardLeaderboard();
+  }
+
+  function renderRewardNoLiff() {
+    document.getElementById('rewardMyScore').innerHTML = '<div class="empty">⚠️ กรุณาเปิดผ่าน LINE LIFF เพื่อดูคะแนนส่วนตัวครับ<br><br>ดูอันดับรวมได้ด้านล่างครับ</div>';
+    loadRewardLeaderboard();
+  }
+
+  function renderRewardScore(res) {
+    const ALL_BADGES = [
+      { id:'on_time_5', icon:'⭐', name:'มาตรงเวลา
+5 วัน' },
+      { id:'no_late_month', icon:'🔥', name:'ไม่สาย
+ทั้งเดือน' },
+      { id:'checkout_all', icon:'✅', name:'เช็คเอ้าต์
+ครบ' },
+      { id:'full_month', icon:'🌟', name:'มาครบ
+ทั้งเดือน' },
+      { id:'early_bird', icon:'🌅', name:'นกตื่น
+เช้า' },
+      { id:'team_star', icon:'💜', name:'ดาว
+ทีม' },
+      { id:'top_score', icon:'👑', name:'คะแนน
+สูงสุด' },
+      { id:'ot_hero', icon:'💪', name:'นักสู้
+OT' },
+    ];
+    const earned = res.badges || [];
+
+    document.getElementById('rewardMyScore').innerHTML = `
+      <div class="score-card-d">
+        <div style="font-size:13px;opacity:0.85">${res.employee?.name || 'คะแนนเดือนนี้'}</div>
+        <div class="score-num-d">${res.score || 0}</div>
+        <div class="score-lbl-d">คะแนนสะสม</div>
+        <div class="score-rank-d">อันดับที่ ${res.rank || '—'} / ${res.total || '—'} คน</div>
+      </div>`;
+
+    const stats = res.stats || {};
+    document.getElementById('rewardStats').innerHTML = `
+      <div class="score-detail-box"><div class="score-detail-val" style="color:#005A9C">${stats.workDays||0}</div><div class="score-detail-lbl">วันทำงาน</div></div>
+      <div class="score-detail-box"><div class="score-detail-val" style="color:#2E7D32">${stats.onTime||0}</div><div class="score-detail-lbl">มาตรงเวลา</div></div>
+      <div class="score-detail-box"><div class="score-detail-val" style="color:#F9A825">${stats.checkoutAll||0}</div><div class="score-detail-lbl">เช็คเอ้าต์ครบ</div></div>
+      <div class="score-detail-box"><div class="score-detail-val" style="color:#E65100">${stats.otScore||0}</div><div class="score-detail-lbl">คะแนน OT</div></div>
+      <div class="score-detail-box"><div class="score-detail-val" style="color:#7B1FA2">${stats.likeScore||0}</div><div class="score-detail-lbl">คะแนน Like</div></div>
+      <div class="score-detail-box"><div class="score-detail-val" style="color:#1565C0">${stats.earlyCount||0}</div><div class="score-detail-lbl">มาเช้ามาก</div></div>`;
+
+    document.getElementById('rewardBadges').innerHTML = ALL_BADGES.map(b => `
+      <div class="badge-mini ${earned.includes(b.id) ? 'earned' : 'locked'}">
+        <div class="badge-mini-icon">${b.icon}</div>
+        <div class="badge-mini-name">${b.name}</div>
+      </div>`).join('');
+  }
+
+  async function loadRewardLeaderboard() {
+    const res = await gasGet({ action: 'getLeaderboard' });
+    const div = document.getElementById('rewardLeaderboard');
+    if (!res || !Array.isArray(res)) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+
+    div.innerHTML = res.map((r, i) => {
+      const rc = i===0?'r1':i===1?'r2':i===2?'r3':'rx';
+      const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+      const isMe = r.uid === rewardUID;
+      return `<div class="leader-row" style="${isMe?'border:1.5px solid #F9A825;background:#FFF8E1':''}">
+        <div class="rank-circle ${rc}">${rt}</div>
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--primary-light);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          ${r.picUrl ? `<img src="${r.picUrl}" style="width:100%;height:100%;object-fit:cover">` : '👤'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}${isMe?' (คุณ)':''}</div>
+          <div style="font-size:11px;color:var(--muted)">มาตรงเวลา ${r.onTime} วัน · ${r.workDays} วันทำงาน</div>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:#F9A825;flex-shrink:0">${r.score}</div>
+        <button class="like-btn" onclick="openLike('${r.empId}','${r.name}')">⭐</button>
+      </div>`;
+    }).join('');
+  }
+
+  function openLike(empId, name) {
+    if (!rewardUID) { alert('กรุณาเปิดผ่าน LINE เพื่อใช้ฟีเจอร์ Like ครับ'); return; }
+    likeTargetId = empId;
+    document.getElementById('likeModalName').textContent = `👤 ${name}`;
+    document.getElementById('likeReason').value = '';
+    document.getElementById('likeModal').style.display = 'flex';
+  }
+
+  function closeLikeModal() {
+    document.getElementById('likeModal').style.display = 'none';
+    likeTargetId = null;
+  }
+
+  async function submitLike() {
+    const reason = document.getElementById('likeReason').value.trim();
+    if (!reason) { alert('กรุณาระบุเหตุผลก่อนครับ'); return; }
+    const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: likeTargetId, reason });
+    closeLikeModal();
+    alert(res && res.success ? `✅ ${res.message}` : `❌ ${res ? res.message : 'เกิดข้อผิดพลาด'}`);
+    if (res && res.success) loadRewardLeaderboard();
+  }
+
   // ==================== Helpers ====================
   function fmtDate(d) {
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -477,6 +733,115 @@
   function fmtMonth(d) {
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
   }
+
+  // ==================== Reward Tab ====================
+  let myUID = null;
+  let likeTargetId = null;
+  let allEmployees = [];
+  let canLike = false;
+
+  async function loadReward() {
+    // ดึง UID จาก LIFF ถ้ามี
+    try {
+      if (typeof liff !== 'undefined') {
+        await liff.init({ liffId: '2009895943-RkStcfI' }); // LIFF ของ Dashboard
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          myUID = profile.userId;
+        }
+      }
+    } catch(e) {}
+
+    // โหลด Leaderboard
+    gasGet({ action: 'getLeaderboard' }).then(data => renderLeaderboard(data));
+
+    // โหลด My Score ถ้ามี UID
+    if (myUID) { gasGet({ action: 'getMyReward', uid: myUID }).then(data => renderMyScore(data)); }
+
+    // โหลดรายชื่อสำหรับ Like
+    gasGet({ action: 'getEmployeeFull' }).then(list => { allEmployees = list; if(canLike) renderLikeList(list); });
+  }
+
+  function renderMyScore(data) {
+    if (!data || !data.success) return;
+    const emp = data.employee;
+    const stats = data.stats || {};
+
+    // ตรวจว่ากด Like ได้ไหม
+    const LIKE_POS = ['ผู้ช่วยหัวหน้าแผนก','หัวหน้าแผนก','ผู้จัดการ','ผจก.'];
+    canLike = LIKE_POS.some(p => (emp.position || '').includes(p));
+    if (canLike) document.getElementById('likeSection').style.display = 'block';
+
+    document.getElementById('myScoreCard').innerHTML = `
+      <div class="score-avatar">${emp.picUrl ? `<img src="${emp.picUrl}">` : '👤'}</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700">${emp.name}</div>
+        <div class="score-num-mini">${data.score} <span style="font-size:14px;opacity:0.8">คะแนน</span></div>
+        <div class="score-rank-mini">อันดับ ${data.rank}/${data.total}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:24px">🏆</div>
+        <div style="font-size:11px;opacity:0.8">${data.badges ? data.badges.length : 0} Badge</div>
+      </div>`;
+
+    document.getElementById('rewardStats').innerHTML = `
+      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--primary)">${stats.onTime||0}</div><div class="reward-stat-lbl">มาตรงเวลา</div></div>
+      <div class="reward-stat"><div class="reward-stat-val" style="color:#F9A825">${stats.checkoutGood||0}</div><div class="reward-stat-lbl">เช็คเอ้าต์ดี</div></div>
+      <div class="reward-stat"><div class="reward-stat-val" style="color:var(--success)">${stats.otDays||0}</div><div class="reward-stat-lbl">OT อนุมัติ</div></div>`;
+  }
+
+  function renderLeaderboard(list) {
+    if (!list || !list.length) { document.getElementById('leaderboardList').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+    document.getElementById('leaderboardList').innerHTML = list.map((r, i) => {
+      const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+      const rankText = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+      const isMe = r.uid === myUID;
+      return `<div class="leaderboard-item" style="${isMe?'border:1.5px solid #F9A825;background:#FFF8E1':''}">
+        <div class="rank-badge ${rankClass}">${rankText}</div>
+        <div class="lb-avatar">${r.picUrl?`<img src="${r.picUrl}">`:'👤'}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">${r.name}${isMe?' (คุณ)':''}</div>
+          <div style="font-size:11px;color:var(--muted)">ตรงเวลา ${r.onTime} วัน · OT ${r.otDays} วัน · Like ${r.likeScore}</div>
+        </div>
+        <div class="lb-pts">${r.score}<span style="font-size:10px;color:var(--muted)"> คะแนน</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderLikeList(list) {
+    if (!list || !list.length) return;
+    document.getElementById('likeList').innerHTML = list.map(e => `
+      <div class="like-item">
+        <div class="lb-avatar">${e.picUrl?`<img src="${e.picUrl}">`:'👤'}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">${e.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${e.position||''}</div>
+        </div>
+        <button class="like-btn" id="like-${e.id}" onclick="openLikeModal('${e.id}','${e.name}')">⭐ Like</button>
+      </div>`).join('');
+  }
+
+  function openLikeModal(empId, name) {
+    likeTargetId = empId;
+    document.getElementById('likeTargetName').textContent = `👤 ${name}`;
+    document.getElementById('likeReason').value = '';
+    document.getElementById('likeModal').classList.add('show');
+  }
+
+  function closeLikeModal() {
+    document.getElementById('likeModal').classList.remove('show');
+    likeTargetId = null;
+  }
+
+  function confirmLike() {
+    if (!likeTargetId || !myUID) return;
+    const reason = document.getElementById('likeReason').value.trim();
+    gasGet({ action: 'giveLike', giverUID: myUID, receiverEmpId: likeTargetId, reason }).then(res => { closeLikeModal(); alert(res.message); if (res.success) { const btn = document.getElementById(`like-${likeTargetId}`); if (btn) { btn.textContent = '✅ Liked'; btn.className = 'like-btn liked'; btn.disabled = true; } } });
+  }
+
+  document.getElementById('likeModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeLikeModal();
+  });
 </script>
 </body>
 </html>
