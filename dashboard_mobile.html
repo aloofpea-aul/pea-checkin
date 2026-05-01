@@ -240,7 +240,6 @@
   <button class="tab-btn" onclick="switchTab('history', this)">📋 ประวัติ</button>
   <button class="tab-btn" onclick="switchTab('monthly', this)">📈 รายเดือน</button>
   <button class="tab-btn" onclick="switchTab('reward', this)">🏆 รางวัล</button>
-  <button class="tab-btn" onclick="switchTab('reward', this)">🏆 รางวัล</button>
 </div>
 
 <!-- Content -->
@@ -407,7 +406,6 @@
 
 </div>
 
-<script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <script>
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
 
@@ -448,9 +446,16 @@
 
   // ==================== Weekly Chart ====================
   async function loadWeeklyChart() {
-    const res = await gasGet({ action: 'getWeeklySummary' });
-    if (!res || !res.days) return;
-    renderWeeklyChart(res.days);
+    try {
+      const res = await gasGet({ action: 'getWeeklySummary' });
+      if (!res || !res.days) {
+        document.getElementById('weeklyChart').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>';
+        return;
+      }
+      renderWeeklyChart(res.days);
+    } catch(e) {
+      document.getElementById('weeklyChart').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>';
+    }
   }
 
   function renderWeeklyChart(days) {
@@ -613,21 +618,33 @@
   let likeTargetId = null;
 
   async function loadReward() {
-    if (!rewardUID) {
-      // พยายาม get UID จาก LIFF
-      try {
-        if (typeof liff !== 'undefined') {
-          if (!liff.isInClient()) { renderRewardNoLiff(); return; }
-          if (!liff.isLoggedIn()) liff.login();
-          const profile = await liff.getProfile();
-          rewardUID = profile.userId;
-        }
-      } catch(e) { renderRewardNoLiff(); return; }
+    try {
+      // ลอง init LIFF เงียบๆ ถ้าอยู่ใน LINE
+      if (typeof liff !== 'undefined') {
+        try {
+          await liff.init({ liffId: '2009895943-RkStcfI' });
+          if (liff.isInClient() && liff.isLoggedIn()) {
+            const profile = await liff.getProfile();
+            rewardUID = profile.userId;
+          }
+        } catch(e) { /* ไม่อยู่ใน LINE ก็ไม่เป็นไร */ }
+      }
+
+      // ถ้ามี UID ดึงคะแนนส่วนตัว
+      if (rewardUID) {
+        const res = await gasGet({ action: 'getMyReward', uid: rewardUID });
+        if (res && res.success) renderRewardScore(res);
+        else renderRewardNoLiff();
+      } else {
+        renderRewardNoLiff();
+      }
+
+      // โหลด Leaderboard เสมอ
+      loadRewardLeaderboard();
+    } catch(e) {
+      renderRewardNoLiff();
+      loadRewardLeaderboard();
     }
-    const res = await gasGet({ action: 'getMyReward', uid: rewardUID });
-    if (!res || !res.success) { document.getElementById('rewardMyScore').innerHTML = '<div class="empty">ไม่พบข้อมูล กรุณาเปิดผ่าน LINE</div>'; return; }
-    renderRewardScore(res);
-    loadRewardLeaderboard();
   }
 
   function renderRewardNoLiff() {
