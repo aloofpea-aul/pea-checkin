@@ -229,6 +229,16 @@
       </div>
     </div>
 
+    <!-- Weekly Chart -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 ชั่วโมงทำงานสัปดาห์นี้</div>
+      </div>
+      <div style="padding:14px" id="weeklyChart">
+        <div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>
+      </div>
+    </div>
+
     <button class="send-btn" onclick="sendSummary()">📤 ส่ง Summary ให้ Admin</button>
 
     <div class="card">
@@ -268,6 +278,7 @@
   window.onload = () => {
     setHeaderDate();
     loadToday();
+    loadWeeklyChart();
     const today = new Date();
     document.getElementById('historyDate').value = fmtDate(today);
     document.getElementById('monthPicker').value = fmtMonth(today);
@@ -295,6 +306,42 @@
     const res = await fetch(url, { redirect: 'follow' });
     const text = await res.text();
     try { return JSON.parse(text); } catch(e) { return null; }
+  }
+
+  // ==================== Weekly Chart ====================
+  async function loadWeeklyChart() {
+    const res = await gasGet({ action: 'getWeeklySummary' });
+    if (!res || !res.days) return;
+    renderWeeklyChart(res.days);
+  }
+
+  function renderWeeklyChart(days) {
+    const div = document.getElementById('weeklyChart');
+    if (!days.length) { div.innerHTML = '<div class="empty">ไม่มีข้อมูลสัปดาห์นี้</div>'; return; }
+
+    const maxHrs = Math.max(...days.map(d => d.totalHours), 8);
+    const dayNames = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+
+    div.innerHTML = `
+      <div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px">
+        ${days.map(d => {
+          const pct = maxHrs > 0 ? (d.totalHours / maxHrs * 100) : 0;
+          const color = d.isToday ? '#005A9C' : d.totalHours >= 8 ? '#2E7D32' : d.totalHours > 0 ? '#E65100' : '#E0E0E0';
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:10px;color:var(--muted);font-weight:600">${d.totalHours > 0 ? d.totalHours.toFixed(1) : '—'}</div>
+            <div style="width:100%;background:#F0F4F8;border-radius:6px;height:80px;display:flex;align-items:flex-end;overflow:hidden">
+              <div style="width:100%;background:${color};border-radius:6px;height:${Math.max(pct,d.totalHours>0?8:0)}%;transition:height 0.8s ease"></div>
+            </div>
+            <div style="font-size:11px;color:${d.isToday ? '#005A9C' : 'var(--muted)'};font-weight:${d.isToday ? '700' : '400'}">${dayNames[d.dayOfWeek]}</div>
+            <div style="font-size:10px;color:var(--muted)">${d.checkedIn}/${d.total}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#2E7D32"></div>ครบ 8 ชม.</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#E65100"></div>ไม่ครบ</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:2px;background:#005A9C"></div>วันนี้</div>
+      </div>`;
   }
 
   // ==================== Today ====================
