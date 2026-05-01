@@ -163,9 +163,9 @@
 
   <!-- แจ้งเตือนวันหยุด -->
   <div class="holiday-warn" id="holidayWarn">
-    <div class="holiday-warn-title">🏖️ วันนี้เป็นวันหยุดราชการ</div>
+    <div class="holiday-warn-title">🚫 ไม่สามารถเช็คอินได้</div>
     <div class="holiday-warn-sub" id="holidayName">—</div>
-    <div style="font-size:12px;color:#9C27B0;margin-top:4px">กรุณาระบุเหตุผลในช่องหมายเหตุด้านล่าง</div>
+    <div style="font-size:13px;color:#9C27B0;margin-top:6px;font-weight:600">วันหยุดประจำปีและวันอาทิตย์ไม่สามารถบันทึกเวลาได้ครับ</div>
   </div>
 
   <!-- ข้อมูลพนักงาน (จาก LIFF) -->
@@ -271,12 +271,18 @@
         }
         // สถานะวันนี้มาพร้อมกันเลย
         if (res.status) { todayStatus = res.status; }
-        // ตรวจสอบวันหยุด
-        if (res.holiday) {
+        // ตรวจสอบวันหยุดและวันอาทิตย์
+        const today = new Date();
+        const isSunday = today.getDay() === 0;
+        if (res.holiday || isSunday) {
+          const reason = isSunday ? 'วันอาทิตย์' : res.holiday.name;
           document.getElementById('holidayWarn').classList.add('show');
-          document.getElementById('holidayName').textContent = `🗓️ ${res.holiday.name}`;
-          document.getElementById('outsideWarn').className = 'outside-warn show';
-          document.getElementById('noteInput').placeholder = 'เหตุผลที่มาทำงานในวันหยุด...';
+          document.getElementById('holidayName').textContent = `🗓️ ${reason}`;
+          // บล็อคการเช็คอิน
+          window._isHoliday = true;
+          window._holidayName = reason;
+        } else {
+          window._isHoliday = false;
         }
         updateStatusUI();
         updateButtons();
@@ -444,8 +450,14 @@
 
   function updateButtons() {
     const ready = gpsReady && employeeData;
-    document.getElementById('btnCheckin').disabled = !(ready && !todayStatus.checkIn);
-    document.getElementById('btnCheckout').disabled = !(ready && todayStatus.checkIn && !todayStatus.checkOut);
+    const isHoliday = window._isHoliday || false;
+    // บล็อคทั้งเช็คอินและเช็คเอ้าต์ในวันหยุด/อาทิตย์
+    document.getElementById('btnCheckin').disabled = !(ready && !todayStatus.checkIn) || isHoliday;
+    document.getElementById('btnCheckout').disabled = !(ready && todayStatus.checkIn && !todayStatus.checkOut) || isHoliday;
+    if (isHoliday) {
+      document.getElementById('btnCheckin').style.opacity = '0.4';
+      document.getElementById('btnCheckout').style.opacity = '0.4';
+    }
   }
 
   function showResult(success, message) {

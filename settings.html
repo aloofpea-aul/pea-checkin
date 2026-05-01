@@ -143,7 +143,12 @@
       </div>
     </div>
 
-    <div class="section-title">เลือกพนักงาน</div>
+    <div class="section-title">ค้นหาพนักงาน</div>
+    <div style="position:relative;margin-bottom:10px">
+      <input type="text" id="teamSearch" placeholder="🔍 พิมพ์ชื่อหรือรหัสพนักงาน..." 
+        oninput="filterTeamList()"
+        style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Sarabun',sans-serif;font-size:15px;outline:none;">
+    </div>
     <div id="teamEmpList"><div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div></div>
 
     <div class="card" id="teamFormCard" style="display:none">
@@ -300,19 +305,37 @@
   // ==================== Team Record ====================
   async function loadTeamList() {
     const res = await gasGet({ action: 'getEmployeeFull' });
-    if (!res || !Array.isArray(res)) return;
+    if (!res || !Array.isArray(res)) {
+      document.getElementById('teamEmpList').innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">โหลดไม่สำเร็จ กรุณารีเฟรช</div>';
+      return;
+    }
     employees = res;
-    const list = document.getElementById('teamEmpList');
-    if (!res.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">ไม่มีพนักงาน</div>'; return; }
-    list.innerHTML = res.map(e => `
-      <div class="emp-select-item" onclick="selectEmp('${e.id}','${e.name}',this)">
+    renderTeamList(res);
+  }
+
+  function renderTeamList(list) {
+    const div = document.getElementById('teamEmpList');
+    if (!list.length) { div.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">ไม่พบพนักงาน</div>'; return; }
+    div.innerHTML = list.map(e => `
+      <div class="emp-select-item" id="emp-${e.id}" onclick="selectEmp('${e.id}','${e.name}',this)">
         <div class="emp-avatar">👤</div>
         <div class="emp-info">
           <div class="emp-name">${e.name}</div>
-          <div class="emp-sub">${e.position || ''} ${e.dept || ''}</div>
+          <div class="emp-sub">${e.position || ''} ${e.dept ? '· ' + e.dept : ''}</div>
         </div>
         <span class="checkmark">✅</span>
       </div>`).join('');
+  }
+
+  function filterTeamList() {
+    const q = document.getElementById('teamSearch').value.toLowerCase().trim();
+    if (!q) { renderTeamList(employees); return; }
+    const filtered = employees.filter(e =>
+      e.name.toLowerCase().includes(q) ||
+      String(e.id).toLowerCase().includes(q) ||
+      (e.position || '').toLowerCase().includes(q)
+    );
+    renderTeamList(filtered);
   }
 
   function selectEmp(id, name, el) {
