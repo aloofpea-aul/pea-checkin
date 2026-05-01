@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Approval Settings PEA</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+  :root {
+    --primary:#005A9C;--primary-dark:#003f6e;--primary-light:#E3F0FB;
+    --success:#2E7D32;--success-light:#E8F5E9;
+    --danger:#C62828;--danger-light:#FFEBEE;
+    --warning:#E65100;--warning-light:#FFF3E0;
+    --holiday:#7B1FA2;--holiday-light:#F3E5F5;
+    --bg:#F0F4F8;--card:#FFFFFF;--text:#1A2B3C;--muted:#6B7C8F;--border:#D1DCE8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+  .header{background:linear-gradient(135deg,var(--primary-dark) 0%,#1A237E 100%);color:white;padding:18px 16px;position:sticky;top:0;z-index:100;}
+  .header-title{font-size:20px;font-weight:700;}
+  .header-sub{font-size:12px;opacity:0.7;margin-top:2px;}
+
+  .tab-bar{display:flex;background:white;border-bottom:1px solid var(--border);position:sticky;top:62px;z-index:99;overflow-x:auto;}
+  .tab-btn{flex:1;padding:12px 6px;border:none;background:transparent;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:90px;}
+  .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+
+  .content{padding:14px;flex:1;}
+  .tab-page{display:none;}
+  .tab-page.active{display:block;}
+
+  .card{background:white;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,90,156,0.08);margin-bottom:14px;}
+  .card-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+
+  /* Holiday */
+  .holiday-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0F4F8;}
+  .holiday-item:last-child{border-bottom:none;}
+  .holiday-date{min-width:70px;text-align:center;background:var(--holiday-light);border-radius:8px;padding:6px 8px;}
+  .holiday-date-day{font-size:18px;font-weight:700;color:var(--holiday);}
+  .holiday-date-month{font-size:11px;color:var(--holiday);}
+  .holiday-name{font-size:14px;color:var(--text);flex:1;}
+  .holiday-week{font-size:11px;color:var(--muted);margin-top:2px;}
+  .badge-today{background:var(--danger);color:white;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;}
+  .badge-upcoming{background:var(--warning-light);color:var(--warning);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;}
+  .badge-past{background:#F0F4F8;color:var(--muted);border-radius:20px;padding:2px 8px;font-size:11px;}
+
+  /* Team Record */
+  .emp-select-item{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;}
+  .emp-select-item.selected{border-color:var(--primary);background:var(--primary-light);}
+  .emp-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .emp-name{font-size:15px;font-weight:600;}
+  .emp-sub{font-size:12px;color:var(--muted);}
+  .checkmark{margin-left:auto;font-size:18px;opacity:0;}
+  .emp-select-item.selected .checkmark{opacity:1;}
+
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px;display:block;}
+  .form-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Sarabun',sans-serif;font-size:15px;color:var(--text);background:white;outline:none;}
+  .form-input:focus{border-color:var(--primary);}
+
+  .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  .btn{width:100%;padding:14px;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:8px;}
+  .btn:active{transform:scale(0.97);}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .btn-primary{background:var(--primary);color:white;}
+  .btn-success{background:var(--success);color:white;}
+  .btn-warning{background:var(--warning);color:white;}
+
+  /* UID Management */
+  .uid-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:8px;}
+  .uid-info{flex:1;min-width:0;}
+  .uid-name{font-size:14px;font-weight:600;}
+  .uid-val{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .uid-val.empty{color:var(--warning);font-style:italic;}
+  .uid-btn{background:var(--primary-light);border:none;border-radius:8px;padding:6px 10px;color:var(--primary);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .uid-btn.set{background:var(--success-light);color:var(--success);}
+
+  /* Toast */
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2B3C;color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;transition:transform 0.3s;z-index:9999;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  /* Overlay */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:999;}
+  .overlay.show{display:flex;}
+  .spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .section-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;}
+  .info-box{background:var(--primary-light);border-radius:10px;padding:12px;font-size:13px;color:var(--primary);margin-bottom:12px;line-height:1.6;}
+  .warning-box{background:var(--warning-light);border-radius:10px;padding:12px;font-size:13px;color:var(--warning);margin-bottom:12px;line-height:1.6;}
+
+  .step-badge{width:24px;height:24px;border-radius:50%;background:var(--primary);color:white;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"><div class="spinner"></div></div>
+<div class="toast" id="toast"></div>
+
+<div class="header">
+  <div class="header-title">⚙️ Approval Settings</div>
+  <div class="header-sub">การไฟฟ้าส่วนภูมิภาคสาขาอ่าวลึก</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('holiday',this)">📅 วันหยุด</button>
+  <button class="tab-btn" onclick="switchTab('team',this)">👨‍💼 บันทึกแทน</button>
+  <button class="tab-btn" onclick="switchTab('uid',this)">🆔 จัดการ UID</button>
+</div>
+
+<div class="content">
+
+  <!-- ===== TAB 1: วันหยุด ===== -->
+  <div class="tab-page active" id="tab-holiday">
+    <div class="card">
+      <div class="card-title">📅 วันหยุดประจำปี พ.ศ. 2569</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">ประกาศการไฟฟ้าส่วนภูมิภาค</div>
+      <div id="holidayList"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: บันทึกเวลาแทน ===== -->
+  <div class="tab-page" id="tab-team">
+    <div class="info-box">
+      💡 <strong>สำหรับหัวหน้าทีม</strong> — บันทึกเวลาเข้า-ออกแทนลูกจ้างในทีม แล้วส่งให้หัวหน้าแผนกอนุมัติ
+    </div>
+
+    <div class="section-title">ขั้นตอน</div>
+    <div class="card" style="padding:12px">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+        <span class="step-badge">1</span>
+        <span style="font-size:14px">เลือกลูกจ้างในทีม</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+        <span class="step-badge">2</span>
+        <span style="font-size:14px">กรอกวันที่และเวลาเข้า-ออก</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span class="step-badge">3</span>
+        <span style="font-size:14px">ส่งให้หัวหน้าแผนกอนุมัติ</span>
+      </div>
+    </div>
+
+    <div class="section-title">เลือกพนักงาน</div>
+    <div id="teamEmpList"><div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div></div>
+
+    <div class="card" id="teamFormCard" style="display:none">
+      <div class="card-title">📝 บันทึกเวลา</div>
+      <div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:12px" id="selectedEmpName">—</div>
+
+      <div class="form-group">
+        <label class="form-label">วันที่</label>
+        <input class="form-input" type="date" id="teamDate">
+      </div>
+      <div class="time-row">
+        <div class="form-group">
+          <label class="form-label">เวลาเข้างาน</label>
+          <input class="form-input" type="time" id="teamCheckIn">
+        </div>
+        <div class="form-group">
+          <label class="form-label">เวลาออกงาน</label>
+          <input class="form-input" type="time" id="teamCheckOut">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">หมายเหตุ</label>
+        <input class="form-input" type="text" id="teamNote" placeholder="เช่น ลืมเช็คอิน, ระบบขัดข้อง">
+      </div>
+      <button class="btn btn-warning" onclick="submitTeamRecord()">📤 ส่งขออนุมัติ</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB 3: จัดการ UID ===== -->
+  <div class="tab-page" id="tab-uid">
+    <div class="info-box">
+      💡 <strong>สำหรับ Admin</strong> — เพิ่ม LINE UID ของพนักงานได้จากระบบนี้เลย ไม่ต้องไปแก้ใน Google Sheets
+    </div>
+
+    <div class="warning-box">
+      ⚠️ ให้พนักงานพิมพ์ <strong>"uid"</strong> ส่งมาที่ Bot LINE ก่อน แล้วระบบจะดึง UID มาให้อัตโนมัติ
+    </div>
+
+    <div class="section-title">รายชื่อพนักงาน</div>
+    <div id="uidList"><div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div></div>
+
+    <button class="btn btn-primary" onclick="loadUIDList()">🔄 รีเฟรชรายชื่อ</button>
+
+    <!-- Modal เพิ่ม UID -->
+    <div id="uidModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
+      <div style="background:white;border-radius:18px;padding:24px;margin:16px;width:100%;max-width:400px">
+        <div style="font-size:17px;font-weight:700;margin-bottom:4px">🆔 ใส่ LINE UID</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px" id="uidModalName">—</div>
+        <input class="form-input" id="uidInput" type="text" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="margin-bottom:16px">
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" style="flex:1;margin:0" onclick="saveUID()">💾 บันทึก</button>
+          <button class="btn" style="flex:0.5;margin:0;background:var(--bg);color:var(--muted)" onclick="closeUIDModal()">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const LIFF_ID = '2009895943-y57YGqgO'; // ← ใส่ LIFF ID ของ Settings
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+
+  // ==================== วันหยุด PEA 2569 ====================
+  const HOLIDAYS_2569 = [
+    { date:'2026-01-01', name:'วันขึ้นปีใหม่', week:'พฤหัสบดี' },
+    { date:'2026-01-02', name:'วันหยุดราชการเพิ่มเติม', week:'ศุกร์' },
+    { date:'2026-03-03', name:'วันมาฆบูชา', week:'อังคาร' },
+    { date:'2026-04-06', name:'วันพระบาทสมเด็จพระพุทธยอดฟ้าจุฬาโลกมหาราช', week:'จันทร์' },
+    { date:'2026-04-13', name:'วันสงกรานต์', week:'จันทร์' },
+    { date:'2026-04-14', name:'วันสงกรานต์', week:'อังคาร' },
+    { date:'2026-04-15', name:'วันสงกรานต์', week:'พุธ' },
+    { date:'2026-05-01', name:'วันแรงงานแห่งชาติ', week:'ศุกร์' },
+    { date:'2026-05-04', name:'วันฉัตรมงคล', week:'จันทร์' },
+    { date:'2026-05-13', name:'วันพระราชพิธีจรดพระนังคัลแรกนาขวัญ', week:'พุธ' },
+    { date:'2026-06-01', name:'ชดเชยวันวิสาขบูชา', week:'จันทร์' },
+    { date:'2026-06-03', name:'วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสุทิดา', week:'พุธ' },
+    { date:'2026-07-28', name:'วันเฉลิมพระชนมพรรษาพระบาทสมเด็จพระเจ้าอยู่หัว', week:'อังคาร' },
+    { date:'2026-07-29', name:'วันอาสาฬหบูชา', week:'พุธ' },
+    { date:'2026-07-30', name:'วันเข้าพรรษา', week:'พฤหัสบดี' },
+    { date:'2026-08-12', name:'วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสิริกิติ์', week:'พุธ' },
+    { date:'2026-10-13', name:'วันคล้ายวันสวรรคตพระบาทสมเด็จพระบรมชนกาธิเบศร', week:'อังคาร' },
+    { date:'2026-10-23', name:'วันปิยมหาราช', week:'ศุกร์' },
+    { date:'2026-12-07', name:'ชดเชยวันพ่อแห่งชาติ', week:'จันทร์' },
+    { date:'2026-12-10', name:'วันรัฐธรรมนูญ', week:'พฤหัสบดี' },
+    { date:'2026-12-31', name:'วันสิ้นปี', week:'พฤหัสบดี' },
+  ];
+
+  const MONTHS_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  let currentUser = null;
+  let selectedEmpId = null;
+  let selectedUIDEmpId = null;
+  let employees = [];
+
+  window.onload = async () => {
+    renderHolidays();
+    await initLiff();
+    loadTeamList();
+    loadUIDList();
+    const today = new Date();
+    document.getElementById('teamDate').value = fmtDate(today);
+  };
+
+  async function initLiff() {
+    try {
+      await liff.init({ liffId: LIFF_ID });
+      if (liff.isInClient() && liff.isLoggedIn()) {
+        const profile = await liff.getProfile();
+        const res = await gasGet({ action: 'getEmployeeByUID', uid: profile.userId });
+        if (res && res.success) currentUser = res.employee;
+      }
+    } catch(e) { console.warn('LIFF:', e.message); }
+  }
+
+  // ==================== Tab Switch ====================
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ==================== Holidays ====================
+  function renderHolidays() {
+    const today = fmtDate(new Date());
+    const list = document.getElementById('holidayList');
+    list.innerHTML = HOLIDAYS_2569.map(h => {
+      const d = new Date(h.date);
+      const day = d.getDate();
+      const month = MONTHS_TH[d.getMonth()];
+      let badge = '';
+      if (h.date === today) badge = '<span class="badge-today">วันนี้</span>';
+      else if (h.date > today) {
+        const diff = Math.ceil((new Date(h.date) - new Date(today)) / 86400000);
+        if (diff <= 30) badge = `<span class="badge-upcoming">อีก ${diff} วัน</span>`;
+      } else {
+        badge = '<span class="badge-past">ผ่านไปแล้ว</span>';
+      }
+      return `<div class="holiday-item">
+        <div class="holiday-date">
+          <div class="holiday-date-day">${day}</div>
+          <div class="holiday-date-month">${month}</div>
+        </div>
+        <div style="flex:1">
+          <div class="holiday-name">${h.name}</div>
+          <div class="holiday-week">วัน${h.week}</div>
+        </div>
+        ${badge}
+      </div>`;
+    }).join('');
+  }
+
+  // ==================== Team Record ====================
+  async function loadTeamList() {
+    const res = await gasGet({ action: 'getEmployeeFull' });
+    if (!res || !Array.isArray(res)) return;
+    employees = res;
+    const list = document.getElementById('teamEmpList');
+    if (!res.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">ไม่มีพนักงาน</div>'; return; }
+    list.innerHTML = res.map(e => `
+      <div class="emp-select-item" onclick="selectEmp('${e.id}','${e.name}',this)">
+        <div class="emp-avatar">👤</div>
+        <div class="emp-info">
+          <div class="emp-name">${e.name}</div>
+          <div class="emp-sub">${e.position || ''} ${e.dept || ''}</div>
+        </div>
+        <span class="checkmark">✅</span>
+      </div>`).join('');
+  }
+
+  function selectEmp(id, name, el) {
+    document.querySelectorAll('.emp-select-item').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedEmpId = id;
+    document.getElementById('selectedEmpName').textContent = `👤 ${name}`;
+    document.getElementById('teamFormCard').style.display = 'block';
+    document.getElementById('teamFormCard').scrollIntoView({ behavior:'smooth' });
+  }
+
+  async function submitTeamRecord() {
+    if (!selectedEmpId) { showToast('กรุณาเลือกพนักงาน'); return; }
+    const date = document.getElementById('teamDate').value;
+    const checkIn = document.getElementById('teamCheckIn').value;
+    const checkOut = document.getElementById('teamCheckOut').value;
+    const note = document.getElementById('teamNote').value.trim();
+    if (!date || !checkIn) { showToast('กรุณากรอกวันที่และเวลาเข้างาน'); return; }
+
+    setOverlay(true);
+    const res = await gasGet({
+      action: 'teamRecord',
+      empId: selectedEmpId,
+      date, checkIn, checkOut,
+      note: note || 'บันทึกโดยหัวหน้าทีม',
+      leaderUID: currentUser ? currentUser.lineUID : ''
+    });
+    setOverlay(false);
+    if (res && res.success) {
+      showToast('✅ ส่งขออนุมัติเรียบร้อยแล้ว');
+      document.getElementById('teamCheckIn').value = '';
+      document.getElementById('teamCheckOut').value = '';
+      document.getElementById('teamNote').value = '';
+    } else {
+      showToast('❌ ' + (res ? res.message : 'เกิดข้อผิดพลาด'));
+    }
+  }
+
+  // ==================== UID Management ====================
+  async function loadUIDList() {
+    document.getElementById('uidList').innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div>';
+    const res = await gasGet({ action: 'getEmployeeFull' });
+    if (!res || !Array.isArray(res)) { document.getElementById('uidList').innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">โหลดไม่สำเร็จ</div>'; return; }
+    employees = res;
+    document.getElementById('uidList').innerHTML = res.map(e => `
+      <div class="uid-item">
+        <div class="emp-avatar">👤</div>
+        <div class="uid-info">
+          <div class="uid-name">${e.name}</div>
+          <div class="uid-val ${e.lineUID ? '' : 'empty'}">${e.lineUID || '⚠️ ยังไม่มี UID'}</div>
+        </div>
+        <button class="uid-btn ${e.lineUID ? 'set' : ''}" onclick="openUIDModal('${e.id}','${e.name}','${e.lineUID || ''}')">
+          ${e.lineUID ? '✏️ แก้ไข' : '➕ เพิ่ม'}
+        </button>
+      </div>`).join('');
+  }
+
+  function openUIDModal(id, name, uid) {
+    selectedUIDEmpId = id;
+    document.getElementById('uidModalName').textContent = `👤 ${name}`;
+    document.getElementById('uidInput').value = uid || '';
+    document.getElementById('uidModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('uidInput').focus(), 100);
+  }
+
+  function closeUIDModal() {
+    document.getElementById('uidModal').style.display = 'none';
+    selectedUIDEmpId = null;
+  }
+
+  async function saveUID() {
+    const uid = document.getElementById('uidInput').value.trim();
+    if (!uid || !uid.startsWith('U')) { showToast('UID ไม่ถูกต้อง (ต้องขึ้นต้นด้วย U)'); return; }
+    setOverlay(true);
+    const emp = employees.find(e => e.id === selectedUIDEmpId);
+    if (!emp) { setOverlay(false); showToast('ไม่พบพนักงาน'); return; }
+    const res = await gasGet({
+      action: 'saveEmployeeUID',
+      empId: selectedUIDEmpId,
+      uid: uid
+    });
+    setOverlay(false);
+    closeUIDModal();
+    if (res && res.success) {
+      showToast('✅ บันทึก UID สำเร็จ');
+      loadUIDList();
+    } else {
+      showToast('❌ ' + (res ? res.message : 'เกิดข้อผิดพลาด'));
+    }
+  }
+
+  // ==================== API ====================
+  async function gasGet(params) {
+    const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+    try {
+      const res = await fetch(url, { redirect:'follow' });
+      const text = await res.text();
+      return JSON.parse(text);
+    } catch(e) { return null; }
+  }
+
+  // ==================== Utils ====================
+  function setOverlay(show) { document.getElementById('overlay').className = show ? 'overlay show' : 'overlay'; }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+  function fmtDate(d) {
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  // Close UID modal on outside click
+  document.getElementById('uidModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeUIDModal();
+  });
+</script>
+</body>
+</html>
