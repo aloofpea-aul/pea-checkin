@@ -372,14 +372,18 @@ async function sendSummary() {
 
 // ==================== Reward ====================
 async function initReward() {
-  // ลอง init LIFF เงียบๆ
+  // init LIFF แล้วดึง profile โดยตรง ไม่ check isInClient
   try {
     await liff.init({ liffId: LIFF_ID_DASHBOARD });
-    if (liff.isInClient() && liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      rewardUID = profile.userId;
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
     }
-  } catch(e) {}
+    const profile = await liff.getProfile();
+    rewardUID = profile.userId;
+  } catch(e) {
+    console.warn('LIFF init failed:', e.message);
+  }
 
   // โหลดคะแนนส่วนตัว
   if (rewardUID) {
