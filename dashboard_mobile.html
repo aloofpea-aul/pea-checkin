@@ -227,8 +227,20 @@ let likeTargetId = null;
 let rewardLoaded = false;
 
 // ==================== Init ====================
-window.onload = () => {
+window.onload = async () => {
   setHeaderDate();
+  // Init LIFF ทันทีตั้งแต่โหลดหน้า
+  try {
+    await liff.init({ liffId: LIFF_ID_DASHBOARD });
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      rewardUID = profile.userId;
+    } else {
+      liff.login();
+    }
+  } catch(e) {
+    console.warn('LIFF:', e.message);
+  }
   loadToday();
   loadWeeklyChart();
   const today = new Date();
@@ -372,17 +384,15 @@ async function sendSummary() {
 
 // ==================== Reward ====================
 async function initReward() {
-  // init LIFF แล้วดึง profile โดยตรง ไม่ check isInClient
+  // init LIFF แล้วดึง UID
   try {
     await liff.init({ liffId: LIFF_ID_DASHBOARD });
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
-    }
     const profile = await liff.getProfile();
-    rewardUID = profile.userId;
+    if (profile && profile.userId) {
+      rewardUID = profile.userId;
+    }
   } catch(e) {
-    console.warn('LIFF init failed:', e.message);
+    console.warn('LIFF:', e.message);
   }
 
   // โหลดคะแนนส่วนตัว
