@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dashboard PEA</title>
-<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 :root{
@@ -209,7 +208,6 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
 
 <script>
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
-const LIFF_ID_DASHBOARD = '2009895943-Rk5tclfi';
 
 const ALL_BADGES = [
   {id:'on_time_5',icon:'⭐',name:'มาตรงเวลา\n5 วัน'},
@@ -225,22 +223,11 @@ const ALL_BADGES = [
 let rewardUID = null;
 let likeTargetId = null;
 let rewardLoaded = false;
+let allEmployees = [];
 
 // ==================== Init ====================
-window.onload = async () => {
+window.onload = () => {
   setHeaderDate();
-  // Init LIFF ทันทีตั้งแต่โหลดหน้า
-  try {
-    await liff.init({ liffId: LIFF_ID_DASHBOARD });
-    if (liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      rewardUID = profile.userId;
-    } else {
-      liff.login();
-    }
-  } catch(e) {
-    console.warn('LIFF:', e.message);
-  }
   loadToday();
   loadWeeklyChart();
   const today = new Date();
@@ -386,8 +373,6 @@ async function sendSummary() {
 async function initReward() {
   // init LIFF แล้วดึง UID
   try {
-    await liff.init({ liffId: LIFF_ID_DASHBOARD });
-    const profile = await liff.getProfile();
     if (profile && profile.userId) {
       rewardUID = profile.userId;
     }
@@ -456,7 +441,10 @@ async function loadLeaderboard() {
 }
 
 function openLike(empId, name) {
-  if (!rewardUID) { alert('กรุณาเปิดผ่าน LINE เพื่อใช้ฟีเจอร์ Like ครับ'); return; }
+  if (!rewardUID) {
+    alert('กรุณาเลือกชื่อของคุณก่อนกด Like ครับ');
+    return;
+  }
   likeTargetId = empId;
   document.getElementById('likeModalName').textContent = `👤 ${name}`;
   document.getElementById('likeReason').value = '';
