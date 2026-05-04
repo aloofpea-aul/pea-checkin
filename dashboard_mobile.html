@@ -380,7 +380,13 @@ async function initReward() {
 async function renderSelfSelect() {
   if (!allEmployees.length) {
     const res = await gasGet({ action: 'getEmployeeFull' });
+    console.log('getEmployeeFull result:', res);
     if (res && Array.isArray(res)) allEmployees = res;
+    else {
+      document.getElementById('rewardMyScore').innerHTML =
+        '<div style="background:#FFEBEE;border-radius:12px;padding:16px;color:#C62828">❌ โหลดรายชื่อไม่สำเร็จ กรุณารีเฟรชหน้าครับ<br><button onclick="rewardLoaded=false;initReward()" style="margin-top:8px;padding:8px 16px;background:#C62828;color:white;border:none;border-radius:8px;font-family:inherit;cursor:pointer">🔄 ลองใหม่</button></div>';
+      return;
+    }
   }
   document.getElementById('rewardMyScore').innerHTML = `
     <div style="background:var(--primary-light);border-radius:14px;padding:16px;margin-bottom:4px">
