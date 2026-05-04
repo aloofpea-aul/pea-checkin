@@ -371,25 +371,36 @@ async function sendSummary() {
 
 // ==================== Reward ====================
 async function initReward() {
-  // init LIFF แล้วดึง UID
-  try {
-    if (profile && profile.userId) {
-      rewardUID = profile.userId;
-    }
-  } catch(e) {
-    console.warn('LIFF:', e.message);
-  }
+  // โหลด Leaderboard ก่อน
+  await loadLeaderboard();
+  // แสดง dropdown เลือกตัวเอง
+  await renderSelfSelect();
+}
 
-  // โหลดคะแนนส่วนตัว
-  if (rewardUID) {
-    const res = await gasGet({ action: 'getMyReward', uid: rewardUID });
-    if (res && res.success) renderMyScore(res);
-    else document.getElementById('rewardMyScore').innerHTML = '<div class="empty">ไม่พบข้อมูลส่วนตัว</div>';
-  } else {
-    document.getElementById('rewardMyScore').innerHTML = '<div class="empty" style="background:var(--primary-light);border-radius:12px;padding:16px;color:var(--primary)">💡 เปิดผ่าน LINE LIFF เพื่อดูคะแนนส่วนตัวครับ</div>';
+async function renderSelfSelect() {
+  if (!allEmployees.length) {
+    const res = await gasGet({ action: 'getEmployeeFull' });
+    if (res && Array.isArray(res)) allEmployees = res;
   }
+  document.getElementById('rewardMyScore').innerHTML = `
+    <div style="background:var(--primary-light);border-radius:14px;padding:16px;margin-bottom:4px">
+      <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:10px">
+        👤 เลือกชื่อของคุณเพื่อดูคะแนนและกด Like
+      </div>
+      <select id="selfSelect" onchange="loadMyScore(this.value)"
+        style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:15px;background:white;outline:none;color:var(--text)">
+        <option value="">-- เลือกชื่อของคุณ --</option>
+        ${allEmployees.map(e => `<option value="${e.lineUID}">${e.name} (${e.position||'—'})</option>`).join('')}
+      </select>
+    </div>`;
+}
 
-  // โหลด Leaderboard เสมอ
+async function loadMyScore(uid) {
+  if (!uid) return;
+  rewardUID = uid;
+  const res = await gasGet({ action: 'getMyReward', uid });
+  if (res && res.success) renderMyScore(res);
+  // Re-render leaderboard เพื่อ highlight ตัวเอง
   loadLeaderboard();
 }
 
