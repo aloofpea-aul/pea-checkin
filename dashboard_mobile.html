@@ -408,10 +408,19 @@ async function renderSelfSelect() {
 async function loadMyScore(uid) {
   if (!uid) return;
   rewardUID = uid;
-  const res = await gasGet({ action: 'getMyReward', uid });
-  if (res && res.success) renderMyScore(res);
-  // Re-render leaderboard เพื่อ highlight ตัวเอง
-  loadLeaderboard();
+  // โหลดพร้อมกัน
+  const [lb, myRes] = await Promise.all([
+    fetch(`https://raw.githubusercontent.com/aloofpea-aul/pea-checkin/main/scores.json?t=${Date.now()}`)
+      .then(r => r.ok ? r.json() : null).catch(() => null),
+    gasGet({ action: 'getMyReward', uid })
+  ]);
+  if (myRes && myRes.success) renderMyScore(myRes);
+  // Re-render leaderboard
+  if (lb && lb.lb) {
+    renderLeaderboard(lb.lb);
+  } else {
+    loadLeaderboard();
+  }
 }
 
 function renderMyScore(res) {
@@ -440,9 +449,29 @@ function renderMyScore(res) {
 }
 
 async function loadLeaderboard() {
-  const data = await gasGet({ action: 'getLeaderboard' });
+  // อ่านจาก GitHub Pages JSON ตรงๆ → เร็วมาก
+  let data = null;
+  try {
+    const cacheBust = Date.now(); // ป้องกัน browser cache
+    const res = await fetch(`https://raw.githubusercontent.com/aloofpea-aul/pea-checkin/main/scores.json?t=${cacheBust}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.lb && Array.isArray(json.lb)) {
+        data = json.lb;
+        const info = document.getElementById('cacheInfo');
+        if (info) info.textContent = `⚡ อัปเดตล่าสุด: ${json.updatedAt || '—'}`;
+      }
+    }
+  } catch(e) {}
+  // Fallback ถ้า JSON ยังไม่มี
+  if (!data) data = await gasGet({ action: 'getLeaderboard' });
   const div = document.getElementById('rewardLeaderboard');
   if (!data || !Array.isArray(data)) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+  renderLeaderboard(data);
+}
+
+function renderLeaderboard(data) {
+  const div = document.getElementById('rewardLeaderboard');
   div.innerHTML = data.map((r, i) => {
     const rc = i===0?'r1':i===1?'r2':i===2?'r3':'rx';
     const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
@@ -478,13 +507,22 @@ function closeLikeModal() {
 }
 
 async function refreshReward() {
-  // Force update cache แล้วโหลดใหม่
-  document.getElementById('rewardLeaderboard').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังอัปเดต...</div>';
-  document.getElementById('cacheInfo').textContent = '⏳ กำลังคำนวณใหม่...';
-  await gasGet({ action: 'updateScoresCache' });
-  document.getElementById('cacheInfo').textContent = '✅ อัปเดตแล้ว';
-  await loadLeaderboard();
-  if (rewardUID) await loadMyScore(rewardUID);
+  document.getElementById('rewardLeaderboard').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังคำนวณและอัปโหลด...</div>';
+  const info = document.getElementById('cacheInfo');
+  if (info) info.textContent = '⏳ กำลังอัปเดต GitHub...';
+  const res = await gasGet({ action: 'updateScoresCache' });
+  if (res && res.success) {
+    if (info) info.textContent = `✅ อัปเดตแล้ว (${res.count} คน)`;
+    // รอ GitHub deploy นิดนึง
+    await new Promise(r => setTimeout(r, 2000));
+    await loadLeaderboard();
+    if (rewardUID) {
+      const myRes = await gasGet({ action: 'getMyReward', uid: rewardUID });
+      if (myRes && myRes.success) renderMyScore(myRes);
+    }
+  } else {
+    if (info) info.textContent = '❌ อัปเดตไม่สำเร็จ';
+  }
 }
 
 async function submitLike() {
