@@ -187,7 +187,11 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
   </div>
   <div style="font-size:14px;font-weight:700;margin-bottom:8px">🎖️ Badge</div>
   <div class="badge-mini-grid" id="rewardBadges"></div>
-  <div style="font-size:14px;font-weight:700;margin-bottom:8px">🏅 อันดับเดือนนี้</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:14px;font-weight:700">🏅 อันดับเดือนนี้</div>
+    <button onclick="refreshReward()" style="background:var(--gold-light);border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--gold);cursor:pointer">🔄 รีเฟรช</button>
+  </div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="cacheInfo">⚡ อัปเดตทุก 30 นาทีอัตโนมัติ</div>
   <div id="rewardLeaderboard"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
 </div>
 
@@ -471,6 +475,16 @@ function openLike(empId, name) {
 function closeLikeModal() {
   document.getElementById('likeModal').classList.remove('show');
   likeTargetId = null;
+}
+
+async function refreshReward() {
+  // Force update cache แล้วโหลดใหม่
+  document.getElementById('rewardLeaderboard').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังอัปเดต...</div>';
+  document.getElementById('cacheInfo').textContent = '⏳ กำลังคำนวณใหม่...';
+  await gasGet({ action: 'updateScoresCache' });
+  document.getElementById('cacheInfo').textContent = '✅ อัปเดตแล้ว';
+  await loadLeaderboard();
+  if (rewardUID) await loadMyScore(rewardUID);
 }
 
 async function submitLike() {
