@@ -528,10 +528,30 @@ async function refreshReward() {
 async function submitLike() {
   const reason = document.getElementById('likeReason').value.trim();
   if (!reason) { alert('กรุณาระบุเหตุผลก่อนครับ'); return; }
-  const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: likeTargetId, reason });
+
+  // แสดง loading ปิด modal
   closeLikeModal();
-  alert(res && res.success ? '✅ ' + res.message : '❌ ' + (res?res.message:'เกิดข้อผิดพลาด'));
-  if (res && res.success) loadLeaderboard();
+  document.getElementById('rewardLeaderboard').innerHTML =
+    '<div class="loading"><div class="spinner-small"></div>กำลังบันทึก Like...</div>';
+
+  const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: likeTargetId, reason });
+
+  if (res && res.success) {
+    // GAS อัปเดต scores.json แล้ว รอนิดนึงแล้ว fetch ใหม่
+    const info = document.getElementById('cacheInfo');
+    if (info) info.textContent = '⏳ กำลังอัปเดตคะแนน...';
+    await new Promise(r => setTimeout(r, 1500));
+    await loadLeaderboard();
+    if (rewardUID) {
+      const myRes = await gasGet({ action: 'getMyReward', uid: rewardUID });
+      if (myRes && myRes.success) renderMyScore(myRes);
+    }
+    if (info) info.textContent = '✅ อัปเดตคะแนนแล้ว';
+    alert('✅ ' + res.message);
+  } else {
+    alert('❌ ' + (res ? res.message : 'เกิดข้อผิดพลาด'));
+    loadLeaderboard();
+  }
 }
 
 // ==================== Helpers ====================
