@@ -645,17 +645,21 @@ async function submitOT() {
   document.getElementById('btnSubmit').disabled = true;
   setOverlay(true, '📤 กำลังส่งคำขอ OT...');
 
-  // อัปโหลดไฟล์แนบก่อน
+  // อัปโหลดไฟล์แนบทีละไฟล์
   let driveFolder = '';
   if (attachedFiles.length > 0) {
-    setOverlay(true, `📂 อัปโหลดไฟล์ ${attachedFiles.length} ไฟล์ขึ้น Drive...`);
-    const uploadRes = await gasGet({
-      action: 'uploadOTFiles',
-      otDate: date,
-      subject: subject,
-      files: JSON.stringify(attachedFiles.map(f => ({ name: f.name, base64: f.base64, mimeType: f.mimeType })))
-    });
-    if (uploadRes && uploadRes.folderUrl) driveFolder = uploadRes.folderUrl;
+    setOverlay(true, `📂 กำลังสร้างโฟลเดอร์...`);
+    // สร้างโฟลเดอร์ก่อน
+    const folderRes = await gasPost({ action: 'createOTFolder', otDate: date, subject });
+    const folderId = folderRes?.folderId || '';
+    driveFolder = folderRes?.folderUrl || '';
+
+    // อัปโหลดทีละไฟล์
+    for (let i = 0; i < attachedFiles.length; i++) {
+      const f = attachedFiles[i];
+      setOverlay(true, `📂 อัปโหลด ${i+1}/${attachedFiles.length}: ${f.name}`);
+      await gasPost({ action: 'uploadOneFile', folderId, fileName: f.name, base64: f.base64, mimeType: f.mimeType });
+    }
   }
 
   setOverlay(true, '📤 ส่งคำขออนุมัติ...');
@@ -728,6 +732,22 @@ async function gasGet(params) {
   const res = await fetch(url, { redirect: 'follow' });
   const text = await res.text();
   try { return JSON.parse(text); } catch(e) { return null; }
+}
+
+async function gasPost(params) {
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+      redirect: 'follow',
+    });
+    const text = await res.text();
+    try { return JSON.parse(text); } catch(e) { return null; }
+  } catch(e) {
+    console.error('gasPost error:', e);
+    return null;
+  }
 }
 
 function setOverlay(show, text='กำลังดำเนินการ...') {
