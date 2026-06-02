@@ -6,354 +6,743 @@
 <title>บันทึก OT PEA</title>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
-  :root {
-    --primary: #005A9C; --primary-dark: #003f6e;
-    --success: #2E7D32; --danger: #C62828;
-    --warning: #E65100; --warning-light: #FFF3E0;
-    --bg: #F0F4F8; --card: #FFFFFF;
-    --text: #1A2B3C; --muted: #6B7C8F; --border: #D1DCE8;
-    --ot: #E65100; --ot-dark: #BF360C; --ot-light: #FBE9E7;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+:root{
+  --primary:#005A9C;--primary-dark:#003f6e;--primary-light:#E3F0FB;
+  --ot:#E65100;--ot-dark:#BF360C;--ot-light:#FBE9E7;
+  --success:#2E7D32;--success-light:#E8F5E9;
+  --danger:#C62828;--danger-light:#FFEBEE;
+  --bg:#F0F4F8;--card:#FFFFFF;--text:#1A2B3C;--muted:#6B7C8F;--border:#D1DCE8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 
-  .header {
-    background: linear-gradient(135deg, var(--ot) 0%, var(--ot-dark) 100%);
-    color: white; padding: 20px 16px 28px; text-align: center; position: relative; overflow: hidden;
-  }
-  .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; background: rgba(255,255,255,0.06); border-radius: 50%; }
-  .header-logo { font-size: 13px; letter-spacing: 2px; opacity: 0.8; margin-bottom: 4px; text-transform: uppercase; }
-  .header-title { font-size: 22px; font-weight: 700; }
-  .header-date { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+.header{background:linear-gradient(135deg,var(--ot),var(--ot-dark));color:white;padding:18px 16px 30px;text-align:center;position:relative;overflow:hidden;}
+.header .w{position:absolute;left:-60%;right:-60%;border-radius:50%;}
+.w1{bottom:-12px;height:60px;background:rgba(255,255,255,0.10);animation:wv 4s linear infinite;}
+.w2{bottom:-20px;height:65px;background:rgba(255,255,255,0.07);animation:wv 6s linear infinite reverse;}
+@keyframes wv{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.header-logo{font-size:11px;letter-spacing:2px;opacity:0.8;position:relative;z-index:1;}
+.header-title{font-size:20px;font-weight:700;position:relative;z-index:1;margin-top:4px;}
+.header-sub{font-size:12px;opacity:0.75;position:relative;z-index:1;margin-top:2px;}
 
-  .main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; max-width: 480px; margin: 0 auto; width: 100%; }
+.main{flex:1;padding:14px;max-width:500px;margin:0 auto;width:100%;}
 
-  .card { background: var(--card); border-radius: 16px; padding: 18px; box-shadow: 0 2px 12px rgba(0,90,156,0.08); }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+/* Steps */
+.steps{display:flex;align-items:center;gap:6px;margin-bottom:16px;overflow-x:auto;padding:2px;}
+.step{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:#D1DCE8;color:var(--muted);}
+.step-num.active{background:var(--ot);color:white;}
+.step-num.done{background:var(--success);color:white;}
+.step-label{font-size:11px;color:var(--muted);}
+.step-label.active{color:var(--ot);font-weight:700;}
+.step-divider{width:20px;height:2px;background:#D1DCE8;flex-shrink:0;}
 
-  .user-info { display: flex; align-items: center; gap: 12px; }
-  .user-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--ot-light); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; overflow: hidden; }
-  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .user-name { font-size: 16px; font-weight: 700; }
-  .user-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+/* Card */
+.card{background:white;border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,90,156,0.08);margin-bottom:14px;}
+.card-title{font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
 
-  .form-group { margin-bottom: 14px; }
-  .form-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
-  .form-label .req { color: var(--danger); }
-  .form-input, .form-select, .form-textarea {
-    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
-    padding: 12px 14px; font-family: 'Sarabun', sans-serif; font-size: 15px;
-    color: var(--text); background: white; outline: none; transition: border-color 0.2s;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--ot); }
-  .form-textarea { resize: none; }
+/* Type select */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.type-card{border:2px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.type-card:active{transform:scale(0.97);}
+.type-card.selected{border-color:var(--ot);background:var(--ot-light);}
+.type-icon{font-size:32px;margin-bottom:8px;}
+.type-name{font-size:14px;font-weight:700;}
+.type-desc{font-size:11px;color:var(--muted);margin-top:4px;}
 
-  .hours-wrap { display: flex; align-items: center; gap: 10px; }
-  .hours-input { flex: 1; text-align: center; font-size: 24px; font-weight: 700; }
-  .hours-btn {
-    width: 44px; height: 44px; border-radius: 10px; border: none;
-    background: var(--ot); color: white; font-size: 22px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
-  .hours-btn:active { transform: scale(0.93); }
+/* Form */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:4px;}
+.req{color:var(--danger);}
+.form-input,.form-select,.form-textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Sarabun',sans-serif;font-size:15px;color:var(--text);background:white;outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--ot);}
+.form-textarea{resize:none;}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-  .rate-display {
-    background: var(--ot-light); border-radius: 10px; padding: 12px 14px;
-    display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
-  }
-  .rate-label { font-size: 13px; color: var(--ot); font-weight: 600; }
-  .rate-value { font-size: 20px; font-weight: 700; color: var(--ot); }
+/* Employee search */
+.search-box{display:flex;gap:8px;margin-bottom:10px;}
+.search-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;}
+.search-input:focus{border-color:var(--ot);}
+.emp-count{font-size:12px;color:var(--ot);font-weight:600;margin-bottom:8px;}
+.emp-check-list{max-height:280px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;}
+.emp-check-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #F0F4F8;cursor:pointer;transition:background 0.15s;}
+.emp-check-item:last-child{border-bottom:none;}
+.emp-check-item:hover{background:#F8FBFF;}
+.emp-check-item.checked{background:var(--ot-light);}
+.emp-check-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.emp-check-box.checked{background:var(--ot);border-color:var(--ot);}
+.emp-avatar{width:32px;height:32px;border-radius:50%;background:var(--ot-light);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden;}
+.emp-avatar img{width:100%;height:100%;object-fit:cover;}
+.emp-name-text{font-size:14px;font-weight:600;flex:1;}
+.emp-sub-text{font-size:11px;color:var(--muted);}
+.emp-rate{font-size:12px;color:var(--ot);font-weight:600;flex-shrink:0;}
+.select-all-btn{background:var(--ot-light);border:none;border-radius:8px;padding:6px 12px;font-family:'Sarabun',sans-serif;font-size:12px;color:var(--ot);font-weight:600;cursor:pointer;margin-bottom:8px;}
 
-  .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-  .btn:active { transform: scale(0.97); }
-  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-  .btn-ot { background: var(--ot); color: white; }
-  .btn-ot:hover:not(:disabled) { background: var(--ot-dark); }
+/* Selected employees summary */
+.selected-summary{background:var(--ot-light);border-radius:10px;padding:12px;margin-bottom:14px;}
+.selected-title{font-size:12px;color:var(--ot);font-weight:700;margin-bottom:8px;}
+.selected-chip-wrap{display:flex;flex-wrap:wrap;gap:6px;}
+.selected-chip{background:var(--ot);color:white;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;}
+.chip-remove{cursor:pointer;opacity:0.7;font-size:14px;line-height:1;}
 
-  .result-card { border-radius: 16px; padding: 20px; text-align: center; display: none; }
-  .result-card.show { display: block; }
-  .result-card.success { background: #E8F5E9; border: 1.5px solid #A5D6A7; }
-  .result-card.error { background: #FFEBEE; border: 1.5px solid #EF9A9A; }
-  .result-icon { font-size: 40px; margin-bottom: 10px; }
-  .result-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .result-msg { font-size: 14px; color: var(--muted); white-space: pre-line; line-height: 1.6; }
+/* Rate type */
+.rate-type-row{display:flex;gap:8px;margin-bottom:12px;}
+.rate-type-btn{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:white;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;}
+.rate-type-btn.active{border-color:var(--ot);background:var(--ot);color:white;}
 
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 999; }
-  .overlay.show { display: flex; }
-  .spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* Cost table */
+.cost-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+.cost-table th{background:var(--ot);color:white;padding:8px;text-align:left;font-weight:600;}
+.cost-table td{padding:8px;border-bottom:1px solid #F0F4F8;}
+.cost-table tr:nth-child(even) td{background:#F8F8F8;}
+.cost-total{font-weight:700;color:var(--ot);font-size:15px;text-align:right;padding:10px 0 0;}
 
-  /* OT History */
-  .ot-item { background: var(--bg); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
-  .ot-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-  .ot-item-date { font-size: 13px; font-weight: 600; }
-  .ot-item-hours { font-size: 13px; color: var(--ot); font-weight: 700; }
-  .ot-item-reason { font-size: 12px; color: var(--muted); }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-pending { background: #FFF9C4; color: #F57F17; }
-  .badge-approved { background: #E8F5E9; color: var(--success); }
-  .badge-rejected { background: #FFEBEE; color: var(--danger); }
+/* File upload */
+.file-drop{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.file-drop:hover,.file-drop.dragover{border-color:var(--ot);background:var(--ot-light);}
+.file-drop-icon{font-size:32px;margin-bottom:8px;}
+.file-drop-text{font-size:14px;color:var(--muted);}
+.file-list{margin-top:10px;}
+.file-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F8F8F8;border-radius:8px;margin-bottom:6px;}
+.file-icon{font-size:18px;flex-shrink:0;}
+.file-name{font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-size{font-size:11px;color:var(--muted);}
+.file-remove{color:var(--danger);cursor:pointer;font-size:16px;flex-shrink:0;}
+input[type="file"]{display:none;}
+
+/* Preview */
+.preview-box{background:#1A2B3C;border-radius:12px;padding:16px;font-size:13px;color:#E0E0E0;line-height:1.8;white-space:pre-wrap;font-family:monospace;margin-bottom:14px;}
+.copy-btn{background:var(--primary);color:white;border:none;border-radius:10px;padding:10px 16px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-bottom:8px;}
+
+/* Buttons */
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:8px;}
+.btn:active{transform:scale(0.97);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-ot{background:var(--ot);color:white;}
+.btn-back{background:var(--bg);color:var(--muted);}
+.btn-row{display:flex;gap:10px;}
+.btn-row .btn{flex:1;}
+
+/* Result */
+.result-card{border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;}
+.result-success{background:var(--success-light);border:1.5px solid #A5D6A7;}
+.result-error{background:var(--danger-light);border:1.5px solid #EF9A9A;}
+.result-icon{font-size:48px;margin-bottom:10px;}
+.result-title{font-size:18px;font-weight:700;margin-bottom:8px;}
+.result-msg{font-size:14px;color:var(--muted);white-space:pre-line;line-height:1.6;}
+
+/* History */
+.ot-item{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px;}
+.ot-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.ot-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-pending{background:#FFF9C4;color:#F57F17;}
+.badge-approved{background:var(--success-light);color:var(--success);}
+.badge-rejected{background:var(--danger-light);color:var(--danger);}
+
+/* Overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:14px;}
+.overlay.show{display:flex;}
+.spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
+.overlay-text{color:white;font-size:15px;font-weight:600;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.info-box{background:var(--primary-light);border-radius:10px;padding:12px;font-size:13px;color:var(--primary);margin-bottom:12px;line-height:1.6;}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-logo">การไฟฟ้าส่วนภูมิภาคสาขาอ่าวลึก</div>
-  <div class="header-title">⏰ บันทึกล่วงเวลา (OT)</div>
-  <div class="header-date" id="headerDate">—</div>
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <div class="overlay-text" id="overlayText">กำลังดำเนินการ...</div>
 </div>
 
-<div class="overlay" id="overlay"><div class="spinner"></div></div>
+<div class="header">
+  <div class="w w1"></div><div class="w w2"></div>
+  <div class="header-logo">การไฟฟ้าส่วนภูมิภาคสาขาอ่าวลึก</div>
+  <div class="header-title">⏰ ระบบขออนุมัติ OT</div>
+  <div class="header-sub" id="headerDate">—</div>
+</div>
 
 <div class="main">
 
-  <!-- ผลลัพธ์ -->
-  <div class="result-card" id="resultCard">
-    <div class="result-icon" id="resultIcon"></div>
-    <div class="result-title" id="resultTitle"></div>
-    <div class="result-msg" id="resultMsg"></div>
+  <!-- Steps -->
+  <div class="steps" id="stepsBar">
+    <div class="step"><div class="step-num active" id="s1">1</div><div class="step-label active">ประเภท</div></div>
+    <div class="step-divider"></div>
+    <div class="step"><div class="step-num" id="s2">2</div><div class="step-label" id="sl2">พนักงาน</div></div>
+    <div class="step-divider"></div>
+    <div class="step"><div class="step-num" id="s3">3</div><div class="step-label" id="sl3">รายละเอียด</div></div>
+    <div class="step-divider"></div>
+    <div class="step"><div class="step-num" id="s4">4</div><div class="step-label" id="sl4">ไฟล์แนบ</div></div>
+    <div class="step-divider"></div>
+    <div class="step"><div class="step-num" id="s5">5</div><div class="step-label" id="sl5">ยืนยัน</div></div>
   </div>
 
-  <!-- ข้อมูลพนักงาน -->
-  <div class="card">
-    <div class="card-title">👤 ข้อมูลพนักงาน</div>
-    <div class="user-info">
-      <div class="user-avatar" id="userAvatar">👤</div>
-      <div>
-        <div class="user-name" id="userName">กำลังโหลด...</div>
-        <div class="user-sub" id="userSub">กรุณารอสักครู่</div>
+  <!-- ===== STEP 1: เลือกประเภท ===== -->
+  <div id="page1">
+    <div class="card">
+      <div class="card-title">📋 เลือกประเภท OT</div>
+      <div class="type-grid">
+        <div class="type-card" id="typeA" onclick="selectType('A')">
+          <div class="type-icon">👷</div>
+          <div class="type-name">แบบ A</div>
+          <div class="type-desc">พขร. / รายบุคคล<br>อัตราแตกต่างกัน</div>
+        </div>
+        <div class="type-card" id="typeB" onclick="selectType('B')">
+          <div class="type-icon">👥</div>
+          <div class="type-name">แบบ B</div>
+          <div class="type-desc">กลุ่ม / ลูกจ้าง<br>อัตราเดียวกัน</div>
+        </div>
       </div>
     </div>
+    <button class="btn btn-ot" id="btnNext1" onclick="goStep(2)" disabled>ถัดไป →</button>
   </div>
 
-  <!-- ฟอร์ม OT -->
-  <div class="card" id="otForm">
-    <div class="card-title">📝 บันทึกข้อมูล OT</div>
-
-    <div class="form-group">
-      <label class="form-label">วันที่ทำ OT <span class="req">*</span></label>
-      <input class="form-input" type="date" id="otDate">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">เวลาเริ่ม OT <span class="req">*</span></label>
-      <input class="form-input" type="time" id="otStart" onchange="calcHours()">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">เวลาสิ้นสุด OT <span class="req">*</span></label>
-      <input class="form-input" type="time" id="otEnd" onchange="calcHours()">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">จำนวนชั่วโมง OT</label>
-      <div class="rate-display">
-        <span class="rate-label">⏱️ รวมชั่วโมง OT</span>
-        <span class="rate-value" id="otHoursDisplay">— ชั่วโมง</span>
+  <!-- ===== STEP 2: เลือกพนักงาน ===== -->
+  <div id="page2" style="display:none">
+    <div class="card">
+      <div class="card-title">👥 เลือกพนักงานที่ปฏิบัติงาน</div>
+      <div class="search-box">
+        <input class="search-input" id="empSearch" placeholder="🔍 ค้นหาชื่อ..." oninput="filterEmps()">
+        <button class="select-all-btn" onclick="toggleAll()">เลือกทั้งหมด</button>
       </div>
-      <div class="rate-display" style="margin-top:8px">
-        <span class="rate-label">💰 ค่า OT โดยประมาณ</span>
-        <span class="rate-value" id="otTotal">— บาท</span>
+      <div class="emp-count" id="empCount">เลือก 0 คน</div>
+      <div class="emp-check-list" id="empCheckList">
+        <div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div>
       </div>
-      <input type="hidden" id="otHours" value="0">
     </div>
 
-    <div class="form-group">
-      <label class="form-label">เหตุผล / งานที่ทำ <span class="req">*</span></label>
-      <textarea class="form-textarea" id="otReason" rows="3" placeholder="ระบุงานที่ทำล่วงเวลา เช่น ซ่อมสายไฟฟ้าฉุกเฉิน, ประชุมนอกเวลา"></textarea>
+    <!-- Type B: อัตราค่าแรงกลุ่ม -->
+    <div class="card" id="groupRateCard" style="display:none">
+      <div class="card-title">💰 อัตราค่าแรงกลุ่ม</div>
+      <div class="rate-type-row">
+        <button class="rate-type-btn active" id="rateTypeDay" onclick="setRateType('day')">รายวัน</button>
+        <button class="rate-type-btn" id="rateTypeHour" onclick="setRateType('hour')">รายชั่วโมง</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">อัตราค่าแรง (บาท) <span class="req">*</span></label>
+        <input class="form-input" type="number" id="groupRate" placeholder="เช่น 505" oninput="calcGroupCost()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">คูณ (เช่น 2 เท่า สำหรับวันหยุด)</label>
+        <input class="form-input" type="number" id="groupMultiplier" value="2" min="1" max="3" step="0.5" oninput="calcGroupCost()">
+      </div>
+      <div id="groupCostPreview"></div>
     </div>
 
-    <button class="btn btn-ot" id="btnSubmit" onclick="submitOT()" disabled>
-      📤 ส่งคำขออนุมัติ OT
-    </button>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goStep(1)">← ย้อนกลับ</button>
+      <button class="btn btn-ot" id="btnNext2" onclick="goStep(3)" disabled>ถัดไป →</button>
+    </div>
   </div>
 
-  <!-- ประวัติ OT -->
-  <div class="card">
-    <div class="card-title">📋 ประวัติ OT ของฉัน</div>
-    <div id="otHistory"><div style="text-align:center;color:var(--muted);padding:20px">กำลังโหลด...</div></div>
+  <!-- ===== STEP 3: รายละเอียด ===== -->
+  <div id="page3" style="display:none">
+    <div class="card">
+      <div class="card-title">📅 รายละเอียดการปฏิบัติงาน</div>
+      <div class="form-group">
+        <label class="form-label">วันที่ปฏิบัติงาน <span class="req">*</span></label>
+        <input class="form-input" type="date" id="otDate">
+      </div>
+      <div class="time-row">
+        <div class="form-group">
+          <label class="form-label">เวลาเริ่ม <span class="req">*</span></label>
+          <input class="form-input" type="time" id="otStart" value="08:00" oninput="calcHours()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">เวลาสิ้นสุด <span class="req">*</span></label>
+          <input class="form-input" type="time" id="otEnd" value="17:00" oninput="calcHours()">
+        </div>
+      </div>
+      <div id="hoursDisplay" style="background:var(--ot-light);border-radius:10px;padding:10px;text-align:center;font-weight:700;color:var(--ot);margin-bottom:14px;display:none"></div>
+      <div class="form-group">
+        <label class="form-label">เรื่อง / วัตถุประสงค์ <span class="req">*</span></label>
+        <input class="form-input" type="text" id="otSubject" placeholder="เช่น ขออนุมัติให้ปฏิบัติงานในวันหยุดประจำสัปดาห์">
+      </div>
+      <div class="form-group">
+        <label class="form-label">รายละเอียดงาน <span class="req">*</span></label>
+        <textarea class="form-textarea" id="otReason" rows="3" placeholder="เช่น ดำเนินการย้ายแนวระบบจำหน่ายกรณีเร่งด่วน"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">WBS / งบประมาณ</label>
+        <input class="form-input" type="text" id="otWBS" placeholder="เช่น I-69-K-AUL69.M4.1501">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ผู้ควบคุมงาน</label>
+        <input class="form-input" type="text" id="otSupervisor" placeholder="ชื่อ-นามสกุล ตำแหน่ง">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goStep(2)">← ย้อนกลับ</button>
+      <button class="btn btn-ot" onclick="goStep(4)">ถัดไป →</button>
+    </div>
   </div>
 
-</div>
+  <!-- ===== STEP 4: ไฟล์แนบ ===== -->
+  <div id="page4" style="display:none">
+    <div class="card">
+      <div class="card-title">📎 ไฟล์แนบ (ไม่จำกัดจำนวน)</div>
+      <div class="info-box">📁 ไฟล์จะถูกบันทึกใน Google Drive โฟลเดอร์ OT แยกตามวันที่ครับ</div>
+      <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <div class="file-drop-icon">📂</div>
+        <div class="file-drop-text">แตะเพื่อเลือกไฟล์<br><small style="color:var(--muted)">หรือลากไฟล์มาวางที่นี่</small></div>
+      </div>
+      <input type="file" id="fileInput" multiple onchange="addFiles(this.files)">
+      <div class="file-list" id="fileList"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goStep(3)">← ย้อนกลับ</button>
+      <button class="btn btn-ot" onclick="goStep(5)">ถัดไป →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 5: ยืนยัน & Preview ===== -->
+  <div id="page5" style="display:none">
+    <div class="card">
+      <div class="card-title">📄 ตัวอย่างแบบฟอร์ม LINE</div>
+      <div class="preview-box" id="previewBox">กำลังสร้างแบบฟอร์ม...</div>
+      <button class="copy-btn" onclick="copyPreview()">📋 คัดลอกข้อความ</button>
+    </div>
+
+    <!-- Cost Summary -->
+    <div class="card" id="costSummaryCard">
+      <div class="card-title">💰 สรุปค่าใช้จ่าย</div>
+      <div id="costSummary"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✅ ส่งขออนุมัติ</div>
+      <div class="info-box">เมื่อส่งแล้ว ระบบจะแจ้งหัวหน้าแผนกปฏิบัติการระบบไฟฟ้าทาง LINE ทันทีครับ</div>
+      <button class="btn btn-ot" id="btnSubmit" onclick="submitOT()">📤 ส่งขออนุมัติ OT</button>
+    </div>
+
+    <!-- Result -->
+    <div id="resultDiv" style="display:none"></div>
+
+    <!-- History -->
+    <div class="card">
+      <div class="card-title">📋 ประวัติการขอ OT ของฉัน</div>
+      <div id="otHistory"><div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div></div>
+    </div>
+
+    <button class="btn btn-back" onclick="resetForm()">🔄 สร้างคำขอใหม่</button>
+  </div>
+
+</div><!-- end main -->
 
 <script>
-  const LIFF_ID = '2009895943-tR2aMLrs'; // ← LIFF ID ของ OT
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+const LIFF_ID = '2009895943-tR2aMLrs';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+const MONTHS_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const DAYS_TH = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
 
-  let employeeData = null;
-  let lineUID = null;
+let currentStep = 1;
+let otType = null; // 'A' or 'B'
+let allEmps = [];
+let selectedEmps = {}; // empId → emp object
+let attachedFiles = []; // {name, size, base64, mimeType}
+let lineUID = null;
+let currentUser = null;
+let rateType = 'day'; // 'day' or 'hour'
+let otHours = 0;
 
-  window.onload = async () => {
-    setHeaderDate();
-    setOverlay(true);
-    // Set today's date
-    const today = new Date();
-    document.getElementById('otDate').value = fmtDate(today);
-    await initLiff();
-    setOverlay(false);
-  };
+// ==================== Init ====================
+window.onload = async () => {
+  setHeaderDate();
+  document.getElementById('otDate').value = fmtDate(new Date());
+  setOverlay(true, 'กำลังโหลด...');
+  await initLiff();
+  await loadEmps();
+  setOverlay(false);
+};
 
-  async function initLiff() {
-    try {
-      await liff.init({ liffId: LIFF_ID });
-      if (!liff.isInClient()) {
-        document.getElementById('userName').textContent = '⚠️ กรุณาเปิดใน LINE';
-        document.getElementById('userSub').textContent = 'ระบบนี้ต้องเปิดผ่าน LINE เท่านั้น';
-        return;
-      }
-      if (!liff.isLoggedIn()) { liff.login(); return; }
-
+async function initLiff() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (liff.isInClient() && liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       lineUID = profile.userId;
-
       const res = await gasGet({ action: 'getEmployeeByUID', uid: lineUID });
-      if (res && res.success && res.employee) {
-        employeeData = res.employee;
-        document.getElementById('userName').textContent = employeeData.name;
-        document.getElementById('userSub').textContent =
-          `${employeeData.position || ''} ${employeeData.dept || ''}`.trim();
-        if (profile.pictureUrl) {
-          document.getElementById('userAvatar').innerHTML = `<img src="${profile.pictureUrl}">`;
-          if (!employeeData.picUrl) gasGet({ action: 'saveProfilePic', empId: employeeData.id, picUrl: profile.pictureUrl });
-        } else if (employeeData.picUrl) {
-          document.getElementById('userAvatar').innerHTML = `<img src="${employeeData.picUrl}">`;
-        }
-        document.getElementById('btnSubmit').disabled = false;
-        updateRate();
-        loadOTHistory();
-      } else {
-        document.getElementById('userName').textContent = '❌ ไม่พบข้อมูลพนักงาน';
-        document.getElementById('userSub').textContent = 'กรุณาติดต่อผู้ดูแลระบบ';
-      }
-    } catch (err) {
-      document.getElementById('userName').textContent = '❌ เกิดข้อผิดพลาด';
-      document.getElementById('userSub').textContent = err.message;
+      if (res && res.success) currentUser = res.employee;
+    }
+  } catch(e) { console.warn('LIFF:', e.message); }
+}
+
+async function loadEmps() {
+  const res = await gasGet({ action: 'getEmployeeFull' });
+  if (res && Array.isArray(res)) allEmps = res;
+  renderEmpList(allEmps);
+}
+
+// ==================== Step Navigation ====================
+function goStep(n) {
+  // Validate before going forward
+  if (n === 3) {
+    if (Object.keys(selectedEmps).length === 0) { alert('กรุณาเลือกพนักงานอย่างน้อย 1 คนครับ'); return; }
+    if (otType === 'B') {
+      const rate = parseFloat(document.getElementById('groupRate').value);
+      if (!rate || rate <= 0) { alert('กรุณาระบุอัตราค่าแรงกลุ่มครับ'); return; }
     }
   }
-
-  function calcHours() {
-    const start = document.getElementById('otStart').value;
-    const end = document.getElementById('otEnd').value;
-    if (!start || !end) return;
-
-    const [sh, sm] = start.split(':').map(Number);
-    const [eh, em] = end.split(':').map(Number);
-    let totalMin = (eh * 60 + em) - (sh * 60 + sm);
-    if (totalMin <= 0) totalMin += 24 * 60; // ข้ามคืน
-
-    const hours = Math.round(totalMin / 60 * 10) / 10; // ปัดทศนิยม 1 ตำแหน่ง
-    document.getElementById('otHours').value = hours;
-
-    const hh = Math.floor(totalMin / 60);
-    const mm = totalMin % 60;
-    document.getElementById('otHoursDisplay').textContent =
-      `${hh} ชม. ${mm > 0 ? mm + ' นาที' : ''}`;
-
-    updateRate(hours);
+  if (n === 5) {
+    if (!document.getElementById('otDate').value) { alert('กรุณาเลือกวันที่ครับ'); return; }
+    if (!document.getElementById('otStart').value || !document.getElementById('otEnd').value) { alert('กรุณาระบุเวลาเริ่ม-สิ้นสุดครับ'); return; }
+    if (!document.getElementById('otSubject').value.trim()) { alert('กรุณาระบุเรื่องครับ'); return; }
+    if (!document.getElementById('otReason').value.trim()) { alert('กรุณาระบุรายละเอียดงานครับ'); return; }
+    generatePreview();
+    renderCostSummary();
+    loadHistory();
   }
-
-  function updateRate(hours) {
-    if (!employeeData || !employeeData.otRate) {
-      document.getElementById('otTotal').textContent = '— บาท';
-      return;
-    }
-    const h = hours !== undefined ? hours : parseFloat(document.getElementById('otHours').value) || 0;
-    const rate = parseFloat(employeeData.otRate) || 0;
-    const total = Math.round(h * rate * 100) / 100;
-    document.getElementById('otTotal').textContent = total.toLocaleString('th-TH') + ' บาท';
+  currentStep = n;
+  for (let i=1;i<=5;i++) {
+    document.getElementById('page'+i).style.display = i===n ? 'block' : 'none';
+    const num = document.getElementById('s'+i);
+    const lbl = document.getElementById('sl'+i);
+    if (i < n) { num.className='step-num done'; num.textContent='✓'; }
+    else if (i === n) { num.className='step-num active'; num.textContent=i; }
+    else { num.className='step-num'; num.textContent=i; }
+    if (lbl) { lbl.className = i===n ? 'step-label active' : 'step-label'; }
   }
+  window.scrollTo(0,0);
+}
 
-  async function submitOT() {
-    if (!employeeData) return;
-    const date = document.getElementById('otDate').value;
-    const otStart = document.getElementById('otStart').value;
-    const otEnd = document.getElementById('otEnd').value;
-    const hours = parseFloat(document.getElementById('otHours').value);
-    const reason = document.getElementById('otReason').value.trim();
+// ==================== Step 1: Type ====================
+function selectType(t) {
+  otType = t;
+  document.getElementById('typeA').className = 'type-card' + (t==='A'?' selected':'');
+  document.getElementById('typeB').className = 'type-card' + (t==='B'?' selected':'');
+  document.getElementById('btnNext1').disabled = false;
+  document.getElementById('groupRateCard').style.display = t==='B' ? 'block' : 'none';
+}
 
-    if (!date) { alert('กรุณาเลือกวันที่'); return; }
-    if (!otStart) { alert('กรุณาระบุเวลาเริ่ม OT'); return; }
-    if (!otEnd) { alert('กรุณาระบุเวลาสิ้นสุด OT'); return; }
-    if (!hours || hours <= 0) { alert('กรุณาระบุเวลาเริ่ม-สิ้นสุดให้ถูกต้อง'); return; }
-    if (!reason) { alert('กรุณาระบุเหตุผล'); return; }
+// ==================== Step 2: Employees ====================
+function renderEmpList(list) {
+  const div = document.getElementById('empCheckList');
+  if (!list.length) { div.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">ไม่พบพนักงาน</div>'; return; }
+  div.innerHTML = list.map(e => {
+    const checked = !!selectedEmps[e.id];
+    return `<div class="emp-check-item ${checked?'checked':''}" id="ec-${e.id}" onclick="toggleEmp('${e.id}')">
+      <div class="emp-check-box ${checked?'checked':'}">${checked?'✓':''}</div>
+      <div class="emp-avatar">${e.picUrl?`<img src="${e.picUrl}">`:'👤'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="emp-name-text">${e.name}</div>
+        <div class="emp-sub-text">${e.position||''} ${e.dept?'· '+e.dept:''}</div>
+      </div>
+      ${e.otRate ? `<div class="emp-rate">${parseFloat(e.otRate).toLocaleString()} บ./ชม.</div>` : ''}
+    </div>`;
+  }).join('');
+}
 
-    setOverlay(true);
-    const res = await gasGet({
-      action: 'submitOT',
-      empId: employeeData.id,
-      date, otStart, otEnd, hours, reason,
-      lineUID: lineUID || ''
+function filterEmps() {
+  const q = document.getElementById('empSearch').value.toLowerCase();
+  const filtered = q ? allEmps.filter(e => e.name.toLowerCase().includes(q) || (e.position||'').toLowerCase().includes(q)) : allEmps;
+  renderEmpList(filtered);
+}
+
+function toggleEmp(id) {
+  const emp = allEmps.find(e => e.id === id);
+  if (!emp) return;
+  if (selectedEmps[id]) {
+    delete selectedEmps[id];
+  } else {
+    selectedEmps[id] = emp;
+  }
+  updateEmpCount();
+  filterEmps(); // re-render with updated state
+  if (otType === 'B') calcGroupCost();
+}
+
+function toggleAll() {
+  const visible = document.querySelectorAll('.emp-check-item');
+  const allChecked = visible.length > 0 && [...visible].every(el => el.classList.contains('checked'));
+  allEmps.forEach(e => { if (allChecked) delete selectedEmps[e.id]; else selectedEmps[e.id] = e; });
+  updateEmpCount();
+  filterEmps();
+  if (otType === 'B') calcGroupCost();
+}
+
+function updateEmpCount() {
+  const cnt = Object.keys(selectedEmps).length;
+  document.getElementById('empCount').textContent = `เลือก ${cnt} คน`;
+  document.getElementById('btnNext2').disabled = cnt === 0;
+}
+
+function setRateType(t) {
+  rateType = t;
+  document.getElementById('rateTypeDay').className = 'rate-type-btn' + (t==='day'?' active':'');
+  document.getElementById('rateTypeHour').className = 'rate-type-btn' + (t==='hour'?' active':'');
+  calcGroupCost();
+}
+
+function calcGroupCost() {
+  const rate = parseFloat(document.getElementById('groupRate').value) || 0;
+  const mult = parseFloat(document.getElementById('groupMultiplier').value) || 1;
+  const cnt = Object.keys(selectedEmps).length;
+  const div = document.getElementById('groupCostPreview');
+  if (!rate || !cnt) { div.innerHTML=''; return; }
+  const perPerson = rate * mult;
+  const total = perPerson * cnt;
+  div.innerHTML = `<div style="background:var(--ot-light);border-radius:10px;padding:12px;font-size:13px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>อัตรา × คูณ</span><span style="font-weight:700">${rate.toLocaleString()} × ${mult} = ${perPerson.toLocaleString()} บาท/คน</span></div>
+    <div style="display:flex;justify-content:space-between;"><span>จำนวน ${cnt} คน</span><span style="font-weight:700;color:var(--ot)">รวม ${total.toLocaleString()} บาท</span></div>
+  </div>`;
+}
+
+// ==================== Step 3: Details ====================
+function calcHours() {
+  const start = document.getElementById('otStart').value;
+  const end = document.getElementById('otEnd').value;
+  const div = document.getElementById('hoursDisplay');
+  if (!start || !end) { div.style.display='none'; return; }
+  const [sh,sm] = start.split(':').map(Number);
+  const [eh,em] = end.split(':').map(Number);
+  let mins = (eh*60+em) - (sh*60+sm);
+  if (mins <= 0) mins += 24*60;
+  otHours = Math.round(mins/60*10)/10;
+  const hh = Math.floor(mins/60), mm = mins%60;
+  div.style.display='block';
+  div.textContent = `⏱️ รวม ${hh} ชั่วโมง ${mm>0?mm+' นาที':''}`;
+}
+
+// ==================== Step 4: Files ====================
+function addFiles(fileList) {
+  Array.from(fileList).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result.split(',')[1];
+      attachedFiles.push({ name: file.name, size: file.size, base64, mimeType: file.type });
+      renderFileList();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFileList() {
+  const icons = { 'image': '🖼️', 'pdf': '📄', 'word': '📝', 'excel': '📊', 'default': '📎' };
+  const getIcon = (name) => {
+    if (/\.(jpg|jpeg|png|gif)$/i.test(name)) return icons.image;
+    if (/\.pdf$/i.test(name)) return icons.pdf;
+    if (/\.docx?$/i.test(name)) return icons.word;
+    if (/\.xlsx?$/i.test(name)) return icons.excel;
+    return icons.default;
+  };
+  const list = document.getElementById('fileList');
+  if (!attachedFiles.length) { list.innerHTML=''; return; }
+  list.innerHTML = `<div style="margin-top:8px;font-size:12px;color:var(--muted);margin-bottom:6px">ไฟล์แนบ ${attachedFiles.length} ไฟล์</div>` +
+    attachedFiles.map((f,i) => `<div class="file-item">
+      <div class="file-icon">${getIcon(f.name)}</div>
+      <div class="file-name">${f.name}</div>
+      <div class="file-size">${(f.size/1024).toFixed(1)} KB</div>
+      <div class="file-remove" onclick="removeFile(${i})">✕</div>
+    </div>`).join('');
+}
+
+function removeFile(i) { attachedFiles.splice(i,1); renderFileList(); }
+function onDragOver(e) { e.preventDefault(); document.getElementById('fileDrop').classList.add('dragover'); }
+function onDragLeave(e) { document.getElementById('fileDrop').classList.remove('dragover'); }
+function onDrop(e) { e.preventDefault(); document.getElementById('fileDrop').classList.remove('dragover'); addFiles(e.dataTransfer.files); }
+
+// ==================== Step 5: Preview & Submit ====================
+function generatePreview() {
+  const date = document.getElementById('otDate').value;
+  const start = document.getElementById('otStart').value;
+  const end = document.getElementById('otEnd').value;
+  const subject = document.getElementById('otSubject').value;
+  const reason = document.getElementById('otReason').value;
+  const wbs = document.getElementById('otWBS').value;
+  const supervisor = document.getElementById('otSupervisor').value;
+  const emps = Object.values(selectedEmps);
+
+  const d = new Date(date);
+  const dateStr = `วัน${DAYS_TH[d.getDay()]}ที่ ${d.getDate()} ${MONTHS_TH[d.getMonth()]} ${d.getFullYear()+543}`;
+
+  let text = `📋 บันทึกข้อความ\n`;
+  text += `\nจาก    ผปร.กฟส.อ่าวลึก\nถึง    ผจก.กฟส.อ่าวลึก`;
+  text += `\n\nเรื่อง  ${subject}`;
+  text += `\n\nเรียน  ผจก.กฟส.อ่าวลึก`;
+  text += `\n\nด้วย ผปร.กฟส.อ่าวลึก มีความจำเป็นต้องขออนุมัติ${reason}`;
+  text += `\nในวันที่ ${dateStr} เวลา ${start} น. ถึง ${end} น. รวม ${otHours} ชั่วโมง`;
+
+  if (otType === 'A') {
+    text += `\n\nรายละเอียดค่าล่วงเวลา:`;
+    emps.forEach((e,i) => {
+      const rate = parseFloat(e.otRate) || 0;
+      const total = rate * otHours;
+      text += `\n  ${i+1}. ${e.name}  ${rate.toLocaleString()} × ${otHours} ชม. = ${total.toLocaleString('th-TH',{minimumFractionDigits:2})} บาท`;
     });
-    setOverlay(false);
-
-    if (res && res.success) {
-      showResult(true, `✅ ส่งคำขอ OT สำเร็จ\n📅 วันที่: ${date}\n🕐 เวลา: ${otStart} - ${otEnd}\n⏱️ จำนวน: ${hours} ชั่วโมง\n📋 เหตุผล: ${reason}\n\n⏳ รอหัวหน้าแผนกอนุมัติครับ`);
-      document.getElementById('otReason').value = '';
-      loadOTHistory();
-    } else {
-      showResult(false, res ? res.message : 'เกิดข้อผิดพลาด');
-    }
+    const grandTotal = emps.reduce((s,e)=> s + (parseFloat(e.otRate)||0)*otHours, 0);
+    text += `\n\nรวมทั้งสิ้น ${grandTotal.toLocaleString('th-TH',{minimumFractionDigits:2})} บาท`;
+  } else {
+    const rate = parseFloat(document.getElementById('groupRate').value) || 0;
+    const mult = parseFloat(document.getElementById('groupMultiplier').value) || 1;
+    text += `\n\n1. รายชื่อผู้ปฏิบัติงาน:`;
+    emps.forEach((e,i) => { text += `\n   ${i+1}. ${e.name}`; });
+    text += `\n\n2. ค่าแรง:`;
+    text += `\n   อัตรา ${rate.toLocaleString()} บาท × ${mult} = ${(rate*mult).toLocaleString()} บาท/คน`;
+    text += `\n   จำนวน ${emps.length} คน รวม ${(rate*mult*emps.length).toLocaleString()} บาท`;
   }
 
-  async function loadOTHistory() {
-    if (!employeeData) return;
-    const res = await gasGet({ action: 'getOTHistory', empId: employeeData.id });
-    const div = document.getElementById('otHistory');
-    if (!res || !Array.isArray(res) || !res.length) {
-      div.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">ยังไม่มีประวัติ OT</div>';
-      return;
-    }
-    div.innerHTML = res.slice(0, 10).map(r => {
-      const badgeClass = r.status === 'อนุมัติ' ? 'badge-approved' : r.status === 'ไม่อนุมัติ' ? 'badge-rejected' : 'badge-pending';
-      const statusText = r.status || 'รออนุมัติ';
-      return `<div class="ot-item">
-        <div class="ot-item-header">
-          <span class="ot-item-date">📅 ${r.date}</span>
-          <span class="ot-item-hours">⏱️ ${r.hours} ชม.</span>
-        </div>
-        ${r.otStart ? `<div style="font-size:12px;color:var(--muted);margin-bottom:4px">🕐 ${r.otStart} - ${r.otEnd}</div>` : ''}
-        <div class="ot-item-header">
-          <span class="ot-item-reason">${r.reason || '—'}</span>
-          <span class="badge ${badgeClass}">${statusText}</span>
-        </div>
-        ${r.otTotal ? `<div style="font-size:12px;color:var(--ot);font-weight:600;margin-top:4px">💰 ${parseFloat(r.otTotal).toLocaleString('th-TH')} บาท</div>` : ''}
-        ${r.approvedBy ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">✍️ ${r.approvedBy}</div>` : ''}
-      </div>`;
-    }).join('');
+  if (wbs) text += `\n\nWBS: ${wbs}`;
+  if (supervisor) text += `\nผู้ควบคุมงาน: ${supervisor}`;
+  if (attachedFiles.length) text += `\n\n📎 ไฟล์แนบ: ${attachedFiles.length} ไฟล์`;
+  text += `\n\nจึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ\n\n(${currentUser?.name || 'ผู้ขออนุมัติ'})`;
+
+  document.getElementById('previewBox').textContent = text;
+}
+
+function renderCostSummary() {
+  const emps = Object.values(selectedEmps);
+  let html = '';
+  if (otType === 'A') {
+    html = `<table class="cost-table"><thead><tr><th>ชื่อ</th><th>อัตรา</th><th>ชม.</th><th>รวม</th></tr></thead><tbody>`;
+    let grand = 0;
+    emps.forEach(e => {
+      const rate = parseFloat(e.otRate)||0;
+      const total = rate * otHours;
+      grand += total;
+      html += `<tr><td>${e.name}</td><td>${rate.toLocaleString()}</td><td>${otHours}</td><td>${total.toLocaleString('th-TH',{minimumFractionDigits:2})}</td></tr>`;
+    });
+    html += `</tbody></table><div class="cost-total">รวมทั้งสิ้น ${grand.toLocaleString('th-TH',{minimumFractionDigits:2})} บาท</div>`;
+  } else {
+    const rate = parseFloat(document.getElementById('groupRate').value)||0;
+    const mult = parseFloat(document.getElementById('groupMultiplier').value)||1;
+    const perPerson = rate*mult;
+    const total = perPerson*emps.length;
+    html = `<div style="font-size:14px;line-height:2">
+      <div>👥 พนักงาน: <strong>${emps.length} คน</strong></div>
+      <div>💵 อัตรา: <strong>${rate.toLocaleString()} × ${mult} = ${perPerson.toLocaleString()} บาท/คน</strong></div>
+      <div class="cost-total">รวมทั้งสิ้น ${total.toLocaleString()} บาท</div>
+    </div>`;
+  }
+  document.getElementById('costSummary').innerHTML = html;
+}
+
+function copyPreview() {
+  const text = document.getElementById('previewBox').textContent;
+  navigator.clipboard.writeText(text).then(() => alert('✅ คัดลอกแล้วครับ')).catch(() => {
+    // Fallback
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    alert('✅ คัดลอกแล้วครับ');
+  });
+}
+
+async function submitOT() {
+  const date = document.getElementById('otDate').value;
+  const start = document.getElementById('otStart').value;
+  const end = document.getElementById('otEnd').value;
+  const subject = document.getElementById('otSubject').value.trim();
+  const reason = document.getElementById('otReason').value.trim();
+  const wbs = document.getElementById('otWBS').value.trim();
+  const supervisor = document.getElementById('otSupervisor').value.trim();
+  const emps = Object.values(selectedEmps);
+
+  const rate = otType==='B' ? parseFloat(document.getElementById('groupRate').value)||0 : 0;
+  const multiplier = otType==='B' ? parseFloat(document.getElementById('groupMultiplier').value)||1 : 1;
+
+  document.getElementById('btnSubmit').disabled = true;
+  setOverlay(true, '📤 กำลังส่งคำขอ OT...');
+
+  // อัปโหลดไฟล์แนบก่อน
+  let driveFolder = '';
+  if (attachedFiles.length > 0) {
+    setOverlay(true, `📂 อัปโหลดไฟล์ ${attachedFiles.length} ไฟล์ขึ้น Drive...`);
+    const uploadRes = await gasGet({
+      action: 'uploadOTFiles',
+      otDate: date,
+      subject: subject,
+      files: JSON.stringify(attachedFiles.map(f => ({ name: f.name, base64: f.base64, mimeType: f.mimeType })))
+    });
+    if (uploadRes && uploadRes.folderUrl) driveFolder = uploadRes.folderUrl;
   }
 
-  async function gasGet(params) {
-    const url = GAS_URL + '?' + new URLSearchParams(params).toString();
-    const res = await fetch(url, { redirect: 'follow' });
-    const text = await res.text();
-    try { return JSON.parse(text); } catch(e) { return null; }
-  }
+  setOverlay(true, '📤 ส่งคำขออนุมัติ...');
 
-  function showResult(success, message) {
-    const card = document.getElementById('resultCard');
-    card.className = 'result-card show ' + (success ? 'success' : 'error');
-    document.getElementById('resultIcon').textContent = success ? '✅' : '❌';
-    document.getElementById('resultTitle').textContent = success ? 'ส่งคำขอสำเร็จ' : 'เกิดข้อผิดพลาด';
-    document.getElementById('resultMsg').textContent = message;
-    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  const empData = emps.map(e => ({
+    id: e.id, name: e.name, lineUID: e.lineUID||'',
+    otRate: otType==='A' ? (parseFloat(e.otRate)||0) : rate,
+    otTotal: otType==='A' ? (parseFloat(e.otRate)||0)*otHours : rate*multiplier,
+  }));
 
-  function setOverlay(show) {
-    document.getElementById('overlay').className = show ? 'overlay show' : 'overlay';
-  }
+  const res = await gasGet({
+    action: 'submitGroupOT',
+    otType,
+    date, otStart: start, otEnd: end, hours: otHours,
+    subject, reason, wbs, supervisor,
+    groupRate: rate, groupMultiplier: multiplier,
+    employees: JSON.stringify(empData),
+    driveFolder,
+    requesterUID: lineUID || '',
+    previewText: document.getElementById('previewBox').textContent,
+  });
 
-  function setHeaderDate() {
-    const d = new Date();
-    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-    document.getElementById('headerDate').textContent =
-      `วัน${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
-  }
+  setOverlay(false);
+  const rDiv = document.getElementById('resultDiv');
+  rDiv.style.display = 'block';
 
-  function fmtDate(d) {
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  if (res && res.success) {
+    rDiv.innerHTML = `<div class="result-card result-success"><div class="result-icon">✅</div><div class="result-title">ส่งคำขอสำเร็จ</div><div class="result-msg">ระบบส่ง LINE แจ้งหัวหน้าแผนกแล้วครับ\nรอการอนุมัติ...</div>${driveFolder?`<div style="margin-top:10px"><a href="${driveFolder}" target="_blank" style="color:var(--primary)">📁 ดูไฟล์แนบใน Drive</a></div>`:''}</div>`;
+    loadHistory();
+  } else {
+    rDiv.innerHTML = `<div class="result-card result-error"><div class="result-icon">❌</div><div class="result-title">เกิดข้อผิดพลาด</div><div class="result-msg">${res?.message||'กรุณาลองใหม่ครับ'}</div></div>`;
+    document.getElementById('btnSubmit').disabled = false;
   }
+}
+
+async function loadHistory() {
+  if (!lineUID) return;
+  const res = await gasGet({ action: 'getMyGroupOTHistory', uid: lineUID });
+  const div = document.getElementById('otHistory');
+  if (!res || !Array.isArray(res) || !res.length) {
+    div.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">ยังไม่มีประวัติ</div>'; return;
+  }
+  div.innerHTML = res.slice(0,10).map(r => {
+    const bc = r.status==='อนุมัติ'?'badge-approved':r.status==='ไม่อนุมัติ'?'badge-rejected':'badge-pending';
+    return `<div class="ot-item">
+      <div class="ot-item-header">
+        <span style="font-size:14px;font-weight:600">${r.date} (${r.empCount} คน)</span>
+        <span class="ot-badge ${bc}">${r.status||'รออนุมัติ'}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">${r.subject||''}</div>
+      <div style="font-size:12px;color:var(--ot);margin-top:2px">💰 ${(r.totalCost||0).toLocaleString()} บาท</div>
+      ${r.driveFolder?`<a href="${r.driveFolder}" target="_blank" style="font-size:12px;color:var(--primary)">📁 ดูไฟล์แนบ</a>`:''}
+    </div>`;
+  }).join('');
+}
+
+function resetForm() {
+  otType=null; selectedEmps={}; attachedFiles=[];
+  document.getElementById('resultDiv').style.display='none';
+  document.getElementById('btnSubmit').disabled=false;
+  goStep(1);
+  document.getElementById('typeA').className='type-card';
+  document.getElementById('typeB').className='type-card';
+  document.getElementById('btnNext1').disabled=true;
+}
+
+// ==================== Helpers ====================
+async function gasGet(params) {
+  const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+  const res = await fetch(url, { redirect: 'follow' });
+  const text = await res.text();
+  try { return JSON.parse(text); } catch(e) { return null; }
+}
+
+function setOverlay(show, text='กำลังดำเนินการ...') {
+  document.getElementById('overlay').className = show ? 'overlay show' : 'overlay';
+  document.getElementById('overlayText').textContent = text;
+}
+
+function setHeaderDate() {
+  const d = new Date();
+  document.getElementById('headerDate').textContent = `วัน${DAYS_TH[d.getDay()]}ที่ ${d.getDate()} ${MONTHS_TH[d.getMonth()]} ${d.getFullYear()+543}`;
+}
+
+function fmtDate(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
 </script>
 </body>
 </html>
