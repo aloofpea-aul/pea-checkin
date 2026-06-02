@@ -168,7 +168,7 @@ input[type="file"]{display:none;}
 
   <!-- Steps -->
   <div class="steps" id="stepsBar">
-    <div class="step"><div class="step-num active" id="s1">1</div><div class="step-label active">ประเภท</div></div>
+    <div class="step"><div class="step-num active" id="s1">1</div><div class="step-label active" id="sl1">ประเภท</div></div>
     <div class="step-divider"></div>
     <div class="step"><div class="step-num" id="s2">2</div><div class="step-label" id="sl2">พนักงาน</div></div>
     <div class="step-divider"></div>
@@ -402,7 +402,7 @@ function goStep(n) {
     if (i < n) { num.className='step-num done'; num.textContent='✓'; }
     else if (i === n) { num.className='step-num active'; num.textContent=i; }
     else { num.className='step-num'; num.textContent=i; }
-    if (lbl) { lbl.className = i===n ? 'step-label active' : 'step-label'; }
+    if (lbl) lbl.className = i===n ? 'step-label active' : 'step-label';
   }
   window.scrollTo(0,0);
 }
@@ -423,7 +423,7 @@ function renderEmpList(list) {
   div.innerHTML = list.map(e => {
     const checked = !!selectedEmps[e.id];
     return `<div class="emp-check-item ${checked?'checked':''}" id="ec-${e.id}" onclick="toggleEmp('${e.id}')">
-      <div class="emp-check-box ${checked?'checked':'}">${checked?'✓':''}</div>
+      <div class="emp-check-box ${checked?'checked':''}">${checked?'✓':''}</div>
       <div class="emp-avatar">${e.picUrl?`<img src="${e.picUrl}">`:'👤'}</div>
       <div style="flex:1;min-width:0">
         <div class="emp-name-text">${e.name}</div>
