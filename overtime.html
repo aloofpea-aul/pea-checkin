@@ -670,13 +670,13 @@ async function submitOT() {
     otTotal: otType==='A' ? (parseFloat(e.otRate)||0)*otHours : rate*multiplier,
   }));
 
-  const res = await gasGet({
+  const res = await gasPost({
     action: 'submitGroupOT',
     otType,
     date, otStart: start, otEnd: end, hours: otHours,
     subject, reason, wbs, supervisor,
     groupRate: rate, groupMultiplier: multiplier,
-    employees: JSON.stringify(empData),
+    employees: empData,
     driveFolder,
     requesterUID: lineUID || '',
     previewText: document.getElementById('previewBox').textContent,
