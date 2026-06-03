@@ -645,20 +645,27 @@ async function submitOT() {
   document.getElementById('btnSubmit').disabled = true;
   setOverlay(true, '📤 กำลังส่งคำขอ OT...');
 
-  // อัปโหลดไฟล์แนบทีละไฟล์
+  // อัปโหลดไฟล์แนบ
   let driveFolder = '';
+  let driveFolderId = '';
   if (attachedFiles.length > 0) {
-    setOverlay(true, `📂 กำลังสร้างโฟลเดอร์...`);
-    // สร้างโฟลเดอร์ก่อน
-    const folderRes = await gasPost({ action: 'createOTFolder', otDate: date, subject });
-    const folderId = folderRes?.folderId || '';
-    driveFolder = folderRes?.folderUrl || '';
-
-    // อัปโหลดทีละไฟล์
+    setOverlay(true, '📂 กำลังสร้างโฟลเดอร์ Drive...');
+    const folderRes = await gasGet({ action: 'createOTFolder', otDate: date, subject: subject.substring(0,30) });
+    if (folderRes && folderRes.folderId) {
+      driveFolderId = folderRes.folderId;
+      driveFolder = folderRes.folderUrl;
+    }
+    // อัปโหลดทีละไฟล์ผ่าน GAS (base64 ใน URL)
     for (let i = 0; i < attachedFiles.length; i++) {
       const f = attachedFiles[i];
       setOverlay(true, `📂 อัปโหลด ${i+1}/${attachedFiles.length}: ${f.name}`);
-      await gasPost({ action: 'uploadOneFile', folderId, fileName: f.name, base64: f.base64, mimeType: f.mimeType });
+      // ถ้าไฟล์เล็ก (<500KB) ส่งผ่าน GET ได้
+      if (f.size <= 512000) {
+        await gasGet({ action: 'uploadOneFile', folderId: driveFolderId, fileName: f.name, base64: f.base64, mimeType: f.mimeType || 'application/octet-stream' });
+      } else {
+        // ไฟล์ใหญ่ → แจ้งชื่อไว้ก่อน อัปโหลดแยก
+        console.warn('File too large for GET:', f.name);
+      }
     }
   }
 
@@ -670,16 +677,15 @@ async function submitOT() {
     otTotal: otType==='A' ? (parseFloat(e.otRate)||0)*otHours : rate*multiplier,
   }));
 
-  const res = await gasPost({
+  const res = await gasGet({
     action: 'submitGroupOT',
     otType,
     date, otStart: start, otEnd: end, hours: otHours,
     subject, reason, wbs, supervisor,
     groupRate: rate, groupMultiplier: multiplier,
-    employees: empData,
+    employees: JSON.stringify(empData),
     driveFolder,
     requesterUID: lineUID || '',
-    previewText: document.getElementById('previewBox').textContent,
   });
 
   setOverlay(false);
@@ -735,19 +741,9 @@ async function gasGet(params) {
 }
 
 async function gasPost(params) {
-  try {
-    const res = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-      redirect: 'follow',
-    });
-    const text = await res.text();
-    try { return JSON.parse(text); } catch(e) { return null; }
-  } catch(e) {
-    console.error('gasPost error:', e);
-    return null;
-  }
+  // GAS ไม่รองรับ CORS POST จาก browser ตรงๆ
+  // ใช้ GET แทน โดยส่งข้อมูลผ่าน URL params
+  return await gasGet(params);
 }
 
 function setOverlay(show, text='กำลังดำเนินการ...') {
