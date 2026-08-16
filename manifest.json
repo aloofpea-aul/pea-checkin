@@ -1,0 +1,41 @@
+{
+  "name": "Dashboard PEA อ่าวลึก",
+  "short_name": "PEA Dashboard",
+  "description": "ระบบ Dashboard บันทึกเวลาการไฟฟ้าส่วนภูมิภาคสาขาอ่าวลึก",
+  "start_url": "/pea-checkin/dashboard_mobile.html",
+  "scope": "/pea-checkin/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F0F4F8",
+  "theme_color": "#005A9C",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "วันนี้",
+      "short_name": "วันนี้",
+      "url": "/pea-checkin/dashboard_mobile.html#today",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "รางวัล",
+      "short_name": "รางวัล",
+      "url": "/pea-checkin/dashboard_mobile.html#reward",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
