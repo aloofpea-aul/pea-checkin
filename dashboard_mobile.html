@@ -117,6 +117,7 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
   <button class="tab-btn" onclick="switchTab('history',this)">📋 ประวัติ</button>
   <button class="tab-btn" onclick="switchTab('monthly',this)">📈 รายเดือน</button>
   <button class="tab-btn gold" onclick="switchTab('reward',this)">🏆 รางวัล</button>
+  <button class="tab-btn" onclick="switchTab('map',this)">🗺️ แผนที่</button>
 </div>
 
 <div class="content">
@@ -195,6 +196,18 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
   <div id="rewardLeaderboard"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
 </div>
 
+  <!-- Tab: Map -->
+  <div class="tab-page" id="tab-map">
+    <div class="filter-row">
+      <input type="date" id="mapDate">
+      <button class="btn-sm btn-primary" onclick="loadMap()">แสดงแผนที่</button>
+    </div>
+    <div id="mapContainer" style="width:100%;height:400px;border-radius:14px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center">
+      <div class="empty">เลือกวันที่เพื่อดูแผนที่จุดเช็คอิน</div>
+    </div>
+    <div id="mapList" style="margin-top:10px"></div>
+  </div>
+
 </div><!-- end content -->
 
 <!-- Like Modal -->
@@ -237,6 +250,7 @@ window.onload = () => {
   const today = new Date();
   document.getElementById('historyDate').value = fmtDate(today);
   document.getElementById('monthPicker').value = fmtMonth(today);
+  document.getElementById('mapDate').value = fmtDate(today);
 };
 
 // ==================== API ====================
