@@ -570,6 +570,58 @@ async function submitLike() {
   }
 }
 
+// ==================== Map ====================
+  async function loadMap() {
+    const date = document.getElementById('mapDate').value;
+    if (!date) return;
+    document.getElementById('mapContainer').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+    const data = await gasGet({ action: 'getAttendanceByDate', dateStr: date });
+    const container = document.getElementById('mapContainer');
+    const list = document.getElementById('mapList');
+    if (!data || !Array.isArray(data) || !data.length) {
+      container.innerHTML = '<div class="empty">ไม่มีข้อมูลวันที่เลือก</div>';
+      list.innerHTML = ''; return;
+    }
+    const withGPS = data.filter(r => r.lat && r.lng);
+    if (!withGPS.length) {
+      container.innerHTML = '<div class="empty">ไม่มีข้อมูล GPS วันนี้</div>';
+      list.innerHTML = ''; return;
+    }
+    container.innerHTML = '<div id="leafletMap" style="width:100%;height:380px;border-radius:14px"></div>';
+    if (!window.L) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+      await new Promise(res => {
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        s.onload = res; document.head.appendChild(s);
+      });
+    }
+    const cLat = 8.364947, cLng = 98.74931;
+    const map = L.map('leafletMap').setView([cLat, cLng], 18);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    L.circle([cLat, cLng], { radius: 50, color: '#005A9C', fillOpacity: 0.15 }).addTo(map).bindPopup('🏢 สำนักงาน');
+    const colors = ['#E65100','#2E7D32','#7B1FA2','#1565C0','#C62828'];
+    withGPS.forEach((r, i) => {
+      const color = colors[i % colors.length];
+      const icon = L.divIcon({
+        html: '<div style="background:'+color+';color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)">'+(i+1)+'</div>',
+        iconSize: [28,28], className: ''
+      });
+      L.marker([parseFloat(r.lat), parseFloat(r.lng)], { icon }).addTo(map)
+        .bindPopup('<b>'+r.name+'</b><br>เข้า: '+(r.checkIn||'—')+' น.');
+    });
+    list.innerHTML = '<div style="font-size:13px;font-weight:600;margin:10px 0 8px">📍 '+withGPS.length+' คน</div>' +
+      withGPS.map((r,i) => '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:white;border-radius:8px;margin-bottom:6px">' +
+        '<div style="background:'+colors[i%colors.length]+';color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">'+(i+1)+'</div>' +
+        '<div style="flex:1"><div style="font-size:13px;font-weight:600">'+r.name+'</div>' +
+        '<div style="font-size:11px;color:var(--muted)">เข้า '+(r.checkIn||'—')+' | '+(r.distIn||'—')+' ม. | '+(r.area!=='นอกพื้นที่'?'✅ ในพื้นที่':'⚠️ นอก')+'</div></div>' +
+        '<a href="https://maps.google.com/?q='+r.lat+','+r.lng+'" target="_blank" style="color:var(--primary)">📍</a></div>'
+      ).join('');
+  }
+
 // ==================== Helpers ====================
 function setHeaderDate() {
   const d = new Date();
