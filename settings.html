@@ -78,6 +78,11 @@
   .uid-btn.set{background:var(--success-light);color:var(--success);}
 
   /* Toast */
+  .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .leave-item{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px;}
+  .leave-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+  .leave-type{font-size:14px;font-weight:600;}
+  .leave-dates{font-size:12px;color:var(--muted);}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2B3C;color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;transition:transform 0.3s;z-index:9999;white-space:nowrap;}
   .toast.show{transform:translateX(-50%) translateY(0);}
 
@@ -108,6 +113,7 @@
   <button class="tab-btn active" onclick="switchTab('holiday',this)">📅 วันหยุด</button>
   <button class="tab-btn" onclick="switchTab('team',this)">👨‍💼 บันทึกแทน</button>
   <button class="tab-btn" onclick="switchTab('uid',this)">🆔 จัดการ UID</button>
+  <button class="tab-btn" onclick="switchTab('leave',this)">📋 ลางาน</button>
 </div>
 
 <div class="content">
@@ -206,6 +212,55 @@
     </div>
   </div>
 
+  <!-- ===== TAB 4: ลางาน ===== -->
+  <div class="tab-page" id="tab-leave">
+    <div class="info-box">
+      💡 <strong>ขอลางาน</strong> — กรอกข้อมูลแล้วส่งให้หัวหน้าแผนกอนุมัติทาง LINE
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 ยื่นคำขอลา</div>
+
+      <div class="form-group">
+        <label class="form-label">ประเภทการลา <span class="req">*</span></label>
+        <select class="form-input" id="leaveType">
+          <option value="">-- เลือกประเภท --</option>
+          <option value="ลาป่วย">🏥 ลาป่วย</option>
+          <option value="ลากิจ">📝 ลากิจ</option>
+          <option value="ลาพักร้อน">🏖️ ลาพักร้อน</option>
+          <option value="ลาคลอด">👶 ลาคลอด</option>
+          <option value="ลาอุปสมบท">🙏 ลาอุปสมบท</option>
+        </select>
+      </div>
+
+      <div class="time-row">
+        <div class="form-group">
+          <label class="form-label">วันเริ่มลา <span class="req">*</span></label>
+          <input class="form-input" type="date" id="leaveStart">
+        </div>
+        <div class="form-group">
+          <label class="form-label">วันสิ้นสุด <span class="req">*</span></label>
+          <input class="form-input" type="date" id="leaveEnd">
+        </div>
+      </div>
+
+      <div id="leaveDaysPreview" style="background:var(--primary-light);border-radius:10px;padding:10px;text-align:center;font-weight:700;color:var(--primary);margin-bottom:14px;display:none"></div>
+
+      <div class="form-group">
+        <label class="form-label">เหตุผล <span class="req">*</span></label>
+        <textarea class="form-input" id="leaveReason" rows="3" placeholder="ระบุเหตุผลการลา"></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="btnLeave" onclick="submitLeave()" disabled>📤 ส่งคำขอลา</button>
+    </div>
+
+    <!-- ประวัติการลา -->
+    <div class="card">
+      <div class="card-title">📋 ประวัติการลา</div>
+      <div id="leaveHistory"><div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -251,6 +306,8 @@
     loadUIDList();
     const today = new Date();
     document.getElementById('teamDate').value = fmtDate(today);
+    document.getElementById('leaveStart').value = fmtDate(today);
+    document.getElementById('leaveEnd').value = fmtDate(today);
   };
 
   async function initLiff() {
@@ -270,6 +327,7 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
     btn.classList.add('active');
+    if (name === 'leave') loadLeaveHistory();
   }
 
   // ==================== Holidays ====================
@@ -450,7 +508,73 @@
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
 
-  // Close UID modal on outside click
+  // ==================== Leave System ====================
+  document.getElementById('leaveStart').addEventListener('change', calcLeaveDays);
+  document.getElementById('leaveEnd').addEventListener('change', calcLeaveDays);
+
+  function calcLeaveDays() {
+    const start = document.getElementById('leaveStart').value;
+    const end = document.getElementById('leaveEnd').value;
+    const preview = document.getElementById('leaveDaysPreview');
+    const btn = document.getElementById('btnLeave');
+    if (!start || !end) { preview.style.display='none'; btn.disabled=true; return; }
+    const s = new Date(start), e = new Date(end);
+    if (e < s) { preview.style.display='block'; preview.textContent='❌ วันสิ้นสุดต้องหลังวันเริ่มต้น'; btn.disabled=true; return; }
+    const days = Math.ceil((e - s) / 86400000) + 1;
+    preview.style.display='block';
+    preview.textContent = '📅 จำนวน ' + days + ' วัน';
+    btn.disabled = false;
+  }
+
+  async function submitLeave() {
+    const leaveType = document.getElementById('leaveType').value;
+    const startDate = document.getElementById('leaveStart').value;
+    const endDate = document.getElementById('leaveEnd').value;
+    const reason = document.getElementById('leaveReason').value.trim();
+    if (!leaveType) { showToast('กรุณาเลือกประเภทการลา'); return; }
+    if (!startDate || !endDate) { showToast('กรุณาเลือกวันที่'); return; }
+    if (!reason) { showToast('กรุณาระบุเหตุผล'); return; }
+    if (!currentUser) { showToast('ไม่พบข้อมูลพนักงาน กรุณาเปิดผ่าน LINE'); return; }
+
+    setOverlay(true);
+    const res = await gasGet({
+      action: 'submitLeave',
+      empId: currentUser.id,
+      leaveType, startDate, endDate, reason,
+      lineUID: currentUser.lineUID || ''
+    });
+    setOverlay(false);
+    if (res && res.success) {
+      showToast('✅ ' + res.message);
+      document.getElementById('leaveReason').value = '';
+      document.getElementById('leaveType').value = '';
+      document.getElementById('leaveDaysPreview').style.display = 'none';
+      document.getElementById('btnLeave').disabled = true;
+      loadLeaveHistory();
+    } else {
+      showToast('❌ ' + (res ? res.message : 'เกิดข้อผิดพลาด'));
+    }
+  }
+
+  async function loadLeaveHistory() {
+    if (!currentUser) return;
+    const res = await gasGet({ action: 'getMyLeaveHistory', uid: currentUser.lineUID || '' });
+    const div = document.getElementById('leaveHistory');
+    if (!res || !Array.isArray(res) || !res.length) {
+      div.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">ยังไม่มีประวัติการลา</div>'; return;
+    }
+    const statusColor = { 'อนุมัติ':'var(--success)', 'ไม่อนุมัติ':'var(--danger)', 'รออนุมัติ':'#E65100' };
+    div.innerHTML = res.map(r => `<div class="leave-item">
+      <div class="leave-header">
+        <span class="leave-type">${r.type}</span>
+        <span style="font-size:11px;font-weight:600;color:${statusColor[r.status]||'var(--muted)'}">${r.status}</span>
+      </div>
+      <div class="leave-dates">📅 ${r.startDate} - ${r.endDate} (${r.days} วัน)</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">💬 ${r.reason}</div>
+    </div>`).join('');
+  }
+
+  // ==================== Close UID modal on outside click
   document.getElementById('uidModal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeUIDModal();
   });
