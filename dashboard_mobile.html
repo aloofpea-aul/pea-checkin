@@ -2,8 +2,9 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Dashboard PEA</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 :root{
@@ -16,96 +17,116 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-.header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
-.header-left{display:flex;flex-direction:column;}
-.header-title{font-size:18px;font-weight:700;}
-.header-date{font-size:12px;opacity:0.75;margin-top:2px;}
-.refresh-btn{background:rgba(255,255,255,0.2);border:none;border-radius:10px;color:white;padding:8px 14px;font-family:'Sarabun',sans-serif;font-size:13px;cursor:pointer;font-weight:600;}
-.tab-bar{display:flex;background:white;border-bottom:1px solid var(--border);position:sticky;top:62px;z-index:99;overflow-x:auto;}
-.tab-btn{flex:1;padding:12px 6px;border:none;background:transparent;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:70px;}
+
+/* Header */
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-title{font-size:16px;font-weight:700;}
+.header-date{font-size:11px;opacity:0.75;margin-top:2px;}
+.refresh-btn{background:rgba(255,255,255,0.2);border:none;border-radius:8px;color:white;padding:7px 12px;font-family:'Sarabun',sans-serif;font-size:12px;cursor:pointer;font-weight:600;}
+
+/* Tabs */
+.tab-bar{display:flex;background:white;border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:56px;z-index:99;}
+.tab-btn{flex:none;padding:11px 12px;border:none;background:transparent;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
 .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
 .tab-btn.gold.active{color:var(--gold);border-bottom-color:var(--gold);}
+
 .content{padding:12px;}
 .tab-page{display:none;}.tab-page.active{display:block;}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-.stat-card{background:white;border-radius:14px;padding:14px 12px;box-shadow:0 2px 8px rgba(0,90,156,0.08);display:flex;align-items:center;gap:10px;}
-.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.stat-icon.blue{background:var(--primary-light)}.stat-icon.green{background:var(--success-light)}.stat-icon.red{background:var(--danger-light)}.stat-icon.yellow{background:#FFF9C4;}
-.stat-label{font-size:11px;color:var(--muted);}.stat-value{font-size:24px;font-weight:700;color:var(--text);line-height:1.2;}
-.card{background:white;border-radius:14px;box-shadow:0 2px 8px rgba(0,90,156,0.08);margin-bottom:14px;overflow:hidden;}
-.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.card-title{font-size:14px;font-weight:700;}
-.donut-wrap{padding:16px;display:flex;align-items:center;gap:16px;}
-.donut-svg{width:90px;height:90px;flex-shrink:0;}
-.donut-legend{flex:1;}
-.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;}
-.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.emp-list{}.emp-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #F0F4F8;gap:12px;}.emp-row:last-child{border-bottom:none;}
-.emp-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;}
+
+/* Cards */
+.card{background:white;border-radius:14px;box-shadow:0 2px 8px rgba(0,90,156,0.07);margin-bottom:12px;overflow:hidden;}
+.card-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:700;}
+
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.stat-card{background:white;border-radius:12px;padding:12px;box-shadow:0 2px 8px rgba(0,90,156,0.07);display:flex;align-items:center;gap:10px;}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.i-blue{background:var(--primary-light)} .i-green{background:var(--success-light)} .i-red{background:var(--danger-light)} .i-yellow{background:#FFF9C4;}
+.stat-label{font-size:11px;color:var(--muted);} .stat-value{font-size:22px;font-weight:700;}
+
+/* Donut */
+.donut-wrap{padding:14px;display:flex;align-items:center;gap:14px;}
+.donut-svg{width:84px;height:84px;flex-shrink:0;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:5px;}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+
+/* Employee list */
+.emp-row{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid #F0F4F8;gap:10px;}
+.emp-row:last-child{border-bottom:none;}
+.emp-avatar{width:34px;height:34px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden;}
 .emp-avatar img{width:100%;height:100%;object-fit:cover;}
-.emp-info{flex:1;min-width:0;}
-.emp-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.emp-time{font-size:12px;color:var(--muted);margin-top:2px;}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
-.badge-green{background:var(--success-light);color:var(--success);}
-.badge-red{background:var(--danger-light);color:var(--danger);}
-.badge-yellow{background:var(--warning-light);color:var(--warning);}
-.filter-row{display:flex;gap:8px;margin-bottom:14px;}
+.emp-name{font-size:13px;font-weight:600;} .emp-time{font-size:11px;color:var(--muted);margin-top:1px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;}
+.bg{background:var(--success-light);color:var(--success);}
+.br{background:var(--danger-light);color:var(--danger);}
+.by{background:var(--warning-light);color:var(--warning);}
+
+/* Filter */
+.filter-row{display:flex;gap:8px;margin-bottom:12px;}
 input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'Sarabun',sans-serif;font-size:14px;background:white;outline:none;}
-.btn-sm{padding:10px 14px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
-.btn-primary{background:var(--primary);color:white;}
-.history-card{background:white;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,90,156,0.06);}
-.history-name{font-size:15px;font-weight:700;margin-bottom:8px;}
-.history-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
-.history-label{color:var(--muted);}.history-value{font-weight:600;}
-.monthly-card{background:white;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,90,156,0.06);}
-.monthly-name{font-size:15px;font-weight:700;margin-bottom:10px;color:var(--primary);}
-.monthly-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.monthly-item{background:var(--bg);border-radius:8px;padding:8px;text-align:center;}
-.monthly-item-label{font-size:11px;color:var(--muted);}.monthly-item-value{font-size:16px;font-weight:700;margin-top:2px;}
-.send-btn{width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:14px;}
-.loading{text-align:center;padding:40px;color:var(--muted);}
-.spinner-small{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px;}
-.empty{text-align:center;padding:30px;color:var(--muted);font-size:14px;}
-.retry-btn{margin-top:10px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:'Sarabun',sans-serif;cursor:pointer;}
-/* Weekly chart */
-.week-bar-wrap{display:flex;align-items:flex-end;gap:6px;height:120px;padding:14px 14px 0;}
-.week-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.week-bar-val{font-size:10px;color:var(--muted);font-weight:600;}
-.week-bar-bg{width:100%;background:#F0F4F8;border-radius:6px;height:80px;display:flex;align-items:flex-end;overflow:hidden;}
-.week-bar-fill{width:100%;border-radius:6px;transition:height 0.8s ease;}
-.week-bar-day{font-size:11px;color:var(--muted);}
-.week-bar-count{font-size:10px;color:var(--muted);}
-.week-legend{display:flex;gap:10px;padding:8px 14px 14px;flex-wrap:wrap;}
-.week-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);}
-.week-legend-dot{width:10px;height:10px;border-radius:2px;}
+.btn-sm{padding:10px 12px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.btn-p{background:var(--primary);color:white;}
+.btn-s{background:var(--success);color:white;}
+.btn-d{background:var(--danger);color:white;}
+
+/* History/Monthly */
+.h-card{background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,90,156,0.06);}
+.h-name{font-size:14px;font-weight:700;margin-bottom:6px;}
+.h-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;}
+.h-lbl{color:var(--muted);} .h-val{font-weight:600;}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.m-item{background:var(--bg);border-radius:8px;padding:8px;text-align:center;}
+.m-val{font-size:16px;font-weight:700;} .m-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
 /* Reward */
-.score-card-r{background:linear-gradient(135deg,#F9A825,#F57F17);border-radius:16px;padding:20px;color:white;text-align:center;margin-bottom:12px;}
-.score-num-r{font-size:48px;font-weight:700;line-height:1;}
-.score-rank-r{display:inline-block;background:rgba(255,255,255,0.25);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;margin-top:8px;}
-.score-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
-.score-detail-box{background:white;border-radius:12px;padding:10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
-.score-detail-val{font-size:20px;font-weight:700;}.score-detail-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+.score-card-r{background:linear-gradient(135deg,#F9A825,#F57F17);border-radius:14px;padding:18px;color:white;text-align:center;margin-bottom:12px;}
+.score-num-r{font-size:44px;font-weight:700;line-height:1;}
+.score-rank-r{display:inline-block;background:rgba(255,255,255,0.25);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;margin-top:6px;}
+.score-det{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.score-box{background:white;border-radius:10px;padding:10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+.score-v{font-size:18px;font-weight:700;} .score-l{font-size:10px;color:var(--muted);margin-top:2px;}
 .badge-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-.badge-mini{background:white;border-radius:12px;padding:10px 6px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1.5px solid var(--border);}
+.badge-mini{background:white;border-radius:10px;padding:9px 5px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1.5px solid var(--border);}
 .badge-mini.earned{border-color:var(--gold);background:var(--gold-light);}
-.badge-mini.locked{opacity:0.45;}
-.badge-mini-icon{font-size:24px;}.badge-mini-name{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.3;}
-.leader-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:white;border-radius:12px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
-.rank-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.badge-mini.locked{opacity:0.4;}
+.badge-mini-icon{font-size:22px;} .badge-mini-name{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.3;}
+.leader-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:white;border-radius:10px;margin-bottom:7px;box-shadow:0 2px 5px rgba(0,0,0,0.05);}
+.rank-c{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
 .r1{background:#FFD700;color:#5D4037;}.r2{background:#C0C0C0;color:#424242;}.r3{background:#CD7F32;color:white;}.rx{background:var(--bg);color:var(--muted);}
-.like-btn{background:#F3E5F5;border:none;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;color:#7B1FA2;}
-.like-btn.liked{background:var(--success-light);color:var(--success);}
+.like-btn{background:#F3E5F5;border:none;border-radius:7px;padding:5px 9px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;color:#7B1FA2;flex-shrink:0;}
+
+/* Leave */
+.leave-card{background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,90,156,0.06);}
+.btn-approve{flex:1;padding:10px;background:var(--success);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-reject{flex:1;padding:10px;background:var(--danger);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+
+/* Admin / Selfie */
+.selfie-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.selfie-item{border-radius:10px;overflow:hidden;aspect-ratio:1;background:var(--bg);}
+.selfie-item img{width:100%;height:100%;object-fit:cover;}
+.selfie-name{font-size:10px;color:var(--muted);text-align:center;padding:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Export result */
+.export-result{margin-bottom:10px;}
+
+/* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
-.modal-box{background:white;border-radius:18px;padding:24px;margin:16px;width:100%;max-width:400px;}
+.modal-box{background:white;border-radius:16px;padding:20px;margin:16px;width:100%;max-width:400px;}
+
+.send-btn{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;}
+.loading{text-align:center;padding:30px;color:var(--muted);}
+.spinner-small{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 8px;}
+.empty{text-align:center;padding:24px;color:var(--muted);font-size:13px;}
+.retry-btn{margin-top:8px;padding:7px 14px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-left">
+  <div>
     <div class="header-title">📊 Dashboard PEA</div>
     <div class="header-date" id="headerDate">—</div>
   </div>
@@ -126,38 +147,38 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
 
 <!-- วันนี้ -->
 <div class="tab-page active" id="tab-today">
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-icon blue">👥</div><div><div class="stat-label">ทั้งหมด</div><div class="stat-value" id="statTotal">—</div></div></div>
-    <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-label">เช็คอินแล้ว</div><div class="stat-value" id="statIn">—</div></div></div>
-    <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">ยังไม่เช็คอิน</div><div class="stat-value" id="statNotIn">—</div></div></div>
-    <div class="stat-card"><div class="stat-icon yellow">🚪</div><div><div class="stat-label">เช็คเอ้าต์แล้ว</div><div class="stat-value" id="statOut">—</div></div></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-icon i-blue">👥</div><div><div class="stat-label">ทั้งหมด</div><div class="stat-value" id="st">—</div></div></div>
+    <div class="stat-card"><div class="stat-icon i-green">✅</div><div><div class="stat-label">เช็คอินแล้ว</div><div class="stat-value" id="si">—</div></div></div>
+    <div class="stat-card"><div class="stat-icon i-red">⚠️</div><div><div class="stat-label">ยังไม่เช็คอิน</div><div class="stat-value" id="sn">—</div></div></div>
+    <div class="stat-card"><div class="stat-icon i-yellow">🚪</div><div><div class="stat-label">เช็คเอ้าต์แล้ว</div><div class="stat-value" id="so">—</div></div></div>
   </div>
   <div class="card">
     <div class="card-header"><div class="card-title">🥧 สัดส่วนเข้างาน</div></div>
     <div class="donut-wrap">
       <svg class="donut-svg" viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="38" fill="none" stroke="#F0F4F8" stroke-width="16"/>
-        <circle cx="50" cy="50" r="38" fill="none" stroke="#005A9C" stroke-width="16" stroke-dasharray="0 239" id="donutArc" stroke-linecap="round" style="transition:stroke-dasharray 0.8s ease;" transform="rotate(-90 50 50)"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#005A9C" stroke-width="16" stroke-dasharray="0 239" id="donutArc" stroke-linecap="round" style="transition:stroke-dasharray 0.8s ease" transform="rotate(-90 50 50)"/>
         <text x="50" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1A2B3C" id="donutPct">0%</text>
         <text x="50" y="58" text-anchor="middle" font-size="7" fill="#6B7C8F">เช็คอิน</text>
       </svg>
-      <div class="donut-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#005A9C"></div><span id="legendIn">เช็คอินแล้ว: —</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:#C62828"></div><span id="legendNotIn">ยังไม่เช็คอิน: —</span></div>
+      <div>
+        <div class="legend-item"><div class="legend-dot" style="background:#005A9C"></div><span id="legIn">เช็คอินแล้ว: —</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#C62828"></div><span id="legOut">ยังไม่เช็คอิน: —</span></div>
       </div>
     </div>
   </div>
   <div class="card">
     <div class="card-header">
       <div class="card-title">📊 ชั่วโมงทำงานสัปดาห์นี้</div>
-      <button class="btn-sm btn-primary" onclick="loadWeeklyChart()" style="padding:6px 12px;font-size:12px">โหลด</button>
+      <button class="btn-sm btn-p" onclick="loadWeeklyChart()" style="font-size:11px;padding:5px 10px">โหลด</button>
     </div>
-    <div id="weeklyChart"><div class="empty" style="padding:16px">กดปุ่ม "โหลด" เพื่อดูกราฟครับ</div></div>
+    <div id="weeklyChart"><div class="empty" style="padding:14px">กด "โหลด" เพื่อดูกราฟครับ</div></div>
   </div>
   <button class="send-btn" onclick="sendSummary()">📤 ส่ง Summary ให้ Admin</button>
   <div class="card">
     <div class="card-header"><div class="card-title">รายละเอียดวันนี้</div></div>
-    <div class="emp-list" id="todayList"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+    <div id="todayList"><div class="empty">กด 🔄 รีเฟรช เพื่อโหลดข้อมูลครับ</div></div>
   </div>
 </div>
 
@@ -165,7 +186,7 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
 <div class="tab-page" id="tab-history">
   <div class="filter-row">
     <input type="date" id="historyDate">
-    <button class="btn-sm btn-primary" onclick="loadHistory()">ค้นหา</button>
+    <button class="btn-sm btn-p" onclick="loadHistory()">ค้นหา</button>
   </div>
   <div id="historyList"><div class="empty">เลือกวันที่เพื่อดูประวัติ</div></div>
 </div>
@@ -174,199 +195,196 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
 <div class="tab-page" id="tab-monthly">
   <div class="filter-row">
     <input type="month" id="monthPicker">
-    <button class="btn-sm btn-primary" onclick="loadMonthly()">ค้นหา</button>
+    <button class="btn-sm btn-p" onclick="loadMonthly()">ค้นหา</button>
+    <button class="btn-sm btn-s" onclick="exportSalary()">📊 CSV</button>
+    <button class="btn-sm btn-d" onclick="exportPDF()">📄 PDF</button>
   </div>
+  <div class="export-result" id="exportResult"></div>
   <div id="monthlyList"><div class="empty">เลือกเดือนเพื่อดูสรุป</div></div>
 </div>
 
 <!-- รางวัล -->
 <div class="tab-page" id="tab-reward">
-  <div id="rewardMyScore"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
-  <div style="font-size:14px;font-weight:700;margin-bottom:8px">📊 รายละเอียดคะแนน</div>
-  <div class="score-detail-grid" id="rewardStats">
-    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">วันทำงาน</div></div>
-    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">มาตรงเวลา</div></div>
-    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">เช็คเอ้าต์ครบ</div></div>
-    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">คะแนน OT</div></div>
-    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">คะแนน Like</div></div>
-    <div class="score-detail-box"><div class="score-detail-val">—</div><div class="score-detail-lbl">มาเช้ามาก</div></div>
+  <div id="rewardMyScore"><div class="empty">กำลังโหลด...</div></div>
+  <div style="font-size:13px;font-weight:700;margin-bottom:8px">📊 รายละเอียดคะแนน</div>
+  <div class="score-det" id="rewardStats">
+    <div class="score-box"><div class="score-v">—</div><div class="score-l">วันทำงาน</div></div>
+    <div class="score-box"><div class="score-v">—</div><div class="score-l">มาตรงเวลา</div></div>
+    <div class="score-box"><div class="score-v">—</div><div class="score-l">เช็คเอ้าต์ครบ</div></div>
+    <div class="score-box"><div class="score-v">—</div><div class="score-l">คะแนน OT</div></div>
+    <div class="score-box"><div class="score-v">—</div><div class="score-l">คะแนน Like</div></div>
+    <div class="score-box"><div class="score-v">—</div><div class="score-l">มาเช้ามาก</div></div>
   </div>
-  <div style="font-size:14px;font-weight:700;margin-bottom:8px">🎖️ Badge</div>
+  <div style="font-size:13px;font-weight:700;margin-bottom:8px">🎖️ Badge</div>
   <div class="badge-mini-grid" id="rewardBadges"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <div style="font-size:14px;font-weight:700">🏅 อันดับเดือนนี้</div>
-    <button onclick="refreshReward()" style="background:var(--gold-light);border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--gold);cursor:pointer">🔄 รีเฟรช</button>
+    <div style="font-size:13px;font-weight:700">🏅 อันดับเดือนนี้</div>
+    <button class="btn-sm btn-p" onclick="refreshReward()" style="font-size:11px;padding:5px 10px">🔄 รีเฟรช</button>
   </div>
-  <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="cacheInfo">⚡ อัปเดตทุก 30 นาทีอัตโนมัติ</div>
-  <div id="rewardLeaderboard"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="cacheInfo">⚡ อัปเดตทุก 30 นาที</div>
+  <div id="rewardLeaderboard"><div class="empty">กำลังโหลด...</div></div>
 </div>
 
-  <!-- Tab: Map -->
-  <div class="tab-page" id="tab-map">
-    <div class="filter-row">
-      <input type="date" id="mapDate">
-      <button class="btn-sm btn-primary" onclick="loadMap()">แสดงแผนที่</button>
-    </div>
-    <div id="mapContainer" style="width:100%;height:400px;border-radius:14px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center">
-      <div class="empty">เลือกวันที่เพื่อดูแผนที่จุดเช็คอิน</div>
-    </div>
-    <div id="mapList" style="margin-top:10px"></div>
+<!-- แผนที่ -->
+<div class="tab-page" id="tab-map">
+  <div class="filter-row">
+    <input type="date" id="mapDate">
+    <button class="btn-sm btn-p" onclick="loadMap()">แสดงแผนที่</button>
   </div>
+  <div id="mapContainer" style="width:100%;height:380px;border-radius:14px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center"><div class="empty">เลือกวันที่แล้วกด "แสดงแผนที่"</div></div>
+  <div id="mapList" style="margin-top:10px"></div>
+</div>
 
-  <!-- Tab: Leave Approval -->
-  <div class="tab-page" id="tab-leave">
-    <div style="font-size:14px;font-weight:700;margin-bottom:10px">📋 รายการลารออนุมัติ</div>
-    <div id="pendingLeaves"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
-    <div style="margin-top:16px;font-size:14px;font-weight:700;margin-bottom:10px">📊 กราฟย้อนหลัง 3 เดือน</div>
-    <div id="chart3month"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
-  </div>
+<!-- อนุมัติลา -->
+<div class="tab-page" id="tab-leave">
+  <div style="font-size:13px;font-weight:700;margin-bottom:10px">📋 รายการลารออนุมัติ</div>
+  <div id="pendingLeaves"><div class="empty">กำลังโหลด...</div></div>
+  <div style="font-size:13px;font-weight:700;margin:14px 0 10px">📊 สถิติ 3 เดือน</div>
+  <div id="chart3month"><div class="empty">กำลังโหลด...</div></div>
+</div>
 
-  <!-- Tab: Admin -->
-  <div class="tab-page" id="tab-admin">
-    <div style="font-size:14px;font-weight:700;margin-bottom:10px">📸 Selfie ยืนยันตัวตน</div>
-    <div class="filter-row">
-      <input type="date" id="selfieDate">
-      <button class="btn-sm btn-primary" onclick="loadSelfieList()">ค้นหา</button>
-    </div>
-    <div id="selfieList"><div class="empty">เลือกวันที่เพื่อดู Selfie</div></div>
+<!-- Admin -->
+<div class="tab-page" id="tab-admin">
+  <div style="font-size:13px;font-weight:700;margin-bottom:10px">📸 Selfie ยืนยันตัวตน</div>
+  <div class="filter-row">
+    <input type="date" id="selfieDate">
+    <button class="btn-sm btn-p" onclick="loadSelfieList()">ค้นหา</button>
   </div>
+  <div id="selfieList"><div class="empty">เลือกวันที่เพื่อดู Selfie</div></div>
+</div>
 
 </div><!-- end content -->
 
 <!-- Like Modal -->
 <div class="modal-overlay" id="likeModal">
   <div class="modal-box">
-    <div style="font-size:17px;font-weight:700;margin-bottom:4px">⭐ ให้ Like</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:14px" id="likeModalName">—</div>
-    <textarea id="likeReason" rows="3" placeholder="เหตุผล เช่น ทำงานพิเศษ, ขยันมาก..." style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:inherit;font-size:14px;margin-bottom:14px;resize:none;outline:none"></textarea>
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">⭐ ให้ Like</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px" id="likeModalName">—</div>
+    <textarea id="likeReason" rows="3" placeholder="เหตุผล เช่น ทำงานพิเศษ, ขยันมาก..." style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px;font-family:inherit;font-size:14px;margin-bottom:12px;resize:none;outline:none"></textarea>
     <div style="display:flex;gap:10px">
-      <button onclick="submitLike()" style="flex:1;padding:12px;background:#7B1FA2;color:white;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">⭐ ให้ Like</button>
-      <button onclick="closeLikeModal()" style="flex:0.5;padding:12px;background:var(--bg);color:var(--muted);border:none;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer">ยกเลิก</button>
+      <button onclick="submitLike()" style="flex:1;padding:12px;background:#7B1FA2;color:white;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⭐ ให้ Like</button>
+      <button onclick="closeLikeModal()" style="flex:0.5;padding:12px;background:var(--bg);color:var(--muted);border:none;border-radius:10px;font-family:inherit;font-size:13px;cursor:pointer">ยกเลิก</button>
     </div>
   </div>
 </div>
 
-<script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
-const LIFF_ID_DASHBOARD = '2009895943-Rk5tclfi';
-
+const GAS = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+const SCORES_URL = 'https://raw.githubusercontent.com/aloofpea-aul/pea-checkin/main/scores.json';
+const LIFF_ID = '2009895943-Rk5tclfi';
 const ALL_BADGES = [
-  {id:'on_time_5',icon:'⭐',name:'มาตรงเวลา\n5 วัน'},
-  {id:'no_late_month',icon:'🔥',name:'ไม่สาย\nทั้งเดือน'},
-  {id:'checkout_all',icon:'✅',name:'เช็คเอ้าต์\nครบ'},
-  {id:'full_month',icon:'🌟',name:'มาครบ\nทั้งเดือน'},
-  {id:'early_bird',icon:'🌅',name:'นกตื่น\nเช้า'},
-  {id:'team_star',icon:'💜',name:'ดาว\nทีม'},
-  {id:'top_score',icon:'👑',name:'คะแนน\nสูงสุด'},
-  {id:'ot_hero',icon:'💪',name:'นักสู้\nOT'},
+  {id:'on_time_5',icon:'⭐',name:'ตรงเวลา\n5วัน'},{id:'no_late_month',icon:'🔥',name:'ไม่สาย\nเดือน'},
+  {id:'checkout_all',icon:'✅',name:'เช็คเอ้าต์\nครบ'},{id:'full_month',icon:'🌟',name:'มาครบ\nเดือน'},
+  {id:'early_bird',icon:'🌅',name:'นกตื่น\nเช้า'},{id:'team_star',icon:'💜',name:'ดาว\nทีม'},
+  {id:'top_score',icon:'👑',name:'คะแนน\nสูงสุด'},{id:'ot_hero',icon:'💪',name:'นักสู้\nOT'},
 ];
 
 let rewardUID = null;
-let likeTargetId = null;
 let rewardLoaded = false;
-let allEmployees = [];
-
-// ==================== Init ====================
-window.onload = () => {
-  setHeaderDate();
-  const today = new Date();
-  // ตั้งค่าวันที่ทุกช่องก่อน
-  document.getElementById('historyDate').value = fmtDate(today);
-  document.getElementById('monthPicker').value = fmtMonth(today);
-  document.getElementById('mapDate').value = fmtDate(today);
-  if (document.getElementById('selfieDate')) document.getElementById('selfieDate').value = fmtDate(today);
-  // โหลดเฉพาะ Today - chart โหลดเมื่อกดปุ่มเท่านั้น
-  setTimeout(() => loadToday(), 100);
-};
+let likeTargetId = null;
 
 // ==================== API ====================
 async function gasGet(params) {
-  const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+  const url = GAS + '?' + new URLSearchParams(params).toString();
   const res = await fetch(url, { redirect: 'follow' });
   const text = await res.text();
   try { return JSON.parse(text); } catch(e) { return null; }
 }
 
-// ==================== Tab ====================
+// ==================== Init ====================
+document.addEventListener('DOMContentLoaded', () => {
+  setHeaderDate();
+  const today = new Date();
+  document.getElementById('historyDate').value = fmtDate(today);
+  document.getElementById('monthPicker').value = fmtMonth(today);
+  document.getElementById('mapDate').value = fmtDate(today);
+  document.getElementById('selfieDate').value = fmtDate(today);
+});
+
+// ==================== Tabs ====================
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
-  // โหลดข้อมูลแบบ deferred ไม่บล็อก tab switch
-  if (name === 'reward' && !rewardLoaded) {
-    rewardLoaded = true;
-    setTimeout(() => initReward(), 50);
-  }
-  if (name === 'leave') {
-    setTimeout(() => { loadPendingLeaves(); load3MonthChart(); }, 50);
-  }
-  if (name === 'history') {
-    // ไม่โหลดอัตโนมัติ รอผู้ใช้กดค้นหา
-  }
+  if (name === 'reward' && !rewardLoaded) { rewardLoaded = true; setTimeout(initReward, 100); }
+  if (name === 'leave') { setTimeout(()=>{loadPendingLeaves();load3MonthChart();}, 100); }
 }
 
 // ==================== Today ====================
 async function loadToday() {
   document.getElementById('todayList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
-  const data = await gasGet({ action: 'getTodayDashboard' });
-  if (!data || !data.records) {
-    document.getElementById('todayList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ<br><button class="retry-btn" onclick="loadToday()">ลองใหม่</button></div>';
-    return;
+  try {
+    const data = await gasGet({ action: 'getTodayDashboard' });
+    if (!data || !data.records) {
+      document.getElementById('todayList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ<br><button class="retry-btn" onclick="loadToday()">🔄 ลองใหม่</button></div>';
+      return;
+    }
+    renderToday(data.records);
+  } catch(e) {
+    document.getElementById('todayList').innerHTML = '<div class="empty">เกิดข้อผิดพลาด<br><button class="retry-btn" onclick="loadToday()">🔄 ลองใหม่</button></div>';
   }
-  renderToday(data.records);
 }
 
 function renderToday(records) {
   const total = records.length;
   const checked = records.filter(r => r.checkIn).length;
-  const notChecked = total - checked;
-  const checkedOut = records.filter(r => r.checkOut).length;
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statIn').textContent = checked;
-  document.getElementById('statNotIn').textContent = notChecked;
-  document.getElementById('statOut').textContent = checkedOut;
+  const notIn = total - checked;
+  const out = records.filter(r => r.checkOut).length;
+  document.getElementById('st').textContent = total;
+  document.getElementById('si').textContent = checked;
+  document.getElementById('sn').textContent = notIn;
+  document.getElementById('so').textContent = out;
   const pct = total > 0 ? Math.round(checked/total*100) : 0;
-  document.getElementById('donutArc').setAttribute('stroke-dasharray', `${239*pct/100} 239`);
+  document.getElementById('donutArc').setAttribute('stroke-dasharray', (239*pct/100) + ' 239');
   document.getElementById('donutArc').style.stroke = pct>=80?'#2E7D32':pct>=50?'#005A9C':'#C62828';
   document.getElementById('donutPct').textContent = pct + '%';
-  document.getElementById('legendIn').textContent = `เช็คอินแล้ว: ${checked} คน`;
-  document.getElementById('legendNotIn').textContent = `ยังไม่เช็คอิน: ${notChecked} คน`;
+  document.getElementById('legIn').textContent = 'เช็คอินแล้ว: ' + checked + ' คน';
+  document.getElementById('legOut').textContent = 'ยังไม่เช็คอิน: ' + notIn + ' คน';
   if (!records.length) { document.getElementById('todayList').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
   document.getElementById('todayList').innerHTML = records.map(r => {
-    const badge = r.checkOut ? '<span class="badge badge-green">เช็คเอ้าต์แล้ว</span>' :
-      r.checkIn ? '<span class="badge badge-yellow">กำลังทำงาน</span>' :
-      '<span class="badge badge-red">ยังไม่เช็คอิน</span>';
-    const time = r.checkIn ? `เข้า ${r.checkIn}${r.checkOut?' • ออก '+r.checkOut:''}` : 'ยังไม่เช็คอิน';
-    const avatar = r.picUrl ? `<img src="${r.picUrl}">` : '👤';
-    return `<div class="emp-row"><div class="emp-avatar">${avatar}</div><div class="emp-info"><div class="emp-name">${r.name}</div><div class="emp-time">${time}</div></div><div>${badge}</div></div>`;
+    const badge = r.checkOut ? '<span class="badge bg">เช็คเอ้าต์แล้ว</span>' :
+      r.checkIn ? '<span class="badge by">กำลังทำงาน</span>' : '<span class="badge br">ยังไม่เช็คอิน</span>';
+    const time = r.checkIn ? ('เข้า '+r.checkIn+(r.checkOut?' • ออก '+r.checkOut:'')) : 'ยังไม่เช็คอิน';
+    const av = r.picUrl ? '<img src="'+r.picUrl+'">' : '👤';
+    return '<div class="emp-row"><div class="emp-avatar">'+av+'</div><div style="flex:1;min-width:0"><div class="emp-name">'+r.name+'</div><div class="emp-time">'+time+'</div></div>'+badge+'</div>';
   }).join('');
+}
+
+async function sendSummary() {
+  if (!confirm('ส่ง Summary ให้ Admin?')) return;
+  const res = await gasGet({ action: 'sendSummary' });
+  alert(res && res.success ? '✅ ส่งแล้วครับ' : '❌ ส่งไม่สำเร็จ');
 }
 
 // ==================== Weekly Chart ====================
 async function loadWeeklyChart() {
-  const data = await gasGet({ action: 'getWeeklySummary' });
-  if (!data || !data.days) { document.getElementById('weeklyChart').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
-  const days = data.days;
-  const maxHrs = Math.max(...days.map(d => d.totalHours), 8);
-  const dayNames = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
-  document.getElementById('weeklyChart').innerHTML = `
-    <div class="week-bar-wrap">${days.map(d => {
-      const pct = maxHrs > 0 ? (d.totalHours/maxHrs*100) : 0;
-      const color = d.isToday ? '#005A9C' : d.totalHours>=8 ? '#2E7D32' : d.totalHours>0 ? '#E65100' : '#E0E0E0';
-      return `<div class="week-bar-col">
-        <div class="week-bar-val">${d.totalHours>0?d.totalHours.toFixed(1):'—'}</div>
-        <div class="week-bar-bg"><div class="week-bar-fill" style="background:${color};height:${Math.max(pct,d.totalHours>0?8:0)}%"></div></div>
-        <div class="week-bar-day" style="${d.isToday?'color:var(--primary);font-weight:700':''}">${dayNames[d.dayOfWeek]}</div>
-        <div class="week-bar-count">${d.checkedIn}/${d.total}</div>
-      </div>`;
-    }).join('')}</div>
-    <div class="week-legend">
-      <div class="week-legend-item"><div class="week-legend-dot" style="background:#2E7D32"></div>ครบ 8 ชม.</div>
-      <div class="week-legend-item"><div class="week-legend-dot" style="background:#E65100"></div>ไม่ครบ</div>
-      <div class="week-legend-item"><div class="week-legend-dot" style="background:#005A9C"></div>วันนี้</div>
-    </div>`;
+  document.getElementById('weeklyChart').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  try {
+    const data = await gasGet({ action: 'getWeeklySummary' });
+    if (!data || !data.days) { document.getElementById('weeklyChart').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+    const days = data.days;
+    const maxHrs = Math.max(...days.map(d => d.totalHours), 8);
+    const dayNames = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+    document.getElementById('weeklyChart').innerHTML =
+      '<div style="display:flex;align-items:flex-end;gap:6px;height:110px;padding:12px 12px 0">' +
+      days.map(d => {
+        const pct = maxHrs > 0 ? (d.totalHours/maxHrs*100) : 0;
+        const color = d.isToday ? '#005A9C' : d.totalHours>=8 ? '#2E7D32' : d.totalHours>0 ? '#E65100' : '#E0E0E0';
+        return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">' +
+          '<div style="font-size:9px;color:var(--muted)">'+(d.totalHours>0?d.totalHours.toFixed(1):'—')+'</div>' +
+          '<div style="width:100%;background:#F0F4F8;border-radius:5px;height:70px;display:flex;align-items:flex-end;overflow:hidden">' +
+          '<div style="width:100%;background:'+color+';border-radius:5px;height:'+Math.max(pct,d.totalHours>0?8:0)+'%;transition:height 0.8s ease"></div></div>' +
+          '<div style="font-size:10px;color:'+(d.isToday?'var(--primary)':'var(--muted)')+';font-weight:'+(d.isToday?'700':'400')+'">'+dayNames[d.dayOfWeek]+'</div>' +
+          '<div style="font-size:9px;color:var(--muted)">'+d.checkedIn+'/'+d.total+'</div></div>';
+      }).join('') + '</div>' +
+      '<div style="display:flex;gap:10px;padding:8px 12px;font-size:10px;color:var(--muted)">' +
+      '<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#2E7D32;display:inline-block"></span>ครบ 8 ชม.</span>' +
+      '<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#E65100;display:inline-block"></span>ไม่ครบ</span>' +
+      '<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#005A9C;display:inline-block"></span>วันนี้</span></div>';
+  } catch(e) {
+    document.getElementById('weeklyChart').innerHTML = '<div class="empty">โหลดไม่สำเร็จ<br><button class="retry-btn" onclick="loadWeeklyChart()">🔄 ลองใหม่</button></div>';
+  }
 }
 
 // ==================== History ====================
@@ -378,16 +396,13 @@ async function loadHistory() {
   if (!data || !Array.isArray(data)) { document.getElementById('historyList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>'; return; }
   if (!data.length) { document.getElementById('historyList').innerHTML = '<div class="empty">ไม่มีข้อมูลวันที่เลือก</div>'; return; }
   document.getElementById('historyList').innerHTML = data.map(r => {
-    const hrs = r.workMinutes ? `${Math.floor(r.workMinutes/60)} ชม. ${r.workMinutes%60} นาที` : '—';
-    const areaBadge = r.area === 'นอกพื้นที่' ? '<span class="badge badge-yellow">นอกพื้นที่</span>' : r.area ? '<span class="badge badge-green">ในพื้นที่</span>' : '';
-    return `<div class="history-card">
-      <div class="history-name">👤 ${r.name} ${areaBadge}</div>
-      <div class="history-row"><span class="history-label">⏰ เช็คอิน</span><span class="history-value">${r.checkIn?r.checkIn+' น.':'—'}</span></div>
-      <div class="history-row"><span class="history-label">🚪 เช็คเอ้าต์</span><span class="history-value">${r.checkOut?r.checkOut+' น.':'—'}</span></div>
-      <div class="history-row"><span class="history-label">⏱️ รวม</span><span class="history-value">${hrs}</span></div>
-      <div class="history-row"><span class="history-label">📍 ระยะห่าง</span><span class="history-value">${r.distIn?r.distIn+' เมตร':'—'}</span></div>
-      ${r.note?`<div class="history-row"><span class="history-label">📝 หมายเหตุ</span><span class="history-value">${r.note}</span></div>`:''}
-    </div>`;
+    const hrs = r.workMinutes ? (Math.floor(r.workMinutes/60)+' ชม. '+r.workMinutes%60+' นาที') : '—';
+    return '<div class="h-card"><div class="h-name">👤 '+r.name+(r.area==='นอกพื้นที่'?' <span class="badge by">นอกพื้นที่</span>':r.area?' <span class="badge bg">ในพื้นที่</span>':'')+'</div>' +
+      '<div class="h-row"><span class="h-lbl">⏰ เช็คอิน</span><span class="h-val">'+(r.checkIn?r.checkIn+' น.':'—')+'</span></div>' +
+      '<div class="h-row"><span class="h-lbl">🚪 เช็คเอ้าต์</span><span class="h-val">'+(r.checkOut?r.checkOut+' น.':'—')+'</span></div>' +
+      '<div class="h-row"><span class="h-lbl">⏱️ รวม</span><span class="h-val">'+hrs+'</span></div>' +
+      (r.note?'<div class="h-row"><span class="h-lbl">📝 หมายเหตุ</span><span class="h-val">'+r.note+'</span></div>':'') +
+      '</div>';
   }).join('');
 }
 
@@ -398,358 +413,233 @@ async function loadMonthly() {
   document.getElementById('monthlyList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
   const data = await gasGet({ action: 'getMonthlySummary', monthStr: month });
   if (!data || !Array.isArray(data)) { document.getElementById('monthlyList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ</div>'; return; }
-  if (!data.length) { document.getElementById('monthlyList').innerHTML = '<div class="empty">ไม่มีข้อมูลเดือนที่เลือก</div>'; return; }
+  if (!data.length) { document.getElementById('monthlyList').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
   document.getElementById('monthlyList').innerHTML = data.map(r => {
-    const avg = r.avgMinutes ? `${Math.floor(r.avgMinutes/60)}ชม.${r.avgMinutes%60}น.` : '—';
-    const total = r.totalMinutes ? `${Math.floor(r.totalMinutes/60)}ชม.${r.totalMinutes%60}น.` : '—';
-    return `<div class="monthly-card">
-      <div class="monthly-name">👤 ${r.name}</div>
-      <div class="monthly-grid">
-        <div class="monthly-item"><div class="monthly-item-label">วันทำงาน</div><div class="monthly-item-value" style="color:var(--primary)">${r.workDays} วัน</div></div>
-        <div class="monthly-item"><div class="monthly-item-label">เฉลี่ย/วัน</div><div class="monthly-item-value" style="color:var(--success)">${avg}</div></div>
-        <div class="monthly-item"><div class="monthly-item-label">รวมชั่วโมง</div><div class="monthly-item-value">${total}</div></div>
-        <div class="monthly-item"><div class="monthly-item-label">มาสาย</div><div class="monthly-item-value" style="color:${r.lateCount>0?'var(--danger)':'var(--success)'}">${r.lateCount} ครั้ง</div></div>
-      </div>
-    </div>`;
+    const avg = r.avgMinutes ? (Math.floor(r.avgMinutes/60)+'ชม.'+r.avgMinutes%60+'น.') : '—';
+    const total = r.totalMinutes ? (Math.floor(r.totalMinutes/60)+'ชม.'+r.totalMinutes%60+'น.') : '—';
+    return '<div class="h-card"><div class="h-name" style="color:var(--primary)">👤 '+r.name+'</div>' +
+      '<div class="m-grid">' +
+      '<div class="m-item"><div class="m-val" style="color:var(--primary)">'+r.workDays+'</div><div class="m-lbl">วันทำงาน</div></div>' +
+      '<div class="m-item"><div class="m-val" style="color:var(--success)">'+avg+'</div><div class="m-lbl">เฉลี่ย/วัน</div></div>' +
+      '<div class="m-item"><div class="m-val">'+total+'</div><div class="m-lbl">รวมชั่วโมง</div></div>' +
+      '<div class="m-item"><div class="m-val" style="color:'+(r.lateCount>0?'var(--danger)':'var(--success)')+'">'+r.lateCount+'</div><div class="m-lbl">มาสาย</div></div>' +
+      '</div></div>';
   }).join('');
 }
 
-// ==================== Summary ====================
-async function sendSummary() {
-  if (!confirm('ส่ง Summary LINE ให้ Admin ตอนนี้เลยไหมครับ?')) return;
-  const res = await gasGet({ action: 'sendSummary' });
-  alert(res && res.success ? '✅ ส่ง Summary สำเร็จ' : '❌ ส่งไม่สำเร็จ');
+async function exportSalary() {
+  const month = document.getElementById('monthPicker').value;
+  if (!month) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
+  document.getElementById('exportResult').innerHTML = '<div style="font-size:12px;color:var(--muted)">⏳ กำลัง Export CSV...</div>';
+  const res = await gasGet({ action: 'exportSalary', monthStr: month });
+  document.getElementById('exportResult').innerHTML = res && res.success
+    ? '<div style="background:var(--success-light);border-radius:10px;padding:10px;font-size:12px;color:var(--success)">✅ '+res.count+' คน <a href="'+res.url+'" target="_blank" style="color:var(--primary);font-weight:600">📥 ดาวน์โหลด CSV</a></div>'
+    : '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:12px;color:var(--danger)">❌ '+(res&&res.message?res.message:'เกิดข้อผิดพลาด')+'</div>';
+}
+
+async function exportPDF() {
+  const month = document.getElementById('monthPicker').value;
+  if (!month) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
+  document.getElementById('exportResult').innerHTML = '<div style="font-size:12px;color:var(--muted)">⏳ กำลังสร้าง PDF (10-20 วินาที)...</div>';
+  const res = await gasGet({ action: 'exportSalaryPDF', monthStr: month });
+  document.getElementById('exportResult').innerHTML = res && res.success
+    ? '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:12px;color:var(--danger)">✅ PDF พร้อม <a href="'+res.url+'" target="_blank" style="color:var(--primary);font-weight:600">📄 เปิด PDF</a></div>'
+    : '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:12px;color:var(--danger)">❌ '+(res&&res.message?res.message:'เกิดข้อผิดพลาด')+'</div>';
 }
 
 // ==================== Reward ====================
 async function initReward() {
-  // โหลด Leaderboard ก่อน
-  await loadLeaderboard();
-  // แสดง dropdown เลือกตัวเอง
-  await renderSelfSelect();
-}
-
-async function renderSelfSelect() {
-  if (!allEmployees.length) {
-    const res = await gasGet({ action: 'getEmployeeFull' });
-    console.log('getEmployeeFull result:', res);
-    if (res && Array.isArray(res)) allEmployees = res;
-    else {
-      document.getElementById('rewardMyScore').innerHTML =
-        '<div style="background:#FFEBEE;border-radius:12px;padding:16px;color:#C62828">❌ โหลดรายชื่อไม่สำเร็จ กรุณารีเฟรชหน้าครับ<br><button onclick="rewardLoaded=false;initReward()" style="margin-top:8px;padding:8px 16px;background:#C62828;color:white;border:none;border-radius:8px;font-family:inherit;cursor:pointer">🔄 ลองใหม่</button></div>';
-      return;
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      rewardUID = profile.userId;
     }
-  }
-  document.getElementById('rewardMyScore').innerHTML = `
-    <div style="background:var(--primary-light);border-radius:14px;padding:16px;margin-bottom:4px">
-      <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:10px">
-        👤 เลือกชื่อของคุณเพื่อดูคะแนนและกด Like
-      </div>
-      <select id="selfSelect" onchange="loadMyScore(this.value)"
-        style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:15px;background:white;outline:none;color:var(--text)">
-        <option value="">-- เลือกชื่อของคุณ --</option>
-        ${allEmployees.map(e => `<option value="${e.lineUID}">${e.name} (${e.position||'—'})</option>`).join('')}
-      </select>
-    </div>`;
-}
-
-async function loadMyScore(uid) {
-  if (!uid) return;
-  rewardUID = uid;
-  // โหลดพร้อมกัน
-  const [lb, myRes] = await Promise.all([
-    fetch(`https://raw.githubusercontent.com/aloofpea-aul/pea-checkin/main/scores.json?t=${Date.now()}`)
-      .then(r => r.ok ? r.json() : null).catch(() => null),
-    gasGet({ action: 'getMyReward', uid })
-  ]);
-  if (myRes && myRes.success) renderMyScore(myRes);
-  // Re-render leaderboard
-  if (lb && lb.lb) {
-    renderLeaderboard(lb.lb);
+  } catch(e) {}
+  if (rewardUID) {
+    const res = await gasGet({ action: 'getMyReward', uid: rewardUID });
+    if (res && res.success) renderMyScore(res);
+    else document.getElementById('rewardMyScore').innerHTML = '<div class="empty">ไม่พบข้อมูลส่วนตัว</div>';
   } else {
-    loadLeaderboard();
+    document.getElementById('rewardMyScore').innerHTML = '<div style="background:var(--primary-light);border-radius:12px;padding:14px;color:var(--primary);font-size:13px">💡 เปิดผ่าน LINE LIFF เพื่อดูคะแนนส่วนตัวครับ</div>';
   }
+  loadLeaderboard();
 }
 
 function renderMyScore(res) {
-  const emp = res.employee || {};
-  const stats = res.stats || {};
-  const earned = res.badges || [];
-  document.getElementById('rewardMyScore').innerHTML = `
-    <div class="score-card-r">
-      <div style="font-size:13px;opacity:0.85">${emp.name || '—'}</div>
-      <div class="score-num-r">${res.score || 0}</div>
-      <div style="font-size:13px;opacity:0.85;margin-top:4px">คะแนนสะสมเดือนนี้</div>
-      <div class="score-rank-r">อันดับที่ ${res.rank||'—'} / ${res.total||'—'} คน</div>
-    </div>`;
-  document.getElementById('rewardStats').innerHTML = `
-    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--primary)">${stats.workDays||0}</div><div class="score-detail-lbl">วันทำงาน</div></div>
-    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--success)">${stats.onTime||0}</div><div class="score-detail-lbl">มาตรงเวลา</div></div>
-    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--gold)">${stats.checkoutAll||0}</div><div class="score-detail-lbl">เช็คเอ้าต์ครบ</div></div>
-    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--warning)">${stats.otScore||0}</div><div class="score-detail-lbl">คะแนน OT</div></div>
-    <div class="score-detail-box"><div class="score-detail-val" style="color:#7B1FA2">${stats.likeScore||0}</div><div class="score-detail-lbl">คะแนน Like</div></div>
-    <div class="score-detail-box"><div class="score-detail-val" style="color:var(--primary)">${stats.earlyCount||0}</div><div class="score-detail-lbl">มาเช้ามาก</div></div>`;
-  document.getElementById('rewardBadges').innerHTML = ALL_BADGES.map(b => `
-    <div class="badge-mini ${earned.includes(b.id)?'earned':'locked'}">
-      <div class="badge-mini-icon">${b.icon}</div>
-      <div class="badge-mini-name">${b.name}</div>
-    </div>`).join('');
+  const emp = res.employee||{};
+  const stats = res.stats||{};
+  const earned = res.badges||[];
+  document.getElementById('rewardMyScore').innerHTML =
+    '<div class="score-card-r"><div style="font-size:12px;opacity:0.85">'+emp.name+'</div>' +
+    '<div class="score-num-r">'+(res.score||0)+'</div>' +
+    '<div style="font-size:12px;opacity:0.85;margin-top:3px">คะแนนเดือนนี้</div>' +
+    '<div class="score-rank-r">อันดับที่ '+(res.rank||'—')+' / '+(res.total||'—')+' คน</div></div>';
+  document.getElementById('rewardStats').innerHTML = [
+    [stats.workDays||0,'var(--primary)','วันทำงาน'],
+    [stats.onTime||0,'var(--success)','มาตรงเวลา'],
+    [stats.checkoutAll||0,'var(--gold)','เช็คเอ้าต์ครบ'],
+    [stats.otScore||0,'var(--warning)','คะแนน OT'],
+    [stats.likeScore||0,'#7B1FA2','คะแนน Like'],
+    [stats.earlyCount||0,'var(--primary)','มาเช้ามาก'],
+  ].map(([v,c,l]) => '<div class="score-box"><div class="score-v" style="color:'+c+'">'+v+'</div><div class="score-l">'+l+'</div></div>').join('');
+  document.getElementById('rewardBadges').innerHTML = ALL_BADGES.map(b =>
+    '<div class="badge-mini '+(earned.includes(b.id)?'earned':'locked')+'"><div class="badge-mini-icon">'+b.icon+'</div><div class="badge-mini-name">'+b.name+'</div></div>'
+  ).join('');
 }
 
 async function loadLeaderboard() {
-  // อ่านจาก GitHub Pages JSON ตรงๆ → เร็วมาก
-  let data = null;
   try {
-    const cacheBust = Date.now(); // ป้องกัน browser cache
-    const res = await fetch(`https://raw.githubusercontent.com/aloofpea-aul/pea-checkin/main/scores.json?t=${cacheBust}`);
-    if (res.ok) {
-      const json = await res.json();
-      if (json.lb && Array.isArray(json.lb)) {
-        data = json.lb;
-        const info = document.getElementById('cacheInfo');
-        if (info) info.textContent = `⚡ อัปเดตล่าสุด: ${json.updatedAt || '—'}`;
-      }
+    const t = Date.now();
+    const res = await fetch(SCORES_URL+'?t='+t);
+    const json = await res.json();
+    if (json.lb && Array.isArray(json.lb)) {
+      renderLeaderboard(json.lb);
+      const info = document.getElementById('cacheInfo');
+      if (info) info.textContent = '⚡ อัปเดตล่าสุด: '+(json.updatedAt||'—');
+      return;
     }
   } catch(e) {}
-  // Fallback ถ้า JSON ยังไม่มี
-  if (!data) data = await gasGet({ action: 'getLeaderboard' });
-  const div = document.getElementById('rewardLeaderboard');
-  if (!data || !Array.isArray(data)) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
-  renderLeaderboard(data);
+  const data = await gasGet({ action: 'getLeaderboard' });
+  if (data && Array.isArray(data)) renderLeaderboard(data);
+  else document.getElementById('rewardLeaderboard').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>';
 }
 
 function renderLeaderboard(data) {
   const div = document.getElementById('rewardLeaderboard');
-  div.innerHTML = data.map((r, i) => {
+  div.innerHTML = data.map((r,i) => {
     const rc = i===0?'r1':i===1?'r2':i===2?'r3':'rx';
-    const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':''+( i+1);
     const isMe = r.uid === rewardUID;
-    const avatar = r.picUrl ? `<img src="${r.picUrl}" style="width:100%;height:100%;object-fit:cover">` : '👤';
-    return `<div class="leader-row" style="${isMe?'border:1.5px solid var(--gold);background:var(--gold-light)':''}">
-      <div class="rank-circle ${rc}">${rt}</div>
-      <div style="width:34px;height:34px;border-radius:50%;background:var(--primary-light);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">${avatar}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}${isMe?' (คุณ)':''}</div>
-        <div style="font-size:11px;color:var(--muted)">มาตรงเวลา ${r.onTime} วัน</div>
-      </div>
-      <div style="font-size:16px;font-weight:700;color:var(--gold);flex-shrink:0">${r.score}</div>
-      <button class="like-btn" id="like-${r.empId}" onclick="openLike('${r.empId}','${r.name}')">⭐</button>
-    </div>`;
+    const av = r.picUrl?'<img src="'+r.picUrl+'" style="width:100%;height:100%;object-fit:cover">':'👤';
+    return '<div class="leader-row" style="'+(isMe?'border:1.5px solid var(--gold);background:var(--gold-light)':'')+'">' +
+      '<div class="rank-c '+rc+'">'+rt+'</div>' +
+      '<div style="width:32px;height:32px;border-radius:50%;background:var(--primary-light);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+av+'</div>' +
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.name+(isMe?' (คุณ)':'')+'</div>' +
+      '<div style="font-size:10px;color:var(--muted)">มาตรงเวลา '+r.onTime+' วัน</div></div>' +
+      '<div style="font-size:15px;font-weight:700;color:var(--gold)">'+r.score+'</div>' +
+      '<button class="like-btn" onclick="openLike(\''+r.empId+'\',\''+r.name+'\')">⭐</button></div>';
   }).join('');
 }
 
+async function refreshReward() {
+  document.getElementById('rewardLeaderboard').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังอัปเดต...</div>';
+  await gasGet({ action: 'updateScoresCache' });
+  await new Promise(r => setTimeout(r, 2000));
+  await loadLeaderboard();
+}
+
 function openLike(empId, name) {
-  if (!rewardUID) {
-    alert('กรุณาเลือกชื่อของคุณก่อนกด Like ครับ');
-    return;
-  }
+  if (!rewardUID) { alert('กรุณาเปิดผ่าน LINE ครับ'); return; }
   likeTargetId = empId;
-  document.getElementById('likeModalName').textContent = `👤 ${name}`;
+  document.getElementById('likeModalName').textContent = '👤 ' + name;
   document.getElementById('likeReason').value = '';
   document.getElementById('likeModal').classList.add('show');
 }
-
-function closeLikeModal() {
-  document.getElementById('likeModal').classList.remove('show');
-  likeTargetId = null;
-}
-
-async function refreshReward() {
-  document.getElementById('rewardLeaderboard').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังคำนวณและอัปโหลด...</div>';
-  const info = document.getElementById('cacheInfo');
-  if (info) info.textContent = '⏳ กำลังอัปเดต GitHub...';
-  const res = await gasGet({ action: 'updateScoresCache' });
-  if (res && res.success) {
-    if (info) info.textContent = `✅ อัปเดตแล้ว (${res.count} คน)`;
-    // รอ GitHub deploy นิดนึง
-    await new Promise(r => setTimeout(r, 2000));
-    await loadLeaderboard();
-    if (rewardUID) {
-      const myRes = await gasGet({ action: 'getMyReward', uid: rewardUID });
-      if (myRes && myRes.success) renderMyScore(myRes);
-    }
-  } else {
-    if (info) info.textContent = '❌ อัปเดตไม่สำเร็จ';
-  }
-}
-
+function closeLikeModal() { document.getElementById('likeModal').classList.remove('show'); likeTargetId = null; }
 async function submitLike() {
   const reason = document.getElementById('likeReason').value.trim();
   if (!reason) { alert('กรุณาระบุเหตุผลก่อนครับ'); return; }
-
-  // แสดง loading ปิด modal
   closeLikeModal();
-  document.getElementById('rewardLeaderboard').innerHTML =
-    '<div class="loading"><div class="spinner-small"></div>กำลังบันทึก Like...</div>';
-
+  document.getElementById('rewardLeaderboard').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังบันทึก Like...</div>';
   const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: likeTargetId, reason });
-
-  if (res && res.success) {
-    // GAS อัปเดต scores.json แล้ว รอนิดนึงแล้ว fetch ใหม่
-    const info = document.getElementById('cacheInfo');
-    if (info) info.textContent = '⏳ กำลังอัปเดตคะแนน...';
-    await new Promise(r => setTimeout(r, 1500));
-    await loadLeaderboard();
-    if (rewardUID) {
-      const myRes = await gasGet({ action: 'getMyReward', uid: rewardUID });
-      if (myRes && myRes.success) renderMyScore(myRes);
-    }
-    if (info) info.textContent = '✅ อัปเดตคะแนนแล้ว';
-    alert('✅ ' + res.message);
-  } else {
-    alert('❌ ' + (res ? res.message : 'เกิดข้อผิดพลาด'));
-    loadLeaderboard();
-  }
+  alert(res && res.success ? '✅ '+res.message : '❌ '+(res?res.message:'เกิดข้อผิดพลาด'));
+  if (res && res.success) await loadLeaderboard();
 }
 
-// ==================== Export ค่าแรง ====================
-  async function exportPDF() {
-    const month = document.getElementById('monthPicker').value;
-    if (!month) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
-    document.getElementById('exportResult').innerHTML = '<div style="font-size:13px;color:var(--muted)">⏳ กำลังสร้าง PDF... (ใช้เวลา 10-20 วินาที)</div>';
-    const res = await gasGet({ action: 'exportSalaryPDF', monthStr: month });
-    if (res && res.success) {
-      document.getElementById('exportResult').innerHTML = '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:13px;color:var(--danger)">✅ PDF พร้อมแล้ว '+res.count+' คน <a href="'+res.url+'" target="_blank" style="color:var(--primary);font-weight:600">📄 เปิด PDF</a></div>';
-    } else {
-      document.getElementById('exportResult').innerHTML = '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:13px;color:var(--danger)">❌ '+(res&&res.message?res.message:'เกิดข้อผิดพลาด')+'</div>';
-    }
+// ==================== Map ====================
+async function loadMap() {
+  const date = document.getElementById('mapDate').value;
+  if (!date) return;
+  document.getElementById('mapContainer').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  const data = await gasGet({ action: 'getAttendanceByDate', dateStr: date });
+  const container = document.getElementById('mapContainer');
+  const list = document.getElementById('mapList');
+  if (!data || !Array.isArray(data) || !data.length) { container.innerHTML = '<div class="empty">ไม่มีข้อมูลวันที่เลือก</div>'; list.innerHTML = ''; return; }
+  const withGPS = data.filter(r => r.lat && r.lng);
+  if (!withGPS.length) { container.innerHTML = '<div class="empty">ไม่มีข้อมูล GPS วันนี้</div>'; list.innerHTML = ''; return; }
+  container.innerHTML = '<div id="leafletMap" style="width:100%;height:380px;border-radius:14px"></div>';
+  if (!window.L) {
+    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(link);
+    await new Promise(res => { const s = document.createElement('script'); s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; s.onload = res; document.head.appendChild(s); });
   }
-
-  async function exportSalary() {
-    const month = document.getElementById('monthPicker').value;
-    if (!month) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
-    document.getElementById('exportResult').innerHTML = '<div style="font-size:13px;color:var(--muted)">⏳ กำลัง Export...</div>';
-    const res = await gasGet({ action: 'exportSalary', monthStr: month });
-    if (res && res.success) {
-      document.getElementById('exportResult').innerHTML = '<div style="background:var(--success-light);border-radius:10px;padding:10px;font-size:13px;color:var(--success)">✅ Export สำเร็จ '+res.count+' คน <a href="'+res.url+'" target="_blank" style="color:var(--primary);font-weight:600">📥 ดาวน์โหลด</a></div>';
-    } else {
-      document.getElementById('exportResult').innerHTML = '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:13px;color:var(--danger)">❌ '+(res&&res.message?res.message:'เกิดข้อผิดพลาด')+'</div>';
-    }
-  }
+  const cLat = 8.364947, cLng = 98.74931;
+  const map = L.map('leafletMap').setView([cLat, cLng], 18);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+  L.circle([cLat, cLng], { radius: 50, color: '#005A9C', fillOpacity: 0.15 }).addTo(map).bindPopup('🏢 สำนักงาน');
+  const colors = ['#E65100','#2E7D32','#7B1FA2','#1565C0','#C62828'];
+  withGPS.forEach((r, i) => {
+    const color = colors[i % colors.length];
+    const icon = L.divIcon({ html: '<div style="background:'+color+';color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)">'+(i+1)+'</div>', iconSize:[26,26], className:'' });
+    L.marker([parseFloat(r.lat), parseFloat(r.lng)], { icon }).addTo(map).bindPopup('<b>'+r.name+'</b><br>เข้า: '+(r.checkIn||'—')+' น.');
+  });
+  list.innerHTML = '<div style="font-size:12px;font-weight:600;margin:8px 0">📍 '+withGPS.length+' คน</div>' +
+    withGPS.map((r,i) => '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:white;border-radius:8px;margin-bottom:5px">' +
+      '<div style="background:'+colors[i%colors.length]+';color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">'+(i+1)+'</div>' +
+      '<div style="flex:1"><div style="font-size:12px;font-weight:600">'+r.name+'</div><div style="font-size:10px;color:var(--muted)">เข้า '+(r.checkIn||'—')+' | '+(r.distIn||'—')+' ม.</div></div>' +
+      '<a href="https://maps.google.com/?q='+r.lat+','+r.lng+'" target="_blank" style="color:var(--primary)">📍</a></div>'
+    ).join('');
+}
 
 // ==================== Leave Approval ====================
-  async function loadPendingLeaves() {
-    const data = await gasGet({ action: 'getPendingLeaves' });
-    const div = document.getElementById('pendingLeaves');
-    if (!data || !Array.isArray(data) || !data.length) {
-      div.innerHTML = '<div class="empty">✅ ไม่มีรายการรออนุมัติ</div>'; return;
-    }
-    div.innerHTML = data.map(r => `
-      <div class="leave-card">
-        <div class="leave-name">👤 ${r.empName}</div>
-        <div class="leave-detail">📝 ${r.type} | 📅 ${r.startDate} - ${r.endDate} (${r.days} วัน)</div>
-        <div class="leave-reason">💬 ${r.reason}</div>
-        <div class="approve-row">
-          <button class="btn-approve" onclick="approveLeave('${r.id}','อนุมัติ','${r.empName}',this)">✅ อนุมัติ</button>
-          <button class="btn-reject" onclick="approveLeave('${r.id}','ไม่อนุมัติ','${r.empName}',this)">❌ ไม่อนุมัติ</button>
-        </div>
-      </div>`).join('');
-  }
+async function loadPendingLeaves() {
+  document.getElementById('pendingLeaves').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  const data = await gasGet({ action: 'getPendingLeaves' });
+  const div = document.getElementById('pendingLeaves');
+  if (!data || !Array.isArray(data) || !data.length) { div.innerHTML = '<div class="empty">✅ ไม่มีรายการรออนุมัติ</div>'; return; }
+  div.innerHTML = data.map(r =>
+    '<div class="leave-card"><div style="font-size:14px;font-weight:700;margin-bottom:5px">👤 '+r.empName+'</div>' +
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:3px">📝 '+r.type+' | 📅 '+r.startDate+' - '+r.endDate+' ('+r.days+' วัน)</div>' +
+    '<div style="font-size:11px;color:var(--muted);font-style:italic;margin-bottom:10px">💬 '+r.reason+'</div>' +
+    '<div style="display:flex;gap:8px"><button class="btn-approve" onclick="approveLeave(\''+r.id+'\',\'อนุมัติ\',\''+r.empName+'\')">✅ อนุมัติ</button><button class="btn-reject" onclick="approveLeave(\''+r.id+'\',\'ไม่อนุมัติ\',\''+r.empName+'\')">❌ ไม่อนุมัติ</button></div></div>'
+  ).join('');
+}
 
-  async function approveLeave(leaveId, status, empName, btn) {
-    if (!rewardUID) { alert('กรุณาเลือกชื่อหัวหน้าในแท็บรางวัลก่อนครับ'); return; }
-    btn.parentElement.parentElement.style.opacity = '0.5';
-    const res = await gasGet({ action: 'approveLeave', leaveId, status, approverUID: rewardUID });
-    if (res) {
-      alert((status==='อนุมัติ'?'✅':'❌') + ' ' + status + ' การลาของ ' + empName + ' แล้วครับ');
-      loadPendingLeaves();
-    }
-  }
+async function approveLeave(leaveId, status, empName) {
+  if (!rewardUID) { alert('กรุณาเปิดหน้ารางวัลก่อนเพื่อยืนยันตัวตนครับ'); return; }
+  const res = await gasGet({ action: 'approveLeave', leaveId, status, approverUID: rewardUID });
+  if (res) { alert((status==='อนุมัติ'?'✅':'❌')+' '+status+' การลาของ '+empName+' แล้วครับ'); loadPendingLeaves(); }
+}
 
-// ==================== 3-Month Stats ====================
-  async function load3MonthChart() {
-    if (!rewardUID) { document.getElementById('chart3month').innerHTML = '<div class="empty">เลือกชื่อในแท็บรางวัลก่อนครับ</div>'; return; }
-    const data = await gasGet({ action: 'getMonthlyStats3', uid: rewardUID });
-    const div = document.getElementById('chart3month');
-    if (!data || !Array.isArray(data) || !data.length) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
-    const thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    div.innerHTML = '<div class="bar-chart-wrap">' +
-      data.map(m => {
-        const month = thMonths[parseInt(m.monthStr.split('-')[1])-1];
-        return '<div class="bar-month">' +
-          '<div class="bar-month-label">' + month + '</div>' +
-          '<div class="bar-stat">' + m.workDays + '</div><div class="bar-stat-label">วันทำงาน</div>' +
-          '<div style="margin-top:8px"><div class="bar-stat" style="font-size:16px;color:' + (m.lateDays>0?'var(--danger)':'var(--success)') + '">' + m.lateDays + '</div><div class="bar-stat-label">สาย</div></div>' +
-          '<div style="margin-top:8px"><div class="bar-stat" style="font-size:16px;color:var(--muted)">' + m.avgHours + '</div><div class="bar-stat-label">ชม./วัน</div></div>' +
-          '</div>';
-      }).join('') + '</div>';
-  }
-
-// ==================== Selfie Admin ====================
-  async function loadSelfieList() {
-    const date = document.getElementById('selfieDate').value;
-    document.getElementById('selfieList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
-    const data = await gasGet({ action: 'getSelfieList', dateStr: date || '' });
-    const div = document.getElementById('selfieList');
-    if (!data || !Array.isArray(data) || !data.length) {
-      div.innerHTML = '<div class="empty">ไม่พบรูป Selfie วันนี้</div>'; return;
-    }
-    div.innerHTML = '<div class="selfie-grid">' +
-      data.map(f => '<div><div class="selfie-item"><a href="' + f.url + '" target="_blank"><img src="' + f.thumbnail + '" loading="lazy" onerror="this.src=''"></a></div><div class="selfie-name">' + f.name.split('_')[0] + '</div></div>').join('') +
+async function load3MonthChart() {
+  document.getElementById('chart3month').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  if (!rewardUID) { document.getElementById('chart3month').innerHTML = '<div class="empty">เปิดหน้ารางวัลก่อนครับ</div>'; return; }
+  const data = await gasGet({ action: 'getMonthlyStats3', uid: rewardUID });
+  const div = document.getElementById('chart3month');
+  if (!data || !Array.isArray(data) || !data.length) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+  const thM = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  div.innerHTML = '<div style="display:flex;gap:8px">' + data.map(m => {
+    const mo = thM[parseInt(m.monthStr.split('-')[1])];
+    return '<div style="flex:1;background:white;border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(0,90,156,0.06);text-align:center">' +
+      '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">'+mo+'</div>' +
+      '<div style="font-size:22px;font-weight:700;color:var(--primary)">'+m.workDays+'</div><div style="font-size:10px;color:var(--muted)">วันทำงาน</div>' +
+      '<div style="margin-top:8px;font-size:18px;font-weight:700;color:'+(m.lateDays>0?'var(--danger)':'var(--success)')+'">'+m.lateDays+'</div><div style="font-size:10px;color:var(--muted)">สาย</div>' +
+      '<div style="margin-top:8px;font-size:16px;font-weight:700;color:var(--muted)">'+m.avgHours+'</div><div style="font-size:10px;color:var(--muted)">ชม./วัน</div>' +
       '</div>';
-  }
+  }).join('') + '</div>';
+}
 
-// ==================== Map ====================
-  async function loadMap() {
-    const date = document.getElementById('mapDate').value;
-    if (!date) return;
-    document.getElementById('mapContainer').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
-    const data = await gasGet({ action: 'getAttendanceByDate', dateStr: date });
-    const container = document.getElementById('mapContainer');
-    const list = document.getElementById('mapList');
-    if (!data || !Array.isArray(data) || !data.length) {
-      container.innerHTML = '<div class="empty">ไม่มีข้อมูลวันที่เลือก</div>';
-      list.innerHTML = ''; return;
-    }
-    const withGPS = data.filter(r => r.lat && r.lng);
-    if (!withGPS.length) {
-      container.innerHTML = '<div class="empty">ไม่มีข้อมูล GPS วันนี้</div>';
-      list.innerHTML = ''; return;
-    }
-    container.innerHTML = '<div id="leafletMap" style="width:100%;height:380px;border-radius:14px"></div>';
-    if (!window.L) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-      await new Promise(res => {
-        const s = document.createElement('script');
-        s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        s.onload = res; document.head.appendChild(s);
-      });
-    }
-    const cLat = 8.364947, cLng = 98.74931;
-    const map = L.map('leafletMap').setView([cLat, cLng], 18);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-    L.circle([cLat, cLng], { radius: 50, color: '#005A9C', fillOpacity: 0.15 }).addTo(map).bindPopup('🏢 สำนักงาน');
-    const colors = ['#E65100','#2E7D32','#7B1FA2','#1565C0','#C62828'];
-    withGPS.forEach((r, i) => {
-      const color = colors[i % colors.length];
-      const icon = L.divIcon({
-        html: '<div style="background:'+color+';color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)">'+(i+1)+'</div>',
-        iconSize: [28,28], className: ''
-      });
-      L.marker([parseFloat(r.lat), parseFloat(r.lng)], { icon }).addTo(map)
-        .bindPopup('<b>'+r.name+'</b><br>เข้า: '+(r.checkIn||'—')+' น.');
-    });
-    list.innerHTML = '<div style="font-size:13px;font-weight:600;margin:10px 0 8px">📍 '+withGPS.length+' คน</div>' +
-      withGPS.map((r,i) => '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:white;border-radius:8px;margin-bottom:6px">' +
-        '<div style="background:'+colors[i%colors.length]+';color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">'+(i+1)+'</div>' +
-        '<div style="flex:1"><div style="font-size:13px;font-weight:600">'+r.name+'</div>' +
-        '<div style="font-size:11px;color:var(--muted)">เข้า '+(r.checkIn||'—')+' | '+(r.distIn||'—')+' ม. | '+(r.area!=='นอกพื้นที่'?'✅ ในพื้นที่':'⚠️ นอก')+'</div></div>' +
-        '<a href="https://maps.google.com/?q='+r.lat+','+r.lng+'" target="_blank" style="color:var(--primary)">📍</a></div>'
-      ).join('');
-  }
+// ==================== Admin Selfie ====================
+async function loadSelfieList() {
+  const date = document.getElementById('selfieDate').value;
+  document.getElementById('selfieList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  const data = await gasGet({ action: 'getSelfieList', dateStr: date||'' });
+  const div = document.getElementById('selfieList');
+  if (!data || !Array.isArray(data) || !data.length) { div.innerHTML = '<div class="empty">ไม่พบรูป Selfie</div>'; return; }
+  div.innerHTML = '<div class="selfie-grid">' + data.map(f =>
+    '<div><div class="selfie-item"><a href="'+f.url+'" target="_blank"><img src="'+f.thumbnail+'" loading="lazy" onerror="this.parentElement.textContent=\'📷\'"></a></div><div class="selfie-name">'+f.name.split('_')[0]+'</div></div>'
+  ).join('') + '</div>';
+}
 
 // ==================== Helpers ====================
 function setHeaderDate() {
   const d = new Date();
   const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-  document.getElementById('headerDate').textContent = `วัน${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+  document.getElementById('headerDate').textContent = 'วัน'+days[d.getDay()]+'ที่ '+d.getDate()+' '+months[d.getMonth()]+' '+(d.getFullYear()+543);
 }
-function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fmtMonth(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function fmtDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtMonth(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 </script>
 </body>
 </html>
