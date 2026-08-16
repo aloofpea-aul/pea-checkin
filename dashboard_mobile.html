@@ -600,6 +600,18 @@ async function submitLike() {
 }
 
 // ==================== Export ค่าแรง ====================
+  async function exportPDF() {
+    const month = document.getElementById('monthPicker').value;
+    if (!month) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
+    document.getElementById('exportResult').innerHTML = '<div style="font-size:13px;color:var(--muted)">⏳ กำลังสร้าง PDF... (ใช้เวลา 10-20 วินาที)</div>';
+    const res = await gasGet({ action: 'exportSalaryPDF', monthStr: month });
+    if (res && res.success) {
+      document.getElementById('exportResult').innerHTML = '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:13px;color:var(--danger)">✅ PDF พร้อมแล้ว '+res.count+' คน <a href="'+res.url+'" target="_blank" style="color:var(--primary);font-weight:600">📄 เปิด PDF</a></div>';
+    } else {
+      document.getElementById('exportResult').innerHTML = '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:13px;color:var(--danger)">❌ '+(res&&res.message?res.message:'เกิดข้อผิดพลาด')+'</div>';
+    }
+  }
+
   async function exportSalary() {
     const month = document.getElementById('monthPicker').value;
     if (!month) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
