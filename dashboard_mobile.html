@@ -267,13 +267,15 @@ let allEmployees = [];
 // ==================== Init ====================
 window.onload = () => {
   setHeaderDate();
-  loadToday();
-  loadWeeklyChart();
   const today = new Date();
+  // ตั้งค่าวันที่ทุกช่องก่อน
   document.getElementById('historyDate').value = fmtDate(today);
   document.getElementById('monthPicker').value = fmtMonth(today);
   document.getElementById('mapDate').value = fmtDate(today);
-  if(document.getElementById('selfieDate')) document.getElementById('selfieDate').value = fmtDate(today);
+  if (document.getElementById('selfieDate')) document.getElementById('selfieDate').value = fmtDate(today);
+  // โหลดข้อมูลแบบ async ไม่บล็อก UI
+  setTimeout(() => loadToday(), 100);
+  setTimeout(() => loadWeeklyChart(), 300);
 };
 
 // ==================== API ====================
