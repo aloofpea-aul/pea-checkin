@@ -148,8 +148,11 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
     </div>
   </div>
   <div class="card">
-    <div class="card-header"><div class="card-title">📊 ชั่วโมงทำงานสัปดาห์นี้</div></div>
-    <div id="weeklyChart"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+    <div class="card-header">
+      <div class="card-title">📊 ชั่วโมงทำงานสัปดาห์นี้</div>
+      <button class="btn-sm btn-primary" onclick="loadWeeklyChart()" style="padding:6px 12px;font-size:12px">โหลด</button>
+    </div>
+    <div id="weeklyChart"><div class="empty" style="padding:16px">กดปุ่ม "โหลด" เพื่อดูกราฟครับ</div></div>
   </div>
   <button class="send-btn" onclick="sendSummary()">📤 ส่ง Summary ให้ Admin</button>
   <div class="card">
@@ -273,9 +276,8 @@ window.onload = () => {
   document.getElementById('monthPicker').value = fmtMonth(today);
   document.getElementById('mapDate').value = fmtDate(today);
   if (document.getElementById('selfieDate')) document.getElementById('selfieDate').value = fmtDate(today);
-  // โหลดข้อมูลแบบ async ไม่บล็อก UI
+  // โหลดเฉพาะ Today - chart โหลดเมื่อกดปุ่มเท่านั้น
   setTimeout(() => loadToday(), 100);
-  setTimeout(() => loadWeeklyChart(), 300);
 };
 
 // ==================== API ====================
@@ -292,17 +294,16 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
+  // โหลดข้อมูลแบบ deferred ไม่บล็อก tab switch
   if (name === 'reward' && !rewardLoaded) {
     rewardLoaded = true;
-    initReward();
+    setTimeout(() => initReward(), 50);
   }
   if (name === 'leave') {
-    loadPendingLeaves();
-    load3MonthChart();
+    setTimeout(() => { loadPendingLeaves(); load3MonthChart(); }, 50);
   }
-  if (name === 'admin') {
-    const today = new Date();
-    document.getElementById('selfieDate').value = fmtDate(today);
+  if (name === 'history') {
+    // ไม่โหลดอัตโนมัติ รอผู้ใช้กดค้นหา
   }
 }
 
