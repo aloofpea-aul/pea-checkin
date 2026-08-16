@@ -118,6 +118,8 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
   <button class="tab-btn" onclick="switchTab('monthly',this)">📈 รายเดือน</button>
   <button class="tab-btn gold" onclick="switchTab('reward',this)">🏆 รางวัล</button>
   <button class="tab-btn" onclick="switchTab('map',this)">🗺️ แผนที่</button>
+  <button class="tab-btn" onclick="switchTab('leave',this)">📋 อนุมัติลา</button>
+  <button class="tab-btn" onclick="switchTab('admin',this)">🔑 Admin</button>
 </div>
 
 <div class="content">
@@ -208,6 +210,24 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
     <div id="mapList" style="margin-top:10px"></div>
   </div>
 
+  <!-- Tab: Leave Approval -->
+  <div class="tab-page" id="tab-leave">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">📋 รายการลารออนุมัติ</div>
+    <div id="pendingLeaves"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+    <div style="margin-top:16px;font-size:14px;font-weight:700;margin-bottom:10px">📊 กราฟย้อนหลัง 3 เดือน</div>
+    <div id="chart3month"><div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div></div>
+  </div>
+
+  <!-- Tab: Admin -->
+  <div class="tab-page" id="tab-admin">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">📸 Selfie ยืนยันตัวตน</div>
+    <div class="filter-row">
+      <input type="date" id="selfieDate">
+      <button class="btn-sm btn-primary" onclick="loadSelfieList()">ค้นหา</button>
+    </div>
+    <div id="selfieList"><div class="empty">เลือกวันที่เพื่อดู Selfie</div></div>
+  </div>
+
 </div><!-- end content -->
 
 <!-- Like Modal -->
@@ -253,6 +273,7 @@ window.onload = () => {
   document.getElementById('historyDate').value = fmtDate(today);
   document.getElementById('monthPicker').value = fmtMonth(today);
   document.getElementById('mapDate').value = fmtDate(today);
+  if(document.getElementById('selfieDate')) document.getElementById('selfieDate').value = fmtDate(today);
 };
 
 // ==================== API ====================
@@ -272,6 +293,14 @@ function switchTab(name, btn) {
   if (name === 'reward' && !rewardLoaded) {
     rewardLoaded = true;
     initReward();
+  }
+  if (name === 'leave') {
+    loadPendingLeaves();
+    load3MonthChart();
+  }
+  if (name === 'admin') {
+    const today = new Date();
+    document.getElementById('selfieDate').value = fmtDate(today);
   }
 }
 
@@ -581,6 +610,68 @@ async function submitLike() {
     } else {
       document.getElementById('exportResult').innerHTML = '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:13px;color:var(--danger)">❌ '+(res&&res.message?res.message:'เกิดข้อผิดพลาด')+'</div>';
     }
+  }
+
+// ==================== Leave Approval ====================
+  async function loadPendingLeaves() {
+    const data = await gasGet({ action: 'getPendingLeaves' });
+    const div = document.getElementById('pendingLeaves');
+    if (!data || !Array.isArray(data) || !data.length) {
+      div.innerHTML = '<div class="empty">✅ ไม่มีรายการรออนุมัติ</div>'; return;
+    }
+    div.innerHTML = data.map(r => `
+      <div class="leave-card">
+        <div class="leave-name">👤 ${r.empName}</div>
+        <div class="leave-detail">📝 ${r.type} | 📅 ${r.startDate} - ${r.endDate} (${r.days} วัน)</div>
+        <div class="leave-reason">💬 ${r.reason}</div>
+        <div class="approve-row">
+          <button class="btn-approve" onclick="approveLeave('${r.id}','อนุมัติ','${r.empName}',this)">✅ อนุมัติ</button>
+          <button class="btn-reject" onclick="approveLeave('${r.id}','ไม่อนุมัติ','${r.empName}',this)">❌ ไม่อนุมัติ</button>
+        </div>
+      </div>`).join('');
+  }
+
+  async function approveLeave(leaveId, status, empName, btn) {
+    if (!rewardUID) { alert('กรุณาเลือกชื่อหัวหน้าในแท็บรางวัลก่อนครับ'); return; }
+    btn.parentElement.parentElement.style.opacity = '0.5';
+    const res = await gasGet({ action: 'approveLeave', leaveId, status, approverUID: rewardUID });
+    if (res) {
+      alert((status==='อนุมัติ'?'✅':'❌') + ' ' + status + ' การลาของ ' + empName + ' แล้วครับ');
+      loadPendingLeaves();
+    }
+  }
+
+// ==================== 3-Month Stats ====================
+  async function load3MonthChart() {
+    if (!rewardUID) { document.getElementById('chart3month').innerHTML = '<div class="empty">เลือกชื่อในแท็บรางวัลก่อนครับ</div>'; return; }
+    const data = await gasGet({ action: 'getMonthlyStats3', uid: rewardUID });
+    const div = document.getElementById('chart3month');
+    if (!data || !Array.isArray(data) || !data.length) { div.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>'; return; }
+    const thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    div.innerHTML = '<div class="bar-chart-wrap">' +
+      data.map(m => {
+        const month = thMonths[parseInt(m.monthStr.split('-')[1])-1];
+        return '<div class="bar-month">' +
+          '<div class="bar-month-label">' + month + '</div>' +
+          '<div class="bar-stat">' + m.workDays + '</div><div class="bar-stat-label">วันทำงาน</div>' +
+          '<div style="margin-top:8px"><div class="bar-stat" style="font-size:16px;color:' + (m.lateDays>0?'var(--danger)':'var(--success)') + '">' + m.lateDays + '</div><div class="bar-stat-label">สาย</div></div>' +
+          '<div style="margin-top:8px"><div class="bar-stat" style="font-size:16px;color:var(--muted)">' + m.avgHours + '</div><div class="bar-stat-label">ชม./วัน</div></div>' +
+          '</div>';
+      }).join('') + '</div>';
+  }
+
+// ==================== Selfie Admin ====================
+  async function loadSelfieList() {
+    const date = document.getElementById('selfieDate').value;
+    document.getElementById('selfieList').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+    const data = await gasGet({ action: 'getSelfieList', dateStr: date || '' });
+    const div = document.getElementById('selfieList');
+    if (!data || !Array.isArray(data) || !data.length) {
+      div.innerHTML = '<div class="empty">ไม่พบรูป Selfie วันนี้</div>'; return;
+    }
+    div.innerHTML = '<div class="selfie-grid">' +
+      data.map(f => '<div><div class="selfie-item"><a href="' + f.url + '" target="_blank"><img src="' + f.thumbnail + '" loading="lazy" onerror="this.src=''"></a></div><div class="selfie-name">' + f.name.split('_')[0] + '</div></div>').join('') +
+      '</div>';
   }
 
 // ==================== Map ====================
