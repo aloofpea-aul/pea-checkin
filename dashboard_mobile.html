@@ -570,6 +570,19 @@ async function submitLike() {
   }
 }
 
+// ==================== Export ค่าแรง ====================
+  async function exportSalary() {
+    const month = document.getElementById('monthPicker').value;
+    if (!month) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
+    document.getElementById('exportResult').innerHTML = '<div style="font-size:13px;color:var(--muted)">⏳ กำลัง Export...</div>';
+    const res = await gasGet({ action: 'exportSalary', monthStr: month });
+    if (res && res.success) {
+      document.getElementById('exportResult').innerHTML = '<div style="background:var(--success-light);border-radius:10px;padding:10px;font-size:13px;color:var(--success)">✅ Export สำเร็จ '+res.count+' คน <a href="'+res.url+'" target="_blank" style="color:var(--primary);font-weight:600">📥 ดาวน์โหลด</a></div>';
+    } else {
+      document.getElementById('exportResult').innerHTML = '<div style="background:var(--danger-light);border-radius:10px;padding:10px;font-size:13px;color:var(--danger)">❌ '+(res&&res.message?res.message:'เกิดข้อผิดพลาด')+'</div>';
+    }
+  }
+
 // ==================== Map ====================
   async function loadMap() {
     const date = document.getElementById('mapDate').value;
