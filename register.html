@@ -176,6 +176,310 @@ let linePicture = null;
 window.onload = async () => {
   setOverlay(true, 'กำลังโหลด...');
   try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const uidFromUrl = urlParams.get('uid') || '';
+    const preEmpId   = urlParams.get('empId') || '';
+    const preEmpName = urlParams.get('empName') || '';
+    const preEmpPos  = urlParams.get('empPos') || '';
+    const preEmpDept = urlParams.get('empDept') || '';
+
+    if (uidFromUrl) {
+      // ✅ ได้ UID จาก URL ที่ Bot ส่งมา
+      lineUID = uidFromUrl;
+      document.getElementById('profileName').textContent = 'พนักงานใหม่';
+      document.getElementById('profileUID').textContent = 'LINE: ' + lineUID.substring(0,16) + '...';
+
+      // เช็คว่าลงทะเบียนแล้วไหม
+      const check = await gasGet({ action: 'getEmployeeByUID', uid: lineUID });
+      if (check && check.success && check.employee) {
+        showResult(true, '✅ ลงทะเบียนแล้ว', 'ลงทะเบียนแล้วในชื่อ ' + check.employee.name + ' ครับ');
+        setOverlay(false); return;
+      }
+
+      // ลอง get LINE profile เพิ่มเติม
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        if (liff.isInClient() && liff.isLoggedIn()) {
+          const p = await liff.getProfile();
+          linePicture = p.pictureUrl || null;
+          document.getElementById('profileName').textContent = p.displayName;
+          if (linePicture) document.getElementById('profileAvatar').innerHTML = '<img src="' + linePicture + '">';
+        }
+      } catch(e2) {}
+
+    } else {
+      // ไม่มี UID ใน URL - ลอง LIFF
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        if (liff.isLoggedIn()) {
+          const p = await liff.getProfile();
+          lineUID = p.userId;
+          linePicture = p.pictureUrl || null;
+          document.getElementById('profileName').textContent = p.displayName;
+          document.getElementById('profileUID').textContent = 'LINE: ' + lineUID.substring(0,16) + '...';
+          if (linePicture) document.getElementById('profileAvatar').innerHTML = '<img src="' + linePicture + '">';
+        }
+      } catch(e3) {
+        document.getElementById('profileName').textContent = '⚠️ กรุณาเปิดจาก LINE Bot ครับ';
+        setOverlay(false); return;
+      }
+    }
+
+    // Pre-fill form
+    if (preEmpId)   document.getElementById('empId').value = preEmpId;
+    if (preEmpName) document.getElementById('empName').value = preEmpName;
+    if (preEmpDept) { for (let o of document.getElementById('empDept').options) if (o.value===preEmpDept){o.selected=true;break;} }
+    if (preEmpPos)  { for (let o of document.getElementById('empPos').options)  if (o.value===preEmpPos) {o.selected=true;break;} }
+
+    document.getElementById('btnRegister').disabled = false;
+  } catch(e) {
+    document.getElementById('profileName').textContent = '❌ ' + e.message;
+  }
+  setOverlay(false);
+};
+
+async function submitRegister() {
+  const name = document.getElementById('empName').value.trim();
+  const empId = document.getElementById('empId').value.trim();
+  const dept = document.getElementById('empDept').value;
+  const pos = document.getElementById('empPos').value;
+  const otRate = parseFloat(document.getElementById('empOTRate').value) || 0;
+
+  if (!name) { alert('กรุณากรอกชื่อ-นามสกุลครับ'); return; }
+  if (!empId) { alert('กรุณากรอกรหัสพนักงานครับ'); return; }
+  if (!dept) { alert('กรุณาเลือกแผนกครับ'); return; }
+  if (!pos) { alert('กรุณาเลือกตำแหน่งครับ'); return; }
+  if (!lineUID) { alert('ไม่พบ LINE UID กรุณาเปิดผ่าน LINE ครับ'); return; }
+
+  if (!confirm('ยืนยันข้อมูล:\nชื่อ: ' + name + '\nรหัส: ' + empId + '\nแผนก: ' + dept + '\nตำแหน่ง: ' + pos + '\n\nถูกต้องไหมครับ?')) return;
+
+  setOverlay(true, 'กำลังบันทึก...');
+  document.getElementById('btnRegister').disabled = true;
+
+  const res = await gasGet({
+    action: 'selfRegister',
+    empName: name,
+    empId: empId,
+    dept: dept,
+    pos: pos,
+    otRate: otRate,
+    lineUID: lineUID,
+    picUrl: linePicture || ''
+  });
+
+  setOverlay(false);
+  if (res && res.success) {
+    document.getElementById('formDiv').style.display = 'none';
+    showResult(true, '✅ ลงทะเบียนสำเร็จ!', 'ยินดีต้อนรับ ' + name + ' ครับ!\nระบบพร้อมใช้งานแล้ว\n\nปิดหน้านี้แล้วกดเมนู\n"บันทึกเวลา" ได้เลยครับ');
+  } else {
+    showResult(false, '❌ เกิดข้อผิดพลาด', res ? res.message : 'กรุณาลองใหม่อีกครั้งครับ');
+    document.getElementById('btnRegister').disabled = false;
+  }
+}
+
+function showResult(success, title, msg) {
+  const div = document.getElementById('resultDiv');
+  div.style.display = 'block';
+  div.innerHTML = '<div class="result-card ' + (success?'result-success':'result-error') + '">' +
+    '<div class="result-icon">' + (success?'🎉':'😕') + '</div>' +
+    '<div class="result-title">' + title + '</div>' +
+    '<div class="result-msg">' + msg.replace(/\n/g,'<br>') + '</div>' +
+    '</div>';
+  window.scrollTo(0,0);
+}
+
+async function gasGet(params) {
+  const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+  const res = await fetch(url, { redirect: 'follow' });
+  const text = await res.text();
+  try { return JSON.parse(text); } catch(e) { return null; }
+}
+
+function setOverlay(show, text='กำลังดำเนินการ...') {
+  document.getElementById('overlay').className = show ? 'overlay show' : 'overlay';
+  document.getElementById('overlayText').textContent = text;
+}
+</script>
+</body>
+</html>
+function quickConfirm() { submitRegister(); }!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>ลงทะเบียนพนักงาน PEA</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+:root{
+  --primary:#005A9C;--primary-dark:#003f6e;--primary-light:#E3F0FB;
+  --success:#2E7D32;--success-light:#E8F5E9;
+  --danger:#C62828;--bg:#F0F4F8;--text:#1A2B3C;--muted:#6B7C8F;--border:#D1DCE8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:24px 16px 36px;text-align:center;position:relative;overflow:hidden;}
+.header::after{content:'';position:absolute;left:-60%;right:-60%;bottom:-16px;height:60px;border-radius:50%;background:var(--bg);}
+.header-logo{font-size:11px;letter-spacing:2px;opacity:0.8;}
+.header-title{font-size:22px;font-weight:700;margin-top:6px;}
+.header-sub{font-size:13px;opacity:0.75;margin-top:4px;}
+
+.main{padding:20px 16px;max-width:500px;margin:0 auto;}
+
+.card{background:white;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,90,156,0.08);margin-bottom:16px;}
+.card-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+
+.form-group{margin-bottom:16px;}
+.form-label{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;display:block;}
+.req{color:var(--danger);}
+.form-input,.form-select{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Sarabun',sans-serif;font-size:15px;color:var(--text);background:white;outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-select:focus{border-color:var(--primary);}
+
+.profile-row{display:flex;align-items:center;gap:14px;padding:14px;background:var(--primary-light);border-radius:12px;margin-bottom:16px;}
+.profile-avatar{width:52px;height:52px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0;}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;}
+.profile-name{font-size:15px;font-weight:700;}
+.profile-uid{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.btn{width:100%;padding:16px;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn:active{transform:scale(0.97);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-primary{background:var(--primary);color:white;}
+
+.result-card{border-radius:16px;padding:24px;text-align:center;margin-bottom:16px;}
+.result-success{background:var(--success-light);border:1.5px solid #A5D6A7;}
+.result-error{background:#FFEBEE;border:1.5px solid #EF9A9A;}
+.result-icon{font-size:52px;margin-bottom:10px;}
+.result-title{font-size:20px;font-weight:700;margin-bottom:8px;}
+.result-msg{font-size:14px;color:var(--muted);line-height:1.6;}
+
+.info-box{background:var(--primary-light);border-radius:10px;padding:12px;font-size:13px;color:var(--primary);margin-bottom:16px;line-height:1.6;}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:14px;}
+.overlay.show{display:flex;}
+.spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
+.overlay-text{color:white;font-size:15px;font-weight:600;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <div class="overlay-text" id="overlayText">กำลังดำเนินการ...</div>
+</div>
+
+<div class="header">
+  <div class="header-logo">การไฟฟ้าส่วนภูมิภาคสาขาอ่าวลึก</div>
+  <div class="header-title">📝 ลงทะเบียนพนักงาน</div>
+  <div class="header-sub">กรอกข้อมูลเพื่อเข้าใช้งานระบบ</div>
+</div>
+
+<div class="main">
+
+  <!-- Result -->
+  <div id="resultDiv" style="display:none"></div>
+
+  <!-- Form -->
+  <div id="formDiv">
+    <!-- LINE Profile -->
+    <div class="profile-row" id="profileRow">
+      <div class="profile-avatar" id="profileAvatar">👤</div>
+      <div>
+        <div class="profile-name" id="profileName">กำลังโหลด...</div>
+        <div class="profile-uid" id="profileUID">LINE UID: —</div>
+      </div>
+    </div>
+
+    <!-- Confirm card (แสดงเมื่อมาจาก Flex Message) -->
+    <div id="confirmCard" style="display:none;background:var(--success-light);border-radius:14px;padding:16px;border:1.5px solid #A5D6A7;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:10px">✅ ตรวจสอบข้อมูลของคุณ</div>
+      <div style="font-size:14px;margin-bottom:4px">👤 <strong id="confirmName">—</strong></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:2px">🔢 รหัส: <span id="confirmId">—</span></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:2px">🏢 แผนก: <span id="confirmDept">—</span></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">💼 ตำแหน่ง: <span id="confirmPos">—</span></div>
+      <button onclick="quickConfirm()" style="width:100%;padding:13px;background:var(--success);color:white;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer">
+        ✅ ใช่ ข้อมูลถูกต้อง ยืนยัน!
+      </button>
+      <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--muted)">หรือแก้ไขข้อมูลด้านล่างได้ครับ</div>
+    </div>
+
+    <div class="info-box">
+      💡 กรอกข้อมูลให้ครบถ้วนและถูกต้อง ระบบจะบันทึกอัตโนมัติทันทีครับ
+    </div>
+
+    <div class="card">
+      <div class="card-title">ข้อมูลส่วนตัว</div>
+
+      <div class="form-group">
+        <label class="form-label">ชื่อ-นามสกุล <span class="req">*</span></label>
+        <input class="form-input" type="text" id="empName" placeholder="เช่น มานศักดิ์ พิลาฤทธิ์">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">รหัสพนักงาน <span class="req">*</span></label>
+        <input class="form-input" type="text" id="empId" placeholder="เช่น 495518">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ข้อมูลตำแหน่ง</div>
+
+      <div class="form-group">
+        <label class="form-label">แผนก <span class="req">*</span></label>
+        <select class="form-select" id="empDept">
+          <option value="">-- เลือกแผนก --</option>
+          <option value="แผนกปฏิบัติการระบบไฟฟ้า">แผนกปฏิบัติการระบบไฟฟ้า</option>
+          <option value="แผนกบริการลูกค้า">แผนกบริการลูกค้า</option>
+          <option value="แผนกบัญชีและการเงิน">แผนกบัญชีและการเงิน</option>
+          <option value="กฟส.อ่าวลึก">กฟส.อ่าวลึก (สำนักงาน)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ตำแหน่ง <span class="req">*</span></label>
+        <select class="form-select" id="empPos">
+          <option value="">-- เลือกตำแหน่ง --</option>
+          <option value="ลูกจ้าง (G)">ลูกจ้าง (G)</option>
+          <option value="ลูกจ้าง (D)">ลูกจ้าง (D)</option>
+          <option value="ลูกจ้าง (C5)">ลูกจ้าง (C5)</option>
+          <option value="พขร.(บ)">พขร.(บ)</option>
+          <option value="พนักงานช่าง 3">พนักงานช่าง 3</option>
+          <option value="พนักงานช่าง 4">พนักงานช่าง 4</option>
+          <option value="พนักงานช่าง 5">พนักงานช่าง 5</option>
+          <option value="พนักงานบัญชี 3">พนักงานบัญชี 3</option>
+          <option value="พนักงานบัญชี 5">พนักงานบัญชี 5</option>
+          <option value="พนักงานบัญชี 7">พนักงานบัญชี 7</option>
+          <option value="ผู้ช่วยหัวหน้าแผนก">ผู้ช่วยหัวหน้าแผนก</option>
+          <option value="หัวหน้าแผนก">หัวหน้าแผนก</option>
+          <option value="ผู้ช่วยช่าง">ผู้ช่วยช่าง</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">อัตรา OT (บาท/ชม.) — ถ้าไม่ทราบกรอก 0</label>
+        <input class="form-input" type="number" id="empOTRate" placeholder="เช่น 505" value="0">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="btnRegister" onclick="submitRegister()" disabled>
+      📝 ลงทะเบียน
+    </button>
+  </div>
+
+</div>
+
+<script>
+const LIFF_ID = '2009895943-y57YGqgO'; // ใช้ LIFF เดิมของ checkin
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvp0SfzVwAwp0lfGS9OrpdmE0yJ9DlizJY82LIv9G7oxI_oZ4nn9QlxPc-lsx8z7v9/exec';
+
+let lineUID = null;
+let linePicture = null;
+
+window.onload = async () => {
+  setOverlay(true, 'กำลังโหลด...');
+  try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isInClient()) {
       document.getElementById('profileName').textContent = 'กรุณาเปิดผ่าน LINE ครับ';
