@@ -179,57 +179,41 @@ window.onload = async () => {
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const uidFromUrl = urlParams.get('uid') || '';
-    const preEmpId   = urlParams.get('empId') || '';
-    const preEmpName = urlParams.get('empName') || '';
-    const preEmpPos  = urlParams.get('empPos') || '';
-    const preEmpDept = urlParams.get('empDept') || '';
 
-    if (uidFromUrl) {
-      lineUID = uidFromUrl;
-      document.getElementById('profileName').textContent = 'พนักงานใหม่';
-      document.getElementById('profileUID').textContent = 'LINE: ' + lineUID.substring(0,16) + '...';
-
-      // เช็คว่าลงทะเบียนแล้วไหม
-      const check = await gasGet({ action: 'getEmployeeByUID', uid: lineUID });
-      if (check && check.success && check.employee) {
-        showResult(true, '✅ ลงทะเบียนแล้ว', 'ลงทะเบียนแล้วในชื่อ ' + check.employee.name + ' ครับ');
-        setOverlay(false); return;
+    // ลอง LIFF ก่อนเสมอ (เปิดใน LINE browser)
+    try {
+      await liff.init({ liffId: LIFF_ID });
+      if (liff.isLoggedIn()) {
+        const p = await liff.getProfile();
+        lineUID = p.userId;
+        linePicture = p.pictureUrl || null;
+        document.getElementById('profileName').textContent = p.displayName;
+        document.getElementById('profileUID').textContent = 'LINE: ' + lineUID.substring(0,20) + '...';
+        if (linePicture) document.getElementById('profileAvatar').innerHTML = '<img src="' + linePicture + '">';
       }
-
-      // ลอง get LINE profile ชื่อ/รูป
-      try {
-        await liff.init({ liffId: LIFF_ID });
-        if (liff.isInClient() && liff.isLoggedIn()) {
-          const p = await liff.getProfile();
-          linePicture = p.pictureUrl || null;
-          document.getElementById('profileName').textContent = p.displayName;
-          if (linePicture) document.getElementById('profileAvatar').innerHTML = '<img src="' + linePicture + '">';
-        }
-      } catch(e2) {}
-
-    } else {
-      // ไม่มี UID ใน URL - ลอง LIFF
-      try {
-        await liff.init({ liffId: LIFF_ID });
-        if (liff.isLoggedIn()) {
-          const p = await liff.getProfile();
-          lineUID = p.userId;
-          linePicture = p.pictureUrl || null;
-          document.getElementById('profileName').textContent = p.displayName;
-          document.getElementById('profileUID').textContent = 'LINE: ' + lineUID.substring(0,16) + '...';
-          if (linePicture) document.getElementById('profileAvatar').innerHTML = '<img src="' + linePicture + '">';
-        }
-      } catch(e3) {
-        document.getElementById('profileName').textContent = '⚠️ กรุณาเปิดจาก LINE Bot ครับ';
-        setOverlay(false); return;
-      }
+    } catch(eLiff) {
+      console.log('LIFF failed:', eLiff.message);
     }
 
-    // Pre-fill form
-    if (preEmpId)   document.getElementById('empId').value = preEmpId;
-    if (preEmpName) document.getElementById('empName').value = preEmpName;
-    if (preEmpDept) { for (let o of document.getElementById('empDept').options) if (o.value===preEmpDept){o.selected=true;break;} }
-    if (preEmpPos)  { for (let o of document.getElementById('empPos').options)  if (o.value===preEmpPos) {o.selected=true;break;} }
+    // ถ้า LIFF ไม่ได้ UID ใช้จาก URL แทน
+    if (!lineUID && uidFromUrl) {
+      lineUID = uidFromUrl;
+      document.getElementById('profileName').textContent = 'พนักงานใหม่';
+      document.getElementById('profileUID').textContent = 'LINE: ' + lineUID.substring(0,20) + '...';
+    }
+
+    if (!lineUID) {
+      document.getElementById('profileName').textContent = '⚠️ ไม่พบข้อมูล LINE';
+      document.getElementById('profileUID').textContent = 'กรุณาเปิดจากลิงก์ใน LINE ครับ';
+      setOverlay(false); return;
+    }
+
+    // เช็คว่าลงทะเบียนแล้วไหม
+    const check = await gasGet({ action: 'getEmployeeByUID', uid: lineUID });
+    if (check && check.success && check.employee) {
+      showResult(true, '✅ ลงทะเบียนแล้ว', 'ลงทะเบียนแล้วในชื่อ ' + check.employee.name + ' ครับ\nใช้งานระบบได้เลยครับ');
+      setOverlay(false); return;
+    }
 
     document.getElementById('btnRegister').disabled = false;
   } catch(e) {
