@@ -430,33 +430,59 @@
       return;
     }
 
-    setOverlay(true);
+    const isCheckin = action === 'checkin';
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+
+    // ===== Step 1: แสดงผลทันที (สีเขียวอ่อน = ยังไม่ยืนยัน) =====
+    showResultPending(isCheckin
+      ? `⏳ กำลังบันทึก... ${timeStr} น.`
+      : `⏳ กำลังบันทึก... ${timeStr} น.`
+    );
+
+    // อัปเดต UI ปุ่ม
+    if (isCheckin) todayStatus.checkIn = timeStr;
+    else todayStatus.checkOut = timeStr;
+    updateButtons();
+
+    // ===== Step 2: บันทึกจริง background =====
     try {
-      const res = await gasGet({
-        action: action === 'checkin' ? 'checkin' : 'checkout',
+      const params = {
+        action: isCheckin ? 'checkin' : 'checkout',
         empId: employeeData.id,
         lat: currentLat,
         lng: currentLng,
         note: note || '',
-        lineUID: lineUID || ''
-      });
+        lineUID: lineUID || '',
+        accuracy: gpsAccuracy || 0,
+      };
+      if (isCheckin && selfieBase64) params.selfie = selfieBase64;
 
-      setOverlay(false);
+      const res = await gasGet(params);
+
+      // ===== Step 3: อัปเดตผลจริง =====
       if (res && res.success) {
-        showResult(true, res.message);
-        if (action === 'checkin') todayStatus.checkIn = res.time;
-        else todayStatus.checkOut = res.time;
-        updateStatusUI();
-        updateButtons();
-        document.getElementById('noteInput').value = '';
+        // ✅ สำเร็จ - เปลี่ยนเป็นสีเขียวเข้ม
+        showResult(true,
+          isCheckin ? `✅ เช็คอินแล้ว ${res.time || timeStr} น.` : `🚪 เช็คเอ้าต์แล้ว ${res.time || timeStr} น.`,
+          `📍 ระยะห่าง ${res.distance || 0} เมตร • บันทึกแล้วครับ`
+        );
       } else {
-        showResult(false, res ? res.message : 'เกิดข้อผิดพลาด');
-        updateStatusUI();
+        // ⚠️ พลาด - แจ้งให้กดใหม่
+        if (isCheckin) { todayStatus.checkIn = null; }
+        else { todayStatus.checkOut = null; }
         updateButtons();
+        showResult(false,
+          '⚠️ บันทึกไม่สำเร็จ',
+          (res ? res.message : 'เกิดข้อผิดพลาด') + '\n\nกรุณากดปุ่มอีกครั้งครับ'
+        );
       }
-    } catch (err) {
-      setOverlay(false);
-      showResult(false, 'เกิดข้อผิดพลาด: ' + err.message);
+    } catch(err) {
+      // ⚠️ Network error
+      if (isCheckin) { todayStatus.checkIn = null; }
+      else { todayStatus.checkOut = null; }
+      updateButtons();
+      showResult(false, '⚠️ เน็ตขัดข้อง', 'กรุณาตรวจสอบสัญญาณแล้วกดใหม่ครับ');
     }
   }
 
