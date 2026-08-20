@@ -561,6 +561,80 @@
   document.getElementById('uidModal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeUIDModal();
   });
+
+  // ==================== ระบบบันทึกแทน ====================
+  async function loadProxyList() {
+    const statusDiv = document.getElementById('proxyMyStatus');
+    const msgDiv = document.getElementById('proxyMsg');
+    const ciSection = document.getElementById('proxyCheckinSection');
+    const coSection = document.getElementById('proxyCheckoutSection');
+    if (!currentUser) {
+      if(statusDiv) statusDiv.innerHTML = '<div style="color:var(--danger);font-size:13px">⚠️ กรุณาเปิดผ่าน LINE ครับ</div>';
+      return;
+    }
+    const uid = currentUser.lineUID || '';
+    if (!uid) {
+      if(statusDiv) statusDiv.innerHTML = '<div style="color:var(--danger);font-size:13px">⚠️ ไม่พบ LINE UID ครับ</div>';
+      return;
+    }
+    if(statusDiv) statusDiv.innerHTML = '<div style="color:var(--muted);font-size:13px">⏳ กำลังโหลดรายชื่อ...</div>';
+    const res = await gasGet({ action: 'getProxyList', uid: uid });
+    if (!res || !res.success) {
+      if(statusDiv) statusDiv.innerHTML = '<div style="color:var(--muted);font-size:13px">ไม่สามารถโหลดได้</div>';
+      if(msgDiv) { msgDiv.style.display='block'; msgDiv.textContent = res ? res.message : '⚠️ เกิดข้อผิดพลาด'; }
+      return;
+    }
+    if(msgDiv) msgDiv.style.display = 'none';
+    if(statusDiv) statusDiv.innerHTML =
+      '<div style="display:flex;gap:12px">' +
+      '<div style="flex:1;text-align:center;background:var(--success-light);border-radius:10px;padding:10px">' +
+        '<div style="font-size:11px;color:var(--muted)">เช็คอิน</div>' +
+        '<div style="font-size:16px;font-weight:700;color:var(--success)">' + (res.requester.checkIn||'—') + '</div>' +
+      '</div>' +
+      '<div style="flex:1;text-align:center;background:#F5F5F5;border-radius:10px;padding:10px">' +
+        '<div style="font-size:11px;color:var(--muted)">เช็คเอ้าต์</div>' +
+        '<div style="font-size:16px;font-weight:700;color:var(--warning)">' + (res.requester.checkOut||'—') + '</div>' +
+      '</div></div>';
+    if(ciSection) {
+      ciSection.style.display = 'block';
+      const ciList = document.getElementById('proxyCheckinList');
+      ciList.innerHTML = (!res.notCheckedIn||!res.notCheckedIn.length) ?
+        '<div style="text-align:center;padding:12px;color:var(--muted);font-size:13px">✅ ทุกคนเช็คอินแล้วครับ</div>' :
+        res.notCheckedIn.map(function(e){
+          return '<div style="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,90,156,0.07)">' +
+            '<div><div style="font-size:14px;font-weight:600">👤 ' + e.name + '</div><div style="font-size:11px;color:var(--muted)">' + e.pos + '</div></div>' +
+            '<button onclick="doProxy('checkin','' + e.id + '','' + e.name + '',this)" style="background:var(--success);color:white;border:none;border-radius:8px;padding:8px 16px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer">✅ เช็คอิน</button>' +
+            '</div>';
+        }).join('');
+    }
+    if(coSection && res.notCheckedOut && res.notCheckedOut.length) {
+      coSection.style.display = 'block';
+      document.getElementById('proxyCheckoutList').innerHTML = res.notCheckedOut.map(function(e){
+        return '<div style="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,90,156,0.07)">' +
+          '<div><div style="font-size:14px;font-weight:600">👤 ' + e.name + '</div><div style="font-size:11px;color:var(--muted)">' + e.pos + '</div></div>' +
+          '<button onclick="doProxy('checkout','' + e.id + '','' + e.name + '',this)" style="background:#E65100;color:white;border:none;border-radius:8px;padding:8px 16px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer">🚪 เช็คเอ้าต์</button>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
+  async function doProxy(action, empId, empName, btn) {
+    if (!confirm((action==='checkin'?'เช็คอิน':'เช็คเอ้าต์') + 'ให้ ' + empName + ' เลยไหมครับ?')) return;
+    btn.disabled = true; btn.textContent = '⏳';
+    const res = await gasGet({
+      action: action==='checkin' ? 'proxyCheckin' : 'proxyCheckout',
+      requesterUID: currentUser.lineUID || '',
+      targetEmpId: empId
+    });
+    if (res && res.success) {
+      btn.parentElement.remove();
+      showToast(res.message);
+    } else {
+      btn.disabled = false;
+      btn.textContent = action==='checkin' ? '✅ เช็คอิน' : '🚪 เช็คเอ้าต์';
+      showToast('❌ ' + (res ? res.message : 'เกิดข้อผิดพลาด'));
+    }
+  }
 </script>
 </body>
 </html>
