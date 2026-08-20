@@ -83,6 +83,12 @@
   .leave-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
   .leave-type{font-size:14px;font-weight:600;}
   .leave-dates{font-size:12px;color:var(--muted);}
+  .proxy-emp-card{display:flex;align-items:center;justify-content:space-between;background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,90,156,0.07);}
+  .proxy-emp-name{font-size:14px;font-weight:600;}
+  .proxy-emp-pos{font-size:11px;color:var(--muted);margin-top:2px;}
+  .proxy-btn-ci{background:var(--success);color:white;border:none;border-radius:8px;padding:8px 16px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+  .proxy-btn-co{background:var(--warning);color:white;border:none;border-radius:8px;padding:8px 16px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+  .proxy-btn:disabled{opacity:0.4;cursor:not-allowed;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2B3C;color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;transition:transform 0.3s;z-index:9999;white-space:nowrap;}
   .toast.show{transform:translateX(-50%) translateY(0);}
 
@@ -129,62 +135,34 @@
 
   <!-- ===== TAB 2: บันทึกเวลาแทน ===== -->
   <div class="tab-page" id="tab-team">
-    <div class="info-box">
-      💡 <strong>สำหรับหัวหน้าทีม</strong> — บันทึกเวลาเข้า-ออกแทนลูกจ้างในทีม แล้วส่งให้หัวหน้าแผนกอนุมัติ
+
+    <!-- สถานะตัวเอง -->
+    <div id="proxyStatusCard" style="border-radius:14px;padding:16px;margin-bottom:12px;background:white;box-shadow:0 2px 8px rgba(0,90,156,0.08)">
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">👤 สถานะของคุณวันนี้</div>
+      <div id="proxyMyStatus" style="font-size:13px;color:var(--muted)">กำลังโหลด...</div>
     </div>
 
-    <div class="section-title">ขั้นตอน</div>
-    <div class="card" style="padding:12px">
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
-        <span class="step-badge">1</span>
-        <span style="font-size:14px">เลือกลูกจ้างในทีม</span>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
-        <span class="step-badge">2</span>
-        <span style="font-size:14px">กรอกวันที่และเวลาเข้า-ออก</span>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <span class="step-badge">3</span>
-        <span style="font-size:14px">ส่งให้หัวหน้าแผนกอนุมัติ</span>
-      </div>
+    <!-- รายชื่อที่ยังไม่เช็คอิน -->
+    <div id="proxyCheckinSection" style="display:none">
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--success)">✅ บันทึกเช็คอินแทน</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">รายชื่อที่ยังไม่เช็คอินวันนี้</div>
+      <div id="proxyCheckinList"></div>
     </div>
 
-    <div class="section-title">ค้นหาพนักงาน</div>
-    <div style="position:relative;margin-bottom:10px">
-      <input type="text" id="teamSearch" placeholder="🔍 พิมพ์ชื่อหรือรหัสพนักงาน..." 
-        oninput="filterTeamList()"
-        style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Sarabun',sans-serif;font-size:15px;outline:none;">
+    <!-- รายชื่อที่ยังไม่เช็คเอ้าต์ -->
+    <div id="proxyCheckoutSection" style="display:none;margin-top:16px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--warning)">🚪 บันทึกเช็คเอ้าต์แทน</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">รายชื่อที่ยังไม่เช็คเอ้าต์วันนี้</div>
+      <div id="proxyCheckoutList"></div>
     </div>
-    <div id="teamEmpList"><div style="text-align:center;padding:20px;color:var(--muted)">กำลังโหลด...</div></div>
 
-    <div class="card" id="teamFormCard" style="display:none">
-      <div class="card-title">📝 บันทึกเวลา</div>
-      <div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:12px" id="selectedEmpName">—</div>
+    <div id="proxyMsg" style="display:none;background:var(--danger-light);border-radius:12px;padding:14px;font-size:13px;color:var(--danger);text-align:center"></div>
+    <div id="proxyResult" style="margin-top:12px"></div>
 
-      <div class="form-group">
-        <label class="form-label">วันที่</label>
-        <input class="form-input" type="date" id="teamDate">
-      </div>
-      <div class="time-row">
-        <div class="form-group">
-          <label class="form-label">เวลาเข้างาน</label>
-          <input class="form-input" type="time" id="teamCheckIn">
-        </div>
-        <div class="form-group">
-          <label class="form-label">เวลาออกงาน</label>
-          <input class="form-input" type="time" id="teamCheckOut">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">หมายเหตุ</label>
-        <input class="form-input" type="text" id="teamNote" placeholder="เช่น ลืมเช็คอิน, ระบบขัดข้อง">
-      </div>
-      <button class="btn btn-warning" onclick="submitTeamRecord()">📤 ส่งขออนุมัติ</button>
-    </div>
   </div>
 
-  <!-- ===== TAB 3: จัดการ UID ===== -->
   <div class="tab-page" id="tab-uid">
+
     <div class="info-box">
       💡 <strong>สำหรับ Admin</strong> — เพิ่ม LINE UID ของพนักงานได้จากระบบนี้เลย ไม่ต้องไปแก้ใน Google Sheets
     </div>
@@ -328,6 +306,7 @@
     document.getElementById('tab-' + name).classList.add('active');
     btn.classList.add('active');
     if (name === 'leave') loadLeaveHistory();
+    if (name === 'team') loadProxyList();
   }
 
   // ==================== Holidays ====================
