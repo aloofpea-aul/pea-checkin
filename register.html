@@ -176,6 +176,8 @@ let linePicture = null;
 
 window.onload = async () => {
   setOverlay(true, 'กำลังโหลด...');
+  // Enable button early - check UID at submit
+  document.getElementById('btnRegister').disabled = false;
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const uidFromUrl = urlParams.get('uid') || '';
@@ -215,7 +217,7 @@ window.onload = async () => {
       setOverlay(false); return;
     }
 
-    document.getElementById('btnRegister').disabled = false;
+    // button already enabled above
   } catch(e) {
     document.getElementById('profileName').textContent = '❌ ' + e.message;
   }
