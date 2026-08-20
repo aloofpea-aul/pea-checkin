@@ -285,8 +285,21 @@
         } else if (employeeData.picUrl) {
           document.getElementById('userAvatar').innerHTML = `<img src="${employeeData.picUrl}">`;
         }
-        // สถานะวันนี้มาพร้อมกันเลย
+        // สถานะวันนี้
         if (res.status) { todayStatus = res.status; }
+        // B1: โหลดสถานะกะปัจจุบันแยก
+        const pos = employeeData.position || '';
+        const isB1 = pos.includes('B1') || pos.replace(/[^a-zA-Z0-9]/g,'').includes('B1');
+        if (isB1) {
+          const b1Status = await gasGet({ action: 'getMyTodayStatus', uid: lineUID });
+          if (b1Status) {
+            todayStatus.checkIn  = b1Status.checkIn  || null;
+            todayStatus.checkOut = b1Status.checkOut || null;
+            if (b1Status.shift) {
+              document.getElementById('userSub').textContent += ' | ' + b1Status.shift;
+            }
+          }
+        }
         // ตรวจสอบวันหยุดและวันอาทิตย์
         const today = new Date();
         const isSunday = today.getDay() === 0;
