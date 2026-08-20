@@ -450,11 +450,12 @@
         if (action === 'checkin') todayStatus.checkIn = res.time;
         else todayStatus.checkOut = res.time;
         updateButtons();
+        const shiftTxt = res.shift ? ' | ' + res.shift : '';
         showResult(true,
           action === 'checkin'
-            ? '✅ เช็คอินสำเร็จ ' + res.time + ' น.'
-            : '🚪 เช็คเอ้าต์สำเร็จ ' + res.time + ' น.',
-          '📍 ระยะห่าง ' + (res.distance || 0) + ' เมตร'
+            ? '✅ เช็คอินสำเร็จ ' + res.time + ' น.' + shiftTxt
+            : '🚪 เช็คเอ้าต์สำเร็จ ' + res.time + ' น.' + shiftTxt,
+          '📍 ระยะห่าง ' + (res.distance || 0) + ' เมตร' + (res.score !== undefined ? ' | ⭐ +' + res.score + ' คะแนน' : '')
         );
       } else {
         showResult(false, res ? res.message : 'เกิดข้อผิดพลาด', 'กรุณาลองใหม่อีกครั้งครับ');
