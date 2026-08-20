@@ -280,10 +280,9 @@
   window.onload = async () => {
     renderHolidays();
     await initLiff();
-    loadTeamList();
     loadUIDList();
     const today = new Date();
-    document.getElementById('teamDate').value = fmtDate(today);
+    if (document.getElementById('teamDate')) document.getElementById('teamDate').value = fmtDate(today);
     document.getElementById('leaveStart').value = fmtDate(today);
     document.getElementById('leaveEnd').value = fmtDate(today);
   };
