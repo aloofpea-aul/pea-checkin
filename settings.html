@@ -278,13 +278,12 @@
   let employees = [];
 
   window.onload = async () => {
-    renderHolidays();
-    await initLiff();
-    loadUIDList();
+    renderHolidays(); // render holidays from const (ไม่ต้องโหลด)
     const today = new Date();
-    if (document.getElementById('teamDate')) document.getElementById('teamDate').value = fmtDate(today);
-    document.getElementById('leaveStart').value = fmtDate(today);
-    document.getElementById('leaveEnd').value = fmtDate(today);
+    if (document.getElementById('leaveStart')) document.getElementById('leaveStart').value = fmtDate(today);
+    if (document.getElementById('leaveEnd')) document.getElementById('leaveEnd').value = fmtDate(today);
+    // initLiff แบบ async ไม่บล็อก UI
+    setTimeout(async () => { await initLiff(); }, 100);
   };
 
   async function initLiff() {
@@ -308,8 +307,12 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
     btn.classList.add('active');
-    if (name === 'leave') loadLeaveHistory();
-    if (name === 'team') loadProxyList();
+    // โหลดข้อมูลเมื่อเปิดแท็บเท่านั้น
+    setTimeout(() => {
+      if (name === 'leave') loadLeaveHistory();
+      if (name === 'team') loadProxyList();
+      if (name === 'uid') loadUIDList();
+    }, 50);
   }
 
   // ==================== Holidays ====================
