@@ -294,7 +294,11 @@
       if (liff.isInClient() && liff.isLoggedIn()) {
         const profile = await liff.getProfile();
         const res = await gasGet({ action: 'getEmployeeByUID', uid: profile.userId });
-        if (res && res.success) currentUser = res.employee;
+        if (res && res.success) {
+          currentUser = res.employee;
+          // ถ้า employee ไม่มี lineUID ให้เพิ่มจาก profile
+          if (currentUser && !currentUser.lineUID) currentUser.lineUID = profile.userId;
+        }
       }
     } catch(e) { console.warn('LIFF:', e.message); }
   }
