@@ -291,6 +291,9 @@
         const pos = employeeData.position || '';
         const isB1 = pos.includes('B1') || pos.replace(/[^a-zA-Z0-9]/g,'').includes('B1');
         if (isB1) {
+          isB1Employee = true;
+          // แสดง shift selector
+          document.getElementById('shiftSelectorCard').style.display = 'block';
           const b1Status = await gasGet({ action: 'getMyTodayStatus', uid: lineUID });
           if (b1Status) {
             todayStatus.checkIn  = b1Status.checkIn  || null;
@@ -420,6 +423,16 @@
 
   // ==================== Action ====================
   let selfieBase64 = null;
+  function selectShift(num) {
+    selectedShift = num;
+    [1,2,3].forEach(n => document.getElementById('shiftBtn'+n).classList.remove('selected'));
+    document.getElementById('shiftBtn'+num).classList.add('selected');
+    const labels = {1:'กะ 1 (00:00-08:00)', 2:'กะ 2 (08:00-16:00)', 3:'กะ 3 (16:00-24:00)'};
+    document.getElementById('shiftSelected').textContent = '✅ เลือก: ' + labels[num];
+    document.getElementById('shiftSelected').style.color = 'var(--primary)';
+    updateButtons();
+  }
+
   function onSelfie(input) {
     const file = input.files[0];
     if (!file) return;
@@ -503,8 +516,9 @@
   function updateButtons() {
     const ready = gpsReady && employeeData;
     const isHoliday = window._isHoliday || false;
-    // บล็อคทั้งเช็คอินและเช็คเอ้าต์ในวันหยุด/อาทิตย์
-    document.getElementById('btnCheckin').disabled = !(ready && !todayStatus.checkIn) || isHoliday;
+    // B1: ต้องเลือกกะก่อนถึงกดเช็คอินได้
+    const shiftReady = isB1Employee ? selectedShift !== null : true;
+    document.getElementById('btnCheckin').disabled = !(ready && !todayStatus.checkIn && shiftReady) || isHoliday;
     document.getElementById('btnCheckout').disabled = !(ready && todayStatus.checkIn && !todayStatus.checkOut) || isHoliday;
     if (isHoliday) {
       document.getElementById('btnCheckin').style.opacity = '0.4';
