@@ -287,6 +287,7 @@
         }
         // สถานะวันนี้
         if (res.status) { todayStatus = res.status; }
+        updateStatusDisplay();
         // B1: โหลดสถานะกะปัจจุบันแยก
         const pos = employeeData.position || '';
         const isB1 = pos.includes('B1') || pos.replace(/[^a-zA-Z0-9]/g,'').includes('B1');
@@ -480,6 +481,7 @@
         if (action === 'checkin') todayStatus.checkIn = res.time;
         else todayStatus.checkOut = res.time;
         updateButtons();
+        updateStatusDisplay();
         const shiftTxt = res.shift ? ' | ' + res.shift : '';
         showResult(true,
           action === 'checkin'
@@ -515,6 +517,13 @@
       outEl.className = 'status-value muted';
     }
     updateButtons();  // sync ปุ่มกับสถานะเสมอ
+  }
+
+  function updateStatusDisplay() {
+    const inEl = document.getElementById('statusIn');
+    const outEl = document.getElementById('statusOut');
+    if (inEl) inEl.textContent = todayStatus.checkIn || '—';
+    if (outEl) outEl.textContent = todayStatus.checkOut || '—';
   }
 
   function updateButtons() {
