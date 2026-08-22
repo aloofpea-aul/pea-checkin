@@ -423,6 +423,10 @@
 
   // ==================== Action ====================
   let selfieBase64 = null;
+  let gpsAccuracy = null;
+  let selectedShift = null;
+  let isB1Employee = false;
+
   function selectShift(num) {
     selectedShift = num;
     [1,2,3].forEach(n => document.getElementById('shiftBtn'+n).classList.remove('selected'));
