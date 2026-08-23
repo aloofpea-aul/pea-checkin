@@ -107,6 +107,14 @@
   .btn-checkout { background: var(--danger); color: white; }
   .btn-checkout:hover:not(:disabled) { background: #8B1A1A; }
 
+  .shift-btn {
+    width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: white; color: var(--text); font-family: 'Sarabun', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: left;
+  }
+  .shift-btn:active { transform: scale(0.98); }
+  .shift-btn.selected { border-color: var(--primary); background: #E3F0FB; color: var(--primary-dark); }
+
   .note-area { display: none; }
   .note-area.show { display: block; }
   .outside-warn { background: #FFF3E0; border: 1px solid #FFB74D; border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--warning); margin-bottom: 10px; display: none; }
@@ -193,6 +201,20 @@
         <div class="status-value" id="statusOut">—</div>
       </div>
     </div>
+  </div>
+
+  <!-- เลือกกะ (เฉพาะ B1) -->
+  <div class="card" id="shiftSelectorCard" style="display:none">
+    <div class="card-title">⏰ เลือกกะที่ต้องการลงเวลา</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">
+      กรณีมาก่อนเวลากะตัวเอง (เช่น เข้ากะ 3 แต่มาลงเวลาก่อนในช่วงกะ 2) ให้เลือกกะที่ต้องการด้านล่างนี้ครับ
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button type="button" class="shift-btn" id="shiftBtn1" onclick="selectShift(1)">กะ 1 (00:00-08:00)</button>
+      <button type="button" class="shift-btn" id="shiftBtn2" onclick="selectShift(2)">กะ 2 (08:00-16:00)</button>
+      <button type="button" class="shift-btn" id="shiftBtn3" onclick="selectShift(3)">กะ 3 (16:00-24:00)</button>
+    </div>
+    <div id="shiftSelected" style="font-size:13px;color:var(--muted);margin-top:10px">ยังไม่ได้เลือก — ถ้าไม่เลือก ระบบจะเดากะให้อัตโนมัติตามเวลาปัจจุบัน</div>
   </div>
 
   <!-- GPS -->
@@ -295,6 +317,7 @@
         const isB1 = pos.includes('B1') || pos.replace(/[^a-zA-Z0-9]/g,'').includes('B1');
         if (isB1) {
           isB1Employee = true;
+          document.getElementById('shiftSelectorCard').style.display = 'block';
           const b1Status = await gasGet({ action: 'getMyTodayStatus', uid: lineUID });
           if (b1Status) {
             todayStatus.checkIn  = b1Status.checkIn  || null;
