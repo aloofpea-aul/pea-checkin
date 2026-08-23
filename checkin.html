@@ -289,12 +289,12 @@
         if (res.status) { todayStatus = res.status; }
         updateStatusDisplay();
         // B1: โหลดสถานะกะปัจจุบันแยก
+        // หมายเหตุ: ยังไม่มีหน้า UI ให้เลือกกะเอง ระบบจะให้ backend
+        // ตรวจจับกะอัตโนมัติจากเวลาที่เช็คอินแทน (ดูฟังก์ชัน detectB1Shift ใน Code.gs)
         const pos = employeeData.position || '';
         const isB1 = pos.includes('B1') || pos.replace(/[^a-zA-Z0-9]/g,'').includes('B1');
         if (isB1) {
           isB1Employee = true;
-          // แสดง shift selector
-          document.getElementById('shiftSelectorCard').style.display = 'block';
           const b1Status = await gasGet({ action: 'getMyTodayStatus', uid: lineUID });
           if (b1Status) {
             todayStatus.checkIn  = b1Status.checkIn  || null;
@@ -473,6 +473,7 @@
         accuracy: gpsAccuracy || 0,
       };
       if (action === 'checkin' && selfieBase64) params.selfie = selfieBase64;
+      if (action === 'checkin' && isB1Employee && selectedShift) params.selectedShift = selectedShift;
 
       const res = await gasGet(params);
       setOverlay(false);
@@ -529,8 +530,8 @@
   function updateButtons() {
     const ready = gpsReady && employeeData;
     const isHoliday = window._isHoliday || false;
-    // B1: ต้องเลือกกะก่อนถึงกดเช็คอินได้
-    const shiftReady = isB1Employee ? selectedShift !== null : true;
+    // B1: ยังไม่มีหน้าเลือกกะ ให้ backend ตรวจจับกะอัตโนมัติจากเวลาแทน
+    const shiftReady = true;
     document.getElementById('btnCheckin').disabled = !(ready && !todayStatus.checkIn && shiftReady) || isHoliday;
     document.getElementById('btnCheckout').disabled = !(ready && todayStatus.checkIn && !todayStatus.checkOut) || isHoliday;
     if (isHoliday) {
