@@ -304,10 +304,10 @@
             }
           }
         }
-        // ตรวจสอบวันหยุดและวันอาทิตย์
+        // ตรวจสอบวันหยุดและวันอาทิตย์ (ยกเว้น B1 เพราะทำงานเป็นกะทุกวัน)
         const today = new Date();
         const isSunday = today.getDay() === 0;
-        if (res.holiday || isSunday) {
+        if (!isB1 && (res.holiday || isSunday)) {
           const reason = isSunday ? 'วันอาทิตย์' : res.holiday.name;
           document.getElementById('holidayWarn').classList.add('show');
           document.getElementById('holidayName').textContent = `🗓️ ${reason}`;
