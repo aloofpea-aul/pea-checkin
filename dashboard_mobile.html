@@ -95,10 +95,40 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
 .score-box{background:white;border-radius:10px;padding:10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
 .score-v{font-size:18px;font-weight:700;} .score-l{font-size:10px;color:var(--muted);margin-top:2px;}
 .badge-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-.badge-mini{background:white;border-radius:10px;padding:9px 5px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1.5px solid var(--border);}
-.badge-mini.earned{border-color:var(--gold);background:var(--gold-light);}
-.badge-mini.locked{opacity:0.4;}
-.badge-mini-icon{font-size:22px;} .badge-mini-name{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.3;}
+.badge-mini{background:white;border-radius:10px;padding:9px 5px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1.5px solid var(--border);position:relative;overflow:hidden;}
+.badge-mini.earned{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--gold-light),#FFF3CD);
+  animation:badgePop 0.55s cubic-bezier(.34,1.56,.64,1) both, badgeGlow 2.4s ease-in-out infinite 0.6s;
+}
+.badge-mini.earned::after{
+  content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.85),transparent);
+  animation:badgeShine 2.8s ease-in-out infinite;animation-delay:1.1s;
+}
+.badge-mini.locked{opacity:0.35;filter:grayscale(0.7);transition:opacity 0.3s;}
+.badge-mini-icon{font-size:22px;display:inline-block;}
+.badge-mini.earned .badge-mini-icon{animation:badgeIconBounce 1.7s ease-in-out infinite;}
+.badge-mini-name{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.3;}
+.badge-mini.earned .badge-mini-name{color:#B8860B;font-weight:600;}
+@keyframes badgePop{
+  0%{transform:scale(0) rotate(-18deg);opacity:0;}
+  55%{transform:scale(1.18) rotate(6deg);opacity:1;}
+  75%{transform:scale(0.95) rotate(-2deg);}
+  100%{transform:scale(1) rotate(0deg);}
+}
+@keyframes badgeGlow{
+  0%,100%{box-shadow:0 2px 6px rgba(0,0,0,0.06),0 0 0 rgba(249,168,37,0);}
+  50%{box-shadow:0 4px 18px rgba(249,168,37,0.55),0 0 22px rgba(249,168,37,0.4);}
+}
+@keyframes badgeShine{
+  0%{left:-60%;}
+  100%{left:130%;}
+}
+@keyframes badgeIconBounce{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-4px) scale(1.12);}
+}
 .leader-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:white;border-radius:10px;margin-bottom:7px;box-shadow:0 2px 5px rgba(0,0,0,0.05);}
 .rank-c{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
 .r1{background:#FFD700;color:#5D4037;}.r2{background:#C0C0C0;color:#424242;}.r3{background:#CD7F32;color:white;}.rx{background:var(--bg);color:var(--muted);}
@@ -501,9 +531,13 @@ function renderMyScore(res) {
     [stats.likeScore||0,'#7B1FA2','คะแนน Like'],
     [stats.earlyCount||0,'var(--primary)','มาเช้ามาก'],
   ].map(([v,c,l]) => '<div class="score-box"><div class="score-v" style="color:'+c+'">'+v+'</div><div class="score-l">'+l+'</div></div>').join('');
-  document.getElementById('rewardBadges').innerHTML = ALL_BADGES.map(b =>
-    '<div class="badge-mini '+(earned.includes(b.id)?'earned':'locked')+'"><div class="badge-mini-icon">'+b.icon+'</div><div class="badge-mini-name">'+b.name+'</div></div>'
-  ).join('');
+  document.getElementById('rewardBadges').innerHTML = ALL_BADGES.map((b,i) => {
+    const isEarned = earned.includes(b.id);
+    const popDelay = isEarned ? (i*0.08) : 0;
+    const glowDelay = popDelay + 0.6;
+    const delayStyle = isEarned ? ('animation-delay:'+popDelay+'s, '+glowDelay+'s') : '';
+    return '<div class="badge-mini '+(isEarned?'earned':'locked')+'" style="'+delayStyle+'"><div class="badge-mini-icon">'+b.icon+'</div><div class="badge-mini-name">'+b.name+'</div></div>';
+  }).join('');
 }
 
 async function loadLeaderboard() {
