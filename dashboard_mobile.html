@@ -324,20 +324,29 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
   <div class="modal-box" style="max-height:85vh;overflow-y:auto;text-align:left">
     <div style="font-size:17px;font-weight:700;margin-bottom:14px;text-align:center">📖 คู่มือการให้คะแนน &amp; Badge</div>
 
-    <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:8px">⏰ คะแนนเช็คอิน (ต่อวัน)</div>
+    <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:6px">⏰ คะแนนเช็คอิน (ต่อวัน)</div>
+    <div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;line-height:1.6">
+      คิดจากเวลาเข้างานตามกะของวันนั้น (ปกติ <strong>08:00 น.</strong> ผ่อนผัน <strong>30 นาที</strong> — บางวันอาจตั้งเวลาต่างไปได้ตามตารางกะ)
+    </div>
     <table style="width:100%;font-size:12.5px;margin-bottom:14px;border-collapse:collapse">
-      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">มาก่อนเวลาเข้างาน</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--success);border-radius:0 6px 6px 0">+3</td></tr>
-      <tr><td style="padding:6px 8px">ถึงเวลา–ไม่เกินผ่อนผัน 30 นาที</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--primary)">+2</td></tr>
-      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">เลยผ่อนผันไปอีก 30 นาที</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--warning);border-radius:0 6px 6px 0">+1</td></tr>
-      <tr><td style="padding:6px 8px">สายเกินกว่านั้น</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--danger)">0</td></tr>
+      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">มาก่อน 08:00 น.</td><td style="padding:6px 8px;color:var(--muted);white-space:nowrap">(ก่อนเวลาเข้างาน)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--success);border-radius:0 6px 6px 0">+3</td></tr>
+      <tr><td style="padding:6px 8px">08:00 – 08:30 น.</td><td style="padding:6px 8px;color:var(--muted);white-space:nowrap">(ถึงเวลา–ในผ่อนผัน)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--primary)">+2</td></tr>
+      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">08:31 – 09:00 น.</td><td style="padding:6px 8px;color:var(--muted);white-space:nowrap">(เลยผ่อนผันอีก 30 นาที)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--warning);border-radius:0 6px 6px 0">+1</td></tr>
+      <tr><td style="padding:6px 8px">หลัง 09:00 น.</td><td style="padding:6px 8px;color:var(--muted);white-space:nowrap">(สายเกินกว่านั้น)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--danger)">0</td></tr>
     </table>
 
-    <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:8px">🚪 คะแนนเช็คเอ้าต์ (ต่อวัน)</div>
+    <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:6px">🚪 คะแนนเช็คเอ้าต์ (ต่อวัน)</div>
+    <div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;line-height:1.6">
+      คิดจากเวลาเลิกงานตามกะของวันนั้น (ปกติ <strong>17:00 น.</strong>)
+    </div>
     <table style="width:100%;font-size:12.5px;margin-bottom:14px;border-collapse:collapse">
-      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">หลังเวลาเลิกงาน</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--success);border-radius:0 6px 6px 0">+2</td></tr>
-      <tr><td style="padding:6px 8px">ก่อนเลิกงานไม่เกิน 30 นาที</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--primary)">+1</td></tr>
-      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">ออกก่อนนั้น</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--danger);border-radius:0 6px 6px 0">0</td></tr>
+      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">17:00 น. เป็นต้นไป</td><td style="padding:6px 8px;color:var(--muted);white-space:nowrap">(หลังเวลาเลิกงาน)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--success);border-radius:0 6px 6px 0">+2</td></tr>
+      <tr><td style="padding:6px 8px">16:30 – 16:59 น.</td><td style="padding:6px 8px;color:var(--muted);white-space:nowrap">(ก่อนเลิกงานไม่เกิน 30 นาที)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--primary)">+1</td></tr>
+      <tr style="background:var(--bg)"><td style="padding:6px 8px;border-radius:6px 0 0 6px">ก่อน 16:30 น.</td><td style="padding:6px 8px;color:var(--muted);white-space:nowrap">(ออกก่อนเวลามาก)</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--danger);border-radius:0 6px 6px 0">0</td></tr>
     </table>
+    <div style="font-size:11px;color:var(--muted);margin:-8px 0 14px;line-height:1.6">
+      💡 ตัวอย่างรวม: เช็คอิน 07:50 (+3) + เช็คเอ้าต์ 17:10 (+2) = ได้ <strong style="color:var(--success)">5 คะแนน</strong> ในวันนั้น
+    </div>
 
     <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:8px">⭐ คะแนนอื่นๆ</div>
     <div style="font-size:12.5px;color:#444;margin-bottom:14px;line-height:1.8">
@@ -657,10 +666,11 @@ function renderLeaderboard(data) {
     const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':''+( i+1);
     const isMe = r.uid === rewardUID;
     const av = r.picUrl?'<img src="'+r.picUrl+'" style="width:100%;height:100%;object-fit:cover">':'👤';
+    const badgeIcons = (r.badges && r.badges.length) ? ' ' + r.badges.map(id => '<span title="'+id+'">'+badgeIconOf(id)+'</span>').join('') : '';
     return '<div class="leader-row" style="'+(isMe?'border:1.5px solid var(--gold);background:var(--gold-light)':'')+'">' +
       '<div class="rank-c '+rc+'">'+rt+'</div>' +
       '<div style="width:32px;height:32px;border-radius:50%;background:var(--primary-light);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+av+'</div>' +
-      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.name+(isMe?' (คุณ)':'')+'</div>' +
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.name+(isMe?' (คุณ)':'')+'<span style="font-size:12px">'+badgeIcons+'</span></div>' +
       '<div style="font-size:10px;color:var(--muted)">มาตรงเวลา '+r.onTime+' วัน</div></div>' +
       '<div style="font-size:15px;font-weight:700;color:var(--gold)">'+r.score+'</div>' +
       '<button class="like-btn" onclick="openLike(\''+r.empId+'\',\''+r.name+'\')">⭐</button></div>';
