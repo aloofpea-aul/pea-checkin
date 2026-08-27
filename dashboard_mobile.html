@@ -264,6 +264,16 @@ input[type="date"],input[type="month"]{flex:1;border:1.5px solid var(--border);b
   </div>
   <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="cacheInfo">⚡ อัปเดตทุก 30 นาที</div>
   <div id="rewardLeaderboard"><div class="empty">กำลังโหลด...</div></div>
+
+  <div style="height:1px;background:var(--border);margin:18px 0 14px"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="font-size:13px;font-weight:700">📅 สรุปคะแนน &amp; Badge รายเดือน (ย้อนหลังได้)</div>
+  </div>
+  <div class="filter-row">
+    <input type="month" id="rewardMonthPicker">
+    <button class="btn-sm btn-p" onclick="loadMonthlyRewardSummary()">ดูสรุป</button>
+  </div>
+  <div id="monthlyRewardSummary"><div class="empty">เลือกเดือนแล้วกด "ดูสรุป"</div></div>
 </div>
 
 <!-- แผนที่ -->
@@ -419,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('monthPicker').value = fmtMonth(today);
   document.getElementById('mapDate').value = fmtDate(today);
   document.getElementById('selfieDate').value = fmtDate(today);
+  document.getElementById('rewardMonthPicker').value = fmtMonth(today);
 });
 
 // ==================== Tabs ====================
@@ -661,6 +672,44 @@ async function refreshReward() {
   await gasGet({ action: 'updateScoresCache' });
   await new Promise(r => setTimeout(r, 2000));
   await loadLeaderboard();
+}
+
+// ==================== สรุปคะแนน/Badge รายเดือนย้อนหลัง ====================
+function badgeIconOf(id) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  return b ? b.icon : '🏅';
+}
+
+async function loadMonthlyRewardSummary() {
+  const month = document.getElementById('rewardMonthPicker').value;
+  if (!month) return;
+  const div = document.getElementById('monthlyRewardSummary');
+  div.innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังโหลด...</div>';
+  const data = await gasGet({ action: 'getMonthlyRewardSummary', monthStr: month });
+  if (!data || !data.success || !Array.isArray(data.results)) {
+    div.innerHTML = '<div class="empty">โหลดไม่สำเร็จ<br><button class="retry-btn" onclick="loadMonthlyRewardSummary()">🔄 ลองใหม่</button></div>';
+    return;
+  }
+  if (!data.results.length) { div.innerHTML = '<div class="empty">ไม่มีข้อมูลเดือนนี้</div>'; return; }
+
+  div.innerHTML = data.results.map((r, i) => {
+    const rc = i===0?'r1':i===1?'r2':i===2?'r3':'rx';
+    const rt = i===0?'🥇':i===1?'🥈':i===2?'🥉':''+(i+1);
+    const av = r.picUrl ? '<img src="'+r.picUrl+'" style="width:100%;height:100%;object-fit:cover">' : '👤';
+    const badgeIcons = (r.badges && r.badges.length)
+      ? r.badges.map(id => '<span title="'+id+'" style="font-size:14px">'+badgeIconOf(id)+'</span>').join(' ')
+      : '<span style="font-size:11px;color:var(--muted)">ยังไม่มี Badge</span>';
+    return '<div class="leader-row">' +
+      '<div class="rank-c '+rc+'">'+rt+'</div>' +
+      '<div style="width:32px;height:32px;border-radius:50%;background:var(--primary-light);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+av+'</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.name+'</div>' +
+        '<div style="font-size:10px;color:var(--muted);margin-bottom:2px">'+r.workDays+' วันทำงาน</div>' +
+        '<div>'+badgeIcons+'</div>' +
+      '</div>' +
+      '<div style="font-size:15px;font-weight:700;color:var(--gold);flex-shrink:0">'+r.score+'</div>' +
+    '</div>';
+  }).join('');
 }
 
 function openLike(empId, name) {
