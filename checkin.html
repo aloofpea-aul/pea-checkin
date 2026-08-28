@@ -161,6 +161,26 @@
 
 <div class="overlay" id="overlay"><div class="spinner"></div></div>
 
+<!-- Confirm Modal -->
+<div id="confirmOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:16px">
+  <div style="background:white;border-radius:18px;padding:22px 18px;width:100%;max-width:320px;text-align:center;box-sizing:border-box">
+    <div id="cm-icon" style="font-size:42px;margin-bottom:4px">🌅</div>
+    <div id="cm-title" style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:3px">ยืนยันเช็คอิน</div>
+    <div id="cm-datetime" style="font-size:12.5px;color:var(--muted);margin-bottom:10px"></div>
+    <div id="cm-workhours" style="display:none;background:var(--bg);border-radius:10px;padding:7px;font-size:12.5px;color:var(--text);font-weight:700;margin-bottom:8px"></div>
+    <div id="cm-distance" style="display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;margin-bottom:10px"></div>
+    <div id="cm-msg" style="background:#E3F0FB;border-radius:12px;padding:11px 13px;font-size:12.5px;color:var(--primary);line-height:1.6;margin-bottom:10px"></div>
+    <div id="cm-info" style="background:#FFF8E1;border:1px solid #F9A825;border-radius:12px;padding:9px 11px;font-size:11.5px;color:#8A6300;line-height:1.5;margin-bottom:18px;text-align:left;display:none;align-items:center;gap:8px">
+      <div id="cm-info-icon" style="font-size:22px;flex-shrink:0"></div>
+      <div id="cm-info-text"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeConfirmModal()" style="flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--muted);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer">ยกเลิก</button>
+      <button id="cm-confirmbtn" onclick="confirmPendingAction()" style="flex:1;padding:12px;border-radius:10px;border:none;color:white;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer">✅ ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+</div>
+
 <div class="main">
 
   <div class="result-card" id="resultCard">
@@ -342,6 +362,7 @@
         }
         updateStatusUI();
         updateButtons();
+        loadRewardData(); // โหลดคะแนน/Badge ไว้ล่วงหน้า สำหรับกล่องข้อมูลในป็อปอัพยืนยัน
       } else {
         document.getElementById('userName').textContent = '❌ ไม่พบข้อมูลพนักงาน';
         document.getElementById('userSub').textContent = 'กรุณาติดต่อผู้ดูแลระบบ';
@@ -445,11 +466,115 @@
     document.getElementById('outsideWarn').className = isOutside ? 'outside-warn show' : 'outside-warn';
   }
 
+  // ==================== ข้อความ Popup ยืนยัน ====================
+  const MSG_IN = [
+    "เริ่มต้นวันใหม่ด้วยพลังบวก! 💪 วันนี้จะเป็นวันที่ยอดเยี่ยมของคุณ",
+    "กาแฟพร้อม พลังพร้อม ลุยงานกันเลย! ☕🔥",
+    "แชมป์มาแล้ว! วันนี้ทำให้เต็มที่นะครับ 🏆",
+    "เช็คอินสำเร็จ ความมันส์กำลังเริ่มต้น 🚀",
+    "สวัสดีตอนเช้า ยิ้มสวยๆ ไว้ วันนี้จะดีเอง ☀️😊",
+    "มาไวจัง ขยันสุดๆ ไปเลย! ⭐",
+    "เริ่มงานแบบมีสไตล์ วันนี้ปังแน่นอน ✨",
+    "พลังงานเต็มร้อย พร้อมลุยทุกภารกิจ! 💥",
+    "วันนี้อากาศดี ใจก็ต้องดีด้วย ลุยเลย! 🌤️",
+    "เช็คอินเรียบร้อย ต่อไปคือความเจ๋ง! 😎",
+    "อรุณสวัสดิ์นักสู้! วันนี้ก็เก่งเหมือนเดิมนะ 💪",
+    "มาแล้วววว ทีมเราครบแล้ว ลุยกันเลย! 🎉",
+    "เริ่มวันด้วยรอยยิ้ม สู้ๆ ครับวันนี้ 😄",
+    "ตื่นมาทำดี ชีวิตก็ดีตาม เริ่มกันเลย! 🌈",
+    "วันไหนก็เอาอยู่ ลุยเลยครับวันนี้! 🐯",
+    "เช็คอินไว ได้ใจหัวหน้าไปเต็มๆ 😉",
+    "แดดออกแล้ว พลังงานก็ต้องออกด้วย! ☀️⚡",
+    "นาฬิกาปลุกชนะแล้ววันนี้ เก่งมาก! ⏰🎊",
+    "ทีมเวิร์คเริ่มต้นจากคุณ ขอบคุณที่มาไวนะ 🙌",
+    "วันนี้มีแต่เรื่องดีๆ รอคุณอยู่ ลุยเลย! 🍀"
+  ];
+  const MSG_OUT = [
+    "ขอบคุณสำหรับความทุ่มเทวันนี้ พักผ่อนให้เต็มที่ พรุ่งนี้มาสู้กันใหม่! 🌙✨",
+    "เหนื่อยมาทั้งวัน เก่งมากเลยวันนี้ 👏 พักผ่อนเยอะๆ นะ",
+    "งานเสร็จแล้ว ใจฟูเลย กลับบ้านปลอดภัยนะครับ 🏠💙",
+    "วันนี้สุดยอดมาก! ไปพักผ่อนแล้วชาร์จพลังกันเถอะ 🔋",
+    "ปิดงานอย่างสวยงาม แฮปปี้ตลอดค่ำคืนนี้เลย 🌆",
+    "เก่งมากที่ทำงานหนักวันนี้ ฝันดีล่วงหน้าไว้เลยนะ 😴💫",
+    "ภารกิจวันนี้สำเร็จ! รางวัลคือการพักผ่อนสบายๆ 🎁",
+    "เหนื่อยแค่ไหนก็ยิ้มได้ เก่งสุดๆ ไปเลยวันนี้ 😊",
+    "ปิดจ๊อบแบบมือโปร พรุ่งนี้มาแรงกว่าเดิม! 🔥",
+    "วันนี้คุณคือฮีโร่ของทีม ไปพักผ่อนได้เลย 🦸",
+    "ขับรถกลับบ้านปลอดภัยนะครับ วันนี้เหนื่อยแล้ว 🚗💙",
+    "จบวันอย่างภาคภูมิใจ พรุ่งนี้เจอกันใหม่นะ! 👋",
+    "หนึ่งวันผ่านไปด้วยดี ขอบคุณที่ตั้งใจนะครับ 🌟",
+    "เลิกงานแล้ว ไปหาของอร่อยกินฉลองกันเถอะ! 🍜🎉",
+    "พรุ่งนี้ค่อยว่ากันใหม่ วันนี้พักให้สุดๆ ก่อน 🛌",
+    "ทำดีที่สุดแล้ววันนี้ พอแล้วครับ ไปพักได้! 💯",
+    "แสงจันทร์รอต้อนรับคุณอยู่ กลับบ้านปลอดภัยนะ 🌕",
+    "งานหนักวันนี้ กำลังใจเต็มร้อยจากทีมนะครับ 💖",
+    "ปิดสวิตช์งาน เปิดสวิตช์พักผ่อน สมดุลชีวิตดีจัง ⚖️",
+    "ขอบคุณที่ทำให้วันนี้ของทีมดีขึ้น พักผ่อนนะครับ 🙏"
+  ];
+  const MSG_IN_B1 = [
+    "เริ่มกะแล้ว! สู้ๆ นะครับ พลังเต็มร้อม 💪",
+    "เข้ากะเรียบร้อย ลุยงานให้มันส์ไปเลย! 🔋",
+    "นักสู้กะเข้าประจำการแล้ว! เก่งมากครับ 🛡️",
+    "เริ่มกะด้วยรอยยิ้ม วันนี้ก็ต้องปังเหมือนเดิม 😄",
+    "กะนี้ฝากด้วยนะครับ ทีมเราพร้อมลุยเสมอ! 🚀",
+    "เข้ากะตรงเวลา ขอบคุณที่ดูแลระบบให้เราทุกวันนะ ⚙️",
+    "พลังกะใหม่มาแล้ว ลุยให้เต็มที่เลยครับ! 🔥"
+  ];
+  const MSG_OUT_B1 = [
+    "จบกะแล้ว เก่งมาก! พักผ่อนก่อนกะหน้านะครับ 😴",
+    "ส่งกะเรียบร้อย ขอบคุณที่ทุ่มเทนะครับ 🙏",
+    "ปิดกะอย่างมืออาชีพ พักให้เต็มที่เลย 💙",
+    "อีกกะก็ผ่านไปได้สวย เก่งสุดๆ ครับ 🌟",
+    "หมดกะแล้ว ไปพักผ่อนเติมพลังกันเถอะ 🔋",
+    "ขอบคุณที่เฝ้าระบบให้กะนี้นะครับ พักผ่อนเลย 🛡️😌",
+    "ส่งไม้ต่อกะหน้าเรียบร้อย เก่งมากวันนี้ 🤝"
+  ];
+  let rewardData = null; // ข้อมูลคะแนน/Badge ของตัวเอง (โหลดครั้งเดียวตอนเปิดหน้า)
+  async function loadRewardData() {
+    try {
+      const res = await gasGet({ action: 'getMyReward', uid: lineUID });
+      if (res && res.success) rewardData = res;
+    } catch(e) {}
+  }
+  const TIPS = [
+    { icon:'💡', text:'<strong>รู้หรือไม่?</strong><br>เช็คอินก่อน 08:00 น. ได้คะแนนเต็ม +3 เลยนะ' },
+    { icon:'💡', text:'<strong>เคล็ดลับ</strong><br>เช็คเอ้าต์หลัง 17:00 น. ได้คะแนนเพิ่มอีก +2' },
+    { icon:'💡', text:'<strong>เคล็ดลับ Badge</strong><br>มาก่อนเวลาต่อเนื่อง 8 วัน จะได้ ⭐ ตรงเวลา' },
+    { icon:'💡', text:'<strong>รู้หรือไม่?</strong><br>ขาดงานแม้แต่วันเดียว สถิติตรงเวลาต่อเนื่องจะนับ 1 ใหม่ทันที' },
+    { icon:'💡', text:'<strong>เคล็ดลับ</strong><br>ทำ OT ที่อนุมัติแล้วครบ 3 ครั้ง จะได้ Badge 💪 นักสู้ OT' }
+  ];
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function buildInfoBox() {
+    const pool = [];
+    TIPS.forEach(t => pool.push(t));
+    if (rewardData) {
+      pool.push({ icon:'⭐', text:'<strong>คะแนนสะสมเดือนนี้</strong><br>' + rewardData.score + ' คะแนน — อันดับที่ ' + rewardData.rank + ' จาก ' + rewardData.total + ' คน' });
+      pool.push({ icon:'🏅', text:'<strong>ความคืบหน้า Badge</strong><br>ตอนนี้คุณมี ' + (rewardData.badges ? rewardData.badges.length : 0) + ' ใบ จากทั้งหมด 10 ใบ ลุยต่อ!' });
+      if (rewardData.nextBadge) {
+        const need = rewardData.nextBadge.required - rewardData.score;
+        if (need > 0) pool.push({ icon:'🎯', text:'<strong>เกือบแล้ว!</strong><br>อีกแค่ ' + need + ' คะแนน จะถึง ' + rewardData.nextBadge.name });
+      }
+      const st = rewardData.stats || {};
+      const earned = rewardData.badges || [];
+      if (!earned.includes('early_bird') && st.earlyCount !== undefined && st.earlyCount < 8) {
+        pool.push({ icon:'🎯', text:'<strong>ใกล้แล้ว!</strong><br>มาก่อนเวลาอีก ' + (8 - st.earlyCount) + ' วัน จะได้ Badge 🌅 นกตื่นเช้า' });
+      }
+      if (!earned.includes('team_star') && st.likeScore !== undefined && st.likeScore < 10) {
+        pool.push({ icon:'🎯', text:'<strong>ใกล้แล้ว!</strong><br>อีกแค่ ' + (10 - st.likeScore) + ' Like จะได้ Badge 💜 ดาวทีม' });
+      }
+      if (!earned.includes('ot_hero') && st.otScore !== undefined && st.otScore < 3) {
+        pool.push({ icon:'🎯', text:'<strong>ใกล้แล้ว!</strong><br>ทำ OT (อนุมัติแล้ว) อีก ' + (3 - st.otScore) + ' ครั้ง จะได้ Badge 💪 นักสู้ OT' });
+      }
+    }
+    return pick(pool);
+  }
+
   // ==================== Action ====================
   let selfieBase64 = null;
   let gpsAccuracy = null;
   let selectedShift = null;
   let isB1Employee = false;
+  let pendingAction = null;
 
   function selectShift(num) {
     selectedShift = num;
@@ -475,7 +600,7 @@
     reader.readAsDataURL(file);
   }
 
-  async function doAction(action) {
+  function doAction(action) {
     if (!employeeData || !gpsReady) return;
     const note = document.getElementById('noteInput').value.trim();
     if (isOutside && !note) {
@@ -483,7 +608,82 @@
       document.getElementById('noteInput').style.borderColor = 'var(--danger)';
       return;
     }
+    openConfirmModal(action);
+  }
 
+  function openConfirmModal(action) {
+    pendingAction = action;
+    const isOut = action === 'checkout';
+    const now = new Date();
+    const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const dateTxt = `วัน${days[now.getDay()]}ที่ ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()+543}`;
+    const timeTxt = _formatTime2_(now);
+
+    document.getElementById('cm-icon').textContent = isOut ? '🌙' : (isB1Employee ? '⏰' : '🌅');
+    document.getElementById('cm-title').textContent = (isOut ? 'ยืนยันเช็คเอ้าต์' : 'ยืนยันเช็คอิน') + (isB1Employee ? ' (กะ)' : '');
+    document.getElementById('cm-datetime').innerHTML = dateTxt + '<br>เวลา ' + timeTxt + ' น.';
+
+    const whEl = document.getElementById('cm-workhours');
+    if (isOut && todayStatus.checkIn) {
+      const mins = calcMinutesLocal(todayStatus.checkIn, timeTxt);
+      whEl.style.display = 'block';
+      whEl.textContent = '⏱️ ทำงานมาแล้ว ' + Math.floor(mins/60) + ' ชม. ' + (mins%60) + ' นาที';
+    } else {
+      whEl.style.display = 'none';
+    }
+
+    const distEl = document.getElementById('cm-distance');
+    if (gpsReady) {
+      const dist = Math.round(calcDist(currentLat, currentLng, OFFICE.lat, OFFICE.lng));
+      const inside = dist <= OFFICE.radius;
+      distEl.style.background = inside ? '#E8F5E9' : '#FFF3E0';
+      distEl.style.color = inside ? '#2E7D32' : '#E65100';
+      distEl.textContent = (inside ? '📍 ' : '⚠️ ') + 'ห่างออฟฟิศ ' + dist + ' เมตร' + (inside ? ' (ในพื้นที่)' : ' (นอกพื้นที่)');
+    }
+
+    const msgPool = isOut ? (isB1Employee ? MSG_OUT_B1 : MSG_OUT) : (isB1Employee ? MSG_IN_B1 : MSG_IN);
+    document.getElementById('cm-msg').textContent = pick(msgPool);
+
+    const infoEl = document.getElementById('cm-info');
+    const info = buildInfoBox();
+    if (info) {
+      document.getElementById('cm-info-icon').textContent = info.icon;
+      document.getElementById('cm-info-text').innerHTML = info.text;
+      infoEl.style.display = 'flex';
+    } else {
+      infoEl.style.display = 'none';
+    }
+
+    const confirmBtn = document.getElementById('cm-confirmbtn');
+    confirmBtn.textContent = isOut ? '🚪 ยืนยันเช็คเอ้าต์' : '✅ ยืนยันเช็คอิน';
+    confirmBtn.style.background = isOut ? 'var(--danger)' : 'var(--primary)';
+
+    document.getElementById('confirmOverlay').style.display = 'flex';
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('confirmOverlay').style.display = 'none';
+    pendingAction = null;
+  }
+
+  function confirmPendingAction() {
+    const action = pendingAction;
+    document.getElementById('confirmOverlay').style.display = 'none';
+    if (action) executeAction(action);
+  }
+
+  function _formatTime2_(d) {
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+  function calcMinutesLocal(timeIn, timeOut) {
+    const [h1,m1] = timeIn.split(':').map(Number);
+    const [h2,m2] = timeOut.split(':').map(Number);
+    return (h2*60+m2) - (h1*60+m1);
+  }
+
+  async function executeAction(action) {
+    const note = document.getElementById('noteInput').value.trim();
     setOverlay(true);
     try {
       const params = {
@@ -513,6 +713,7 @@
             : '🚪 เช็คเอ้าต์สำเร็จ ' + res.time + ' น.' + shiftTxt,
           '📍 ระยะห่าง ' + (res.distance || 0) + ' เมตร' + (res.score !== undefined ? ' | ⭐ +' + res.score + ' คะแนน' : '')
         );
+        loadRewardData(); // รีเฟรชคะแนน/Badge หลังทำรายการสำเร็จ
       } else {
         showResult(false, res ? res.message : 'เกิดข้อผิดพลาด', 'กรุณาลองใหม่อีกครั้งครับ');
       }
