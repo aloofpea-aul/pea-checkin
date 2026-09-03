@@ -820,9 +820,10 @@ function closeScoreGuide() { document.getElementById('scoreGuideModal').classLis
 async function submitLike() {
   const reason = document.getElementById('likeReason').value.trim();
   if (!reason) { alert('กรุณาระบุเหตุผลก่อนครับ'); return; }
+  const targetId = likeTargetId; // เก็บค่าไว้ก่อน เพราะ closeLikeModal() จะรีเซ็ต likeTargetId เป็น null
   closeLikeModal();
   document.getElementById('rewardLeaderboard').innerHTML = '<div class="loading"><div class="spinner-small"></div>กำลังบันทึก Like...</div>';
-  const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: likeTargetId, reason });
+  const res = await gasGet({ action: 'giveLike', giverUID: rewardUID, receiverEmpId: targetId, reason });
   alert(res && res.success ? '✅ '+res.message : '❌ '+(res?res.message:'เกิดข้อผิดพลาด'));
   if (res && res.success) await loadLeaderboard();
 }
