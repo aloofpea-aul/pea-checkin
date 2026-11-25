@@ -1,12 +1,12 @@
 // Service Worker สำหรับ PEA Dashboard PWA
-const CACHE_NAME = 'pea-dashboard-v1';
+const CACHE_NAME = 'pea-dashboard-v2';
 const OFFLINE_URL = '/pea-checkin/dashboard_mobile.html';
 
 // ไฟล์ที่ cache ไว้ใช้ offline
 const CACHE_URLS = [
   '/pea-checkin/dashboard_mobile.html',
   'https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap',
-  'https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js',
+  'https://static.line-scdn.net/liff/edge/2/sdk.js',
 ];
 
 // Install: cache ไฟล์หลัก
